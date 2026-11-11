@@ -1,4 +1,4 @@
-"""API pública de la plataforma (T11, contratos v1.4 §5).
+"""API pública de la plataforma (T11, contratos v1.5 §5).
 
 Se despliega en Vercel (entrypoint: plataforma.api.app:app) y también se usa en modo local.
 No guarda estado en memoria ni lee claves de firma: todo sale de `plataforma.db`.
@@ -49,7 +49,7 @@ async def _http_error(_, exc: HTTPException):
 
 def pin_juez(x_juez_pin: Optional[str] = Header(default=None)) -> None:
     esperado = os.environ.get("JUEZ_PIN", "")
-    if not esperado or not x_juez_pin or not hmac.compare_digest(x_juez_pin, esperado):
+    if not esperado or not x_juez_pin or not hmac.compare_digest(x_juez_pin.encode(), esperado.encode()):
         raise HTTPException(status_code=401, detail={"error": "PIN de juez inválido"})
 
 
@@ -160,6 +160,10 @@ def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, partid
     if not isinstance(pedido_ids, list) or not juez_id:
         raise HTTPException(status_code=400, detail="Faltan pedido_ids o juez_id")
 
+    juzgado_id = _JUZGADO_DE_JUEZ.get(juez_id)
+    if juzgado_id is None:
+        raise HTTPException(status_code=400, detail="Juez desconocido")
+
     motivo: Optional[str] = None
     if nuevo_estado == "rechazado":
         motivo = (cuerpo.get("motivo") or "").strip()
@@ -167,9 +171,11 @@ def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, partid
             raise HTTPException(status_code=400, detail="Rechazar requiere un motivo")
 
     est_partido = db.estado_partido(pid)
-    minuto_actual = round(float(est_partido["minuto_actual"]), 2) if est_partido else 0.0
-    jueces_turno = est_partido.get("jueces_de_turno", []) if est_partido else []
-    juzgado_id = _JUZGADO_DE_JUEZ.get(juez_id, "jg-centro-3")
+    if not est_partido or juez_id not in est_partido.get("jueces_de_turno", []):
+        minuto_err = round(float(est_partido["minuto_actual"]), 2) if est_partido else 0.0
+        raise HTTPException(status_code=409, detail=f"{juez_id} no está de turno en el minuto {minuto_err}")
+
+    minuto_actual = round(float(est_partido["minuto_actual"]), 2)
 
     decididos: List[str] = []
     errores: List[Dict[str, str]] = []
@@ -178,9 +184,6 @@ def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, partid
         actual = db.obtener("pedidos", pid, req_pid)
         if actual is None:
             errores.append({"pedido_id": req_pid, "error": "No existe el pedido"})
-            continue
-        if jueces_turno and juez_id not in jueces_turno:
-            errores.append({"pedido_id": req_pid, "error": f"{juez_id} no está de turno en el minuto {minuto_actual}"})
             continue
         if actual.get("estado") != "pendiente":
             errores.append({"pedido_id": req_pid, "error": f"El pedido ya está {actual.get('estado')}"})
@@ -237,11 +240,12 @@ def api_asumir_turno(cuerpo: Dict[str, Any], partido_id: Optional[str] = None):
     juez_id = cuerpo.get("juez_id")
     if not juez_id:
         raise HTTPException(status_code=400, detail="Falta juez_id")
+    if _JUZGADO_DE_JUEZ.get(juez_id) is None:
+        raise HTTPException(status_code=400, detail="Juez desconocido")
 
     est = db.estado_partido(pid)
     minuto_actual = round(float(est["minuto_actual"]), 2) if est else 0.0
-    jueces_turno = est.get("jueces_de_turno", []) if est else []
-    if jueces_turno and juez_id not in jueces_turno:
+    if not est or juez_id not in est.get("jueces_de_turno", []):
         raise HTTPException(status_code=409, detail=f"{juez_id} no está de turno en el minuto {minuto_actual}")
 
     db.crear_solicitud(pid, "asumir_turno", {"juez_id": juez_id, "decidido_min": minuto_actual})
@@ -261,6 +265,8 @@ def api_levantar_reclamo(cuerpo: Dict[str, Any], partido_id: Optional[str] = Non
 
     if not reclamo_id or not juez_id or not motivo:
         raise HTTPException(status_code=400, detail="Faltan reclamo_id, juez_id o motivo")
+    if _JUZGADO_DE_JUEZ.get(juez_id) is None:
+        raise HTTPException(status_code=400, detail="Juez desconocido")
 
     reclamo = db.obtener("reclamos", pid, reclamo_id)
     if reclamo is None:
@@ -268,8 +274,7 @@ def api_levantar_reclamo(cuerpo: Dict[str, Any], partido_id: Optional[str] = Non
 
     est = db.estado_partido(pid)
     minuto_actual = round(float(est["minuto_actual"]), 2) if est else 0.0
-    jueces_turno = est.get("jueces_de_turno", []) if est else []
-    if jueces_turno and juez_id not in jueces_turno:
+    if not est or juez_id not in est.get("jueces_de_turno", []):
         raise HTTPException(status_code=409, detail=f"{juez_id} no está de turno en el minuto {minuto_actual}")
 
     db.crear_solicitud(pid, "levantar", {
@@ -292,11 +297,23 @@ def api_levantar_reclamo(cuerpo: Dict[str, Any], partido_id: Optional[str] = Non
 @app.get("/api/publico")
 def api_publico(partido_id: Optional[str] = None):
     pid = _partido_o_defecto(partido_id)
-    try:
-        from plataforma.transparencia import armar_entradas_publicas  # type: ignore
-        return {"entradas": armar_entradas_publicas(pid)}
-    except Exception:
-        return {"entradas": []}
+    ordenes = db.listar("ordenes", pid)
+    entradas = [
+        {
+            "objetivo": o["objetivo"],
+            "tipo": o["tipo"],
+            "proveedor_id": o["proveedor_id"],
+            "desde_min": o.get("aplicada_min"),
+            "hasta_min": o.get("finalizada_min") or o["vence_min"],
+            "juzgado_id": o["juzgado_id"],
+            "juez_id": o["juez_id"],
+            "estado": o["estado"],
+            "expediente_id": o["expediente_id"],
+        }
+        for o in ordenes
+        if o.get("aplicada_min") is not None
+    ]
+    return {"entradas": entradas}
 
 
 @app.get("/")
