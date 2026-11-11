@@ -14,3 +14,10 @@ Se agregan abajo, con fecha y quién decidió. No se borran: si una cambia, se a
    - Una orden `fallida` no se reintenta sola: se reenvía con un `orden_id` nuevo.
    - Una marca de agua de licenciatario **fuera de sus dominios autorizados** es piratería (retransmite su señal).
    - Un proveedor solo acepta bloqueo por dominio: si le mandás IP, rechaza.
+
+## 2026-11-11 — alejo (contratos v1, T00)
+7. **Dos registros distintos.** `salida/registro.jsonl` lo escribe el simulador y es lo que mira el verificador; no lo tocamos. Nuestra auditoría interna (cadena de hashes, T03) es otro archivo. No se mezclan formatos.
+8. **Vencimiento en el MVP:** `vence_min = int(fin_min)` para IP **y para dominio**. El verificador solo penaliza IP activas después del partido; el bloqueo DNS permanente queda para la propuesta normativa.
+9. **Firma por envío:** cada envío a un proveedor, incluido cada reintento, se firma con el juez de turno en el minuto del envío (no necesariamente el que aprobó el pedido). Queda en auditoría.
+10. **Reclamos sin `orden_id`:** el feed `/reclamos` no lo trae; se correlaciona por proveedor + dominio + minuto contra nuestras órdenes. Al levantar, se levantan todas las órdenes con ese objetivo en todos los proveedores y, si era IP, se reemplaza por dominio del host pirata.
+11. **`orden_id` con prefijo de corrida** (`ord-{corrida}-{pedido_id}-{proveedor_id}-{intento}`) para no chocar con un 409 si se reinicia la plataforma con el simulador andando.
