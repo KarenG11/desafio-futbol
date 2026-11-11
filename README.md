@@ -1,3 +1,5 @@
+> **Equipo Desafío Fútbol:** nuestra plataforma está en [`plataforma/`](plataforma/). **Cómo correrla, supuestos y qué existía antes del evento:** [`entrega/README.md`](entrega/README.md). Pitch y video: [`entrega/pitch.md`](entrega/pitch.md). Lo que sigue abajo es el enunciado original de la organización, sin cambios.
+
 # Desafío Fútbol: plataforma federal de órdenes de bloqueo en vivo
 
 **Hackathon Argentina Space 2026** · Track Datos y Streaming · Centro de Convenciones de Salta · 11 al 13 de noviembre de 2026
