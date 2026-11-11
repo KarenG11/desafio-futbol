@@ -2,9 +2,9 @@
 id: T07
 titulo: Registro público de transparencia
 carpeta: plataforma/transparencia/
-estado: en-curso
+estado: hecha
 dueno: rocio
-desde: 2026-11-11 14:57
+desde: 2026-11-11 15:20
 creada_por: alejo
 depende_de: T05
 ---
