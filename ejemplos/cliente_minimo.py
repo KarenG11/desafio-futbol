@@ -2,8 +2,8 @@
 """Minimal client: shows how to read detections and send one signed order (stdlib only).
 
 This is NOT a solution. It blocks blindly: it does not check the watermark, the licensees,
-the collateral risk or the expiry policy, and it skips the judge's review. It only shows
-the mechanics of the simulator API.
+the collateral risk or the expiry policy, and it skips the judge's login and review. It only
+shows the mechanics of the simulator API.
 """
 import argparse
 import hashlib
@@ -54,6 +54,7 @@ def main() -> None:
           f"{deteccion['host_stream']} ({deteccion['ip_servidor']}), marca {deteccion['marca_de_agua_extraida']}")
 
     # 2. Sign an order as the judge on duty. Keys live only in datos/juzgados.json.
+    # A real platform signs only after that judge has logged in and approved the order.
     juzgados = json.loads((REPO_DIR / "datos" / "juzgados.json").read_text(encoding="utf-8"))
     juez_id = pedir(base, "/estado")["jueces_de_turno"][0]
     juzgado, juez = next((jz, j) for jz in juzgados["juzgados"] for j in jz["jueces"] if j["id"] == juez_id)

@@ -58,7 +58,7 @@ flowchart LR
    - Hashes de la captura y sellos de tiempo, para que cualquier alteración posterior se detecte.
    - Dónde se promocionó el enlace (X, Discord, Telegram). *(Extra.)*
    - Vencimiento propuesto.
-2. **Notificar al juez** competente o de turno, mostrarle el expediente de forma clara y registrar su decisión con firma.
+2. **Notificar al juez** competente o de turno, mostrarle el expediente de forma clara y registrar su decisión con firma. El juez entra a la plataforma con su propio usuario y firma solo mientras está de turno. Al cambio de turno, lo pendiente pasa al juez entrante.
 3. **Enviar la orden** a cada proveedor del registro, en el tipo de bloqueo que ese proveedor acepta, y **seguir su confirmación**. Si un proveedor falla, reintentar.
 4. **Hacer vencer** los bloqueos por IP cuando termina el partido.
 5. **Llevar un registro de auditoría** inalterable y un **registro público de transparencia** (qué se bloqueó, cuándo, por orden de quién y hasta cuándo). *(El registro público es extra.)*
@@ -71,6 +71,7 @@ El tiempo es corto. Primero tiene que funcionar el núcleo de punta a punta dura
 **Núcleo obligatorio:**
 - Expediente con la marca de agua verificada (que sea el partido y no un licenciatario en su dominio), el servidor (host, IP y ASN), los hashes de la captura y la regla de riesgo colateral: si la IP es compartida, se pide bloqueo por dominio.
 - Notificación al juez de turno y decisión firmada.
+- Ingreso del juez con usuario y contraseña. Cada juez ve y firma solo lo que le toca mientras está de turno. Al cambio de turno, los expedientes pendientes pasan al juez entrante y el saliente ya no puede firmar.
 - Envío de la orden a cada proveedor en el tipo de bloqueo que acepta, con reintento si falla, y seguimiento de la confirmación.
 - Vencimiento automático de los bloqueos por IP al terminar el partido.
 - Registro de auditoría de cada paso.
@@ -86,7 +87,7 @@ El tiempo es corto. Primero tiene que funcionar el núcleo de punta a punta dura
 | Rol | Qué hace en la plataforma |
 |---|---|
 | Titular de derechos o fiscalía | Carga el expediente con la evidencia y pide el bloqueo. |
-| Juez competente o de turno | Recibe la notificación, revisa y aprueba o rechaza con su firma. |
+| Juez competente o de turno | Entra con su usuario, recibe la notificación, revisa y aprueba o rechaza con su firma. Solo firma durante su turno. |
 | Proveedores de internet | Reciben la orden por API, la aplican y confirman. En este desafío los simula el servidor. |
 | Sitio afectado | Reclama si quedó bloqueado por error. En este desafío los reclamos los genera el simulador. |
 | Público | Consulta el registro de transparencia. |
@@ -199,7 +200,9 @@ orden_id|tipo|objetivo|vence_min|juez_id
 
 Para levantar una orden se envía `{"juez_id": "...", "firma": "...", "motivo": "..."}` y se firma el texto `LEVANTAR|orden_id|juez_id`.
 
-En la vida real la firma sería una firma digital del juez. Acá es una simplificación para que el circuito se pueda probar.
+En la vida real la firma sería una firma digital del juez. Acá es una simplificación para que el circuito se pueda probar. Igual que en la vida real, la plataforma firma con la clave de un juez solo después de que ese juez inició sesión y aprobó la orden. Nadie firma en su nombre.
+
+Los turnos están en `datos/juzgados.json` y en `GET /juzgados`. El partido final usa los mismos jueces y turnos, así que los usuarios de demostración que creen para cada juez sirven también ese día.
 
 ### Estados de una orden
 
@@ -237,7 +240,7 @@ El día 3 se corre el mismo script contra el escenario final.
 - Trabajo original hecho durante el hackathon. Se pueden usar herramientas, librerías y servicios públicos.
 - La plataforma corre el circuito completo contra el simulador durante el partido final.
 - **Nada ofensivo:** ni ataques, ni DDoS, ni intrusión o escaneo de sistemas de terceros. No se bloquea nada real; solo se trabaja contra el simulador.
-- Sin datos personales reales y sin claves reales en el repositorio. Las claves de demostración del simulador están permitidas.
+- Sin datos personales reales y sin claves reales en el repositorio. Las claves de firma del simulador y los usuarios y contraseñas de demostración de los jueces están permitidos.
 
 ## Entregables del día 3
 
