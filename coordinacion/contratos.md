@@ -1,9 +1,15 @@
-# Contratos entre piezas — v1.2
+# Contratos entre piezas — v1.3
 
 > **Versión v1 (cerrada por T00, 2026-11-11).** Reemplaza al borrador v0.
 > La versión en código, con TypedDict, constantes y ejemplos coherentes, está en `plataforma/contratos.py`.
 > Cualquier cambio se avisa con un mensaje a `todos` y sube la versión (v1 → v2).
 > Fuente de verdad del lado del simulador: `README.md`, `simulador/servidor.py` y `evaluacion/verificar.py`. Si este documento y el simulador no coinciden, manda el simulador: avisen en el buzón.
+
+## Cambios v1.2 → v1.3 (aditivo)
+
+- **§10 suma tres tablas:** `partidos` (el motor escribe ahí el estado vivo en cada ciclo y la web lo lee para `/api/estado` y para validar el turno), `solicitudes` (la web deja ahí "asumir turno" y "levantar"; el motor las resuelve) y `verificaciones` (salida de `verificar.py` en los partidos de demo).
+- `pedidos` suma la columna `despachado` (la pone el motor al tomar un aprobado).
+- Esquema SQL completo y funciones de `plataforma/db/`: `coordinacion/guias/T11-base-y-vercel.md`.
 
 ## Cambios v1.1 → v1.2 (aditivo: no cambia ninguna forma)
 
@@ -393,8 +399,8 @@ Una entrada por **(pedido, tipo, objetivo)**, servida por `GET /api/publico`:
 ## 10. Base de datos (v1.2) — `plataforma/db/` (T11)
 
 - `DATABASE_URL`: `postgres://...` en Vercel y en el motor, o `sqlite:///salida/plataforma.db` en modo local. El mismo código funciona con las dos.
-- Tablas: `casos`, `expedientes`, `pedidos`, `ordenes`, `reclamos`, `auditoria`. Columnas: `partido_id`, el id del contrato (`caso_id`, `pedido_id`, …), `estado` cuando corresponda y `datos` (el dict del contrato, JSONB en Postgres y TEXT en SQLite). `auditoria` suma `seq` y `hash`, con `UNIQUE (partido_id, seq)`.
-- Quién escribe qué: el **motor** escribe todo, menos la decisión del juez. La **web** solo cambia `pedidos.estado` (y `juez_id`, `decidido_min`, `motivo_rechazo`), las ratificaciones de turno y los pedidos de levantamiento. **Solo el motor escribe en `auditoria`.**
+- Tablas: `partidos`, `casos`, `expedientes`, `pedidos`, `ordenes`, `reclamos`, `solicitudes`, `auditoria` y `verificaciones` (SQL completo en `coordinacion/guias/T11-base-y-vercel.md`, paso 5). Columnas: `partido_id`, el id del contrato (`caso_id`, `pedido_id`, …), `estado` cuando corresponda y `datos` (el dict del contrato, JSONB en Postgres y TEXT en SQLite). `auditoria` suma `seq` y `hash`, con `UNIQUE (partido_id, seq)`.
+- Quién escribe qué: el **motor** escribe todo, menos la decisión del juez. La **web** solo cambia la decisión en `pedidos` (`estado`, `juez_id`, `juzgado_id`, `decidido_min`, `motivo_rechazo`) y crea filas en `solicitudes` (asumir turno, levantar). El motor escribe `partidos` en cada ciclo y resuelve las `solicitudes`. **Solo el motor escribe en `auditoria`.**
 - Nadie guarda en la base claves de firma, firmas completas ni `contenido_b64`.
 
 ## Ejemplos

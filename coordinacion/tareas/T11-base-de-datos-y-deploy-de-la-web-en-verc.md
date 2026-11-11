@@ -9,6 +9,8 @@ creada_por: alejo
 depende_de: T00
 ---
 ## Qué hay que hacer
+**Guía paso a paso: `coordinacion/guias/T11-base-y-vercel.md`.**
+
 - Capa de datos en plataforma/db/: tablas de contratos.md §10, funciona con Postgres (DATABASE_URL) y con SQLite (modo local).
 - Crear la base Neon desde el Marketplace de Vercel y conectarla al proyecto. Local: vercel env pull.
 - App FastAPI de la API (contratos §5) leyendo la base, con PIN de juez (X-Juez-Pin / JUEZ_PIN) en las rutas que deciden.
