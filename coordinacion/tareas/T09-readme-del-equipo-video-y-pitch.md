@@ -2,9 +2,9 @@
 id: T09
 titulo: README del equipo, video y pitch
 carpeta: entrega/, README del equipo
-estado: libre
-dueno: 
-desde: 
+estado: en-curso
+dueno: alejo
+desde: 2026-11-11 14:31
 creada_por: alejo
 depende_de: 
 ---
