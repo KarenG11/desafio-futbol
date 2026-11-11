@@ -264,6 +264,9 @@ Mismo proceso FastAPI. JSON en request y response. Errores: `{"error": "..."}` c
 | `GET /api/reclamos` | — | `{"reclamos": [Reclamo]}` → `EJEMPLO_API_RECLAMOS` |
 | `POST /api/reclamos/levantar` | `{"reclamo_id", "juez_id", "motivo", "reemplazar": true}` | `{"reclamo_id", "estado", "ordenes_levantadas", "errores", "pedido_reemplazo_id"}` |
 | `GET /api/publico` | — | `{"entradas": [EntradaPublica]}` → `EJEMPLO_API_PUBLICO` |
+| `POST /api/turno/asumir` *(v1.1)* | `{"juez_id": "..."}` | `{"juez_id", "ratificadas": [orden_id...], "decidido_min"}`. 409 si `juez_id` no está de turno |
+
+**v1.1 (aditivo, no rompe nada):** `GET /api/estado` suma `"turno_ratificado": true|false`. Cuando cambia el juez de turno queda en `false` hasta que el entrante llama a `POST /api/turno/asumir`. Mientras está en `false`, despacho **no reenvía** órdenes aprobadas por el juez saliente; las deja en espera y las firma el entrante después de ratificar. Ver `diseno.md` §3 y la decisión 12.
 
 `GET /api/estado`:
 ```json

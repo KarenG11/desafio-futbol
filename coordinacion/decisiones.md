@@ -21,3 +21,8 @@ Se agregan abajo, con fecha y quién decidió. No se borran: si una cambia, se a
 9. **Firma por envío:** cada envío a un proveedor, incluido cada reintento, se firma con el juez de turno en el minuto del envío (no necesariamente el que aprobó el pedido). Queda en auditoría.
 10. **Reclamos sin `orden_id`:** el feed `/reclamos` no lo trae; se correlaciona por proveedor + dominio + minuto contra nuestras órdenes. Al levantar, se levantan todas las órdenes con ese objetivo en todos los proveedores y, si era IP, se reemplaza por dominio del host pirata.
 11. **`orden_id` con prefijo de corrida** (`ord-{corrida}-{pedido_id}-{proveedor_id}-{intento}`) para no chocar con un 409 si se reinicia la plataforma con el simulador andando.
+
+## 2026-11-11 — alejo (diseño aprobado)
+12. **Traspaso de turno con ratificación** (complementa la 9). Cuando cambia el juez de turno, el entrante ratifica con un toque las órdenes vigentes (`POST /api/turno/asumir`, contratos v1.1). Hasta entonces, despacho no reenvía órdenes aprobadas por el saliente. Es más prolijo legalmente: nadie firma algo que no decidió.
+13. **Diseño aprobado:** `coordinacion/diseno.md`. Las reglas del cerebro (agrupar, marca de agua, IP compartida por `sitio`) dan 9 de 9 contra `evaluacion/verdad_practica.json`: 7 piratas con el tipo correcto, más el licenciatario y la señal ajena descartados.
+14. **Lección de coordinación:** dos agentes con el mismo `--yo` no se frenan entre sí (los dos "son" dueños). Si una persona abre más de una sesión de agente, cada una usa un nombre distinto (`alejo`, `alejo-2`, …) en el buzón.
