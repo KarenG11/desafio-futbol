@@ -69,19 +69,26 @@ Qué pasa en cada situación que puede aparecer, qué hace la plataforma, dónde
 ---
 
 ## 4. Por qué esto y no lo que ya existe
-| | Italia (Piracy Shield) | Argentina hoy (San Isidro) | **Nuestra plataforma** |
-|---|---|---|---|
-| ¿Decide un juez? | No (regulador) | Una orden inicial; la fiscalía suma dominios | **Sí, cada objetivo, de turno** |
-| ¿Llega a todos los proveedores? | Sí, por plataforma | Por las cámaras, a mano | **Sí, por API, con confirmación** |
-| Daño colateral | Bloqueó Cloudflare y Google Drive | IP compartidas, denunciado por CABASE | **Regla: nunca IP compartida** |
-| ¿Legal en Argentina? | No sin cambiar la ley | Discutible (delegación en la fiscalía) | **Encaja en la ley actual** |
-| Transparencia y reclamos | Criticada | No hay | **Registro público + reclamos** |
+| | Italia (Piracy Shield) | Francia (ARCOM) | España (LaLiga) | Brasil (ANCINE + Anatel) | Argentina hoy (San Isidro) | **Nuestra plataforma** |
+|---|---|---|---|---|---|---|
+| ¿Decide un juez? | No (regulador) | Orden inicial; desde jul-2026 bloqueo automático sin revisión humana previa | Una sentencia; después LaLiga actualiza la lista sola | No (administrativo) | Una orden inicial; la fiscalía suma dominios | **Sí, cada objetivo, de turno** |
+| Velocidad | 30 min por norma | ~45 min (ARCOM dice que no alcanza) | Tiempo real | Órdenes nuevas cada 30 min | No medida; en ago-2026 arrancó 10 min después del inicio | **Minutos (se mide en la demo)** |
+| ¿Llega a todos los proveedores? | Sí, por plataforma | Grandes ISP | 4 operadores | Más de 21.000 prestadoras | Por ENACOM o las cámaras, por oficio, sin acuse | **Sí, por API, con confirmación** |
+| Daño colateral | Bloqueó Cloudflare y Google Drive | Advertido por la propia ARCOM | ~3.000 IP por finde contra ~120 en la sentencia; cae Cloudflare | Autodeclarado bajo | IP compartidas, denunciado por CABASE | **Regla: nunca IP compartida** |
+| ¿Legal en Argentina? | No sin cambiar la ley | No sin cambiar la ley | El modelo ya se autorizó acá en sep-2026 | No (art. 57) | Discutible (delegación en la fiscalía) | **Encaja en la ley actual** |
+| Transparencia y reclamos | Sin lista pública completa | Apelación durante el partido (ley nueva) | Sin registro ni apelación | 2 reclamos informados | No hay | **Registro público + reclamos** |
+
+**Vendors comerciales** (Friend MTS, NAGRA, Irdeto, Viaccess-Orca, Sportian): venden detección y marca de agua por contrato privado, sin precios públicos. Ninguno firma con un juez ni tiene un canal hacia todos los proveedores. No compiten con nosotros: pueden ser la fuente de detecciones de la plataforma.
+
+Detalle, fuentes y cifras dudosas: `coordinacion/investigacion/soluciones-parecidas.md`.
 
 ---
 
 ## 5. Modelo de negocio
 
-**El problema vale plata.** La industria estima pérdidas por piratería audiovisual en Argentina de entre **US$ 258 millones y US$ 590 millones por año**, según la fuente ([La Nación](https://www.lanacion.com.ar/seguridad/bloquearon-en-vivo-sitios-y-apps-que-transmitian-partidos-de-futbol-de-manera-ilegal-nid02062025/), [Ámbito](https://www.ambito.com/negocios/futbol-y-pirateria-crecen-usuarios-transmisiones-ilegales-y-los-sitios-facturan-mas-us100-millones-n6068848)). LaLiga estima que cerca del **60 % del fútbol se ve de forma ilegal** en el país ([Gantman](https://marcelogantman.substack.com/p/primer-gran-golpe-a-la-pirateria)). Son cifras de parte interesada, pero aunque fueran la mitad, el problema sigue siendo enorme.
+**El problema vale plata.** La industria estima pérdidas por piratería audiovisual en Argentina de entre **US$ 258 millones y US$ 590 millones por año**, según la fuente ([La Nación](https://www.lanacion.com.ar/seguridad/bloquearon-en-vivo-sitios-y-apps-que-transmitian-partidos-de-futbol-de-manera-ilegal-nid02062025/), [Ámbito](https://www.ambito.com/negocios/futbol-y-pirateria-crecen-usuarios-transmisiones-ilegales-y-los-sitios-facturan-mas-us100-millones-n6068848)). Según ALIANZA, los 30 sitios piratas más visitados desde Argentina sumaron **97 millones de visitas en un mes** (junio de 2026) ([DPL News](https://dplnews.com/?p=329227)). Son cifras de parte interesada, pero aunque fueran la mitad, el problema sigue siendo enorme.
+
+**Cuánto cuesta operarlo.** En Italia lo caro no es el software: los proveedores reclaman unos **10 millones de euros por año** de trabajo manual sin compensación ([ZeusNews](https://www.zeusnews.it/n.php?c=31580)). Nuestra nube, para 30 partidos por mes con un motor por partido, sale entre **US$ 20 y 60 por mes**, o sea entre 35 y 90 centavos por partido. Es una **estimación nuestra** con los precios publicados de Vercel Sandbox y Neon, sin contar personal.
 
 **Quién usa y quién paga** (hipótesis a validar):
 | Actor | Qué obtiene | Qué paga |

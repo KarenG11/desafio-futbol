@@ -10,10 +10,11 @@ Los números entre [corchetes] se completan con la corrida del partido final. No
 
 ### 1. El problema (0:00–0:30)
 > "El 1 de noviembre, antes del Superclásico, la Justicia tuvo que pedir el bloqueo de 182 sitios piratas. Un partido dura dos horas; un sitio pirata cambia de servidor en minutos.
-> Hoy en Argentina eso depende de una sola fiscalía y un solo juzgado, y la orden les llega a mil proveedores de internet por las cámaras empresarias. Los chicos no llegan a tiempo, y si bloqueás una IP compartida tirás abajo la panadería y el diario del barrio."
+> Hoy en Argentina eso depende de una sola fiscalía y un solo juzgado. La orden sale por oficio, ENACOM o las cámaras se la reenvían a más de mil proveedores de internet, y **nadie publicó cuántos cumplieron ni cuándo**. Los chicos no llegan a tiempo, y si bloqueás una IP compartida tirás abajo la panadería y el diario del barrio."
 
-### 2. Por qué no copiamos a Italia (0:30–0:50)
-> "Italia bloquea en 30 minutos sin juez, y bloqueó sitios legítimos. Acá eso ni siquiera es legal: la Ley 27.078 dice que un proveedor solo puede bloquear con orden judicial. Así que no sacamos al juez: lo pusimos en el centro, de turno, en el celular."
+### 2. Por qué no copiamos a Europa (0:30–0:50)
+> "Europa tuvo que elegir entre rápido y con garantías. Italia bloquea en 30 minutos sin juez, y dejó a Google Drive bloqueado durante horas. Francia acaba de sacar la revisión humana. España tiene juez, pero la lista la maneja LaLiga: miles de IP por fin de semana con una sentencia que nombra unas 120. Y desde septiembre LaLiga tiene autorización para hacer lo mismo acá.
+> Acá sacar al juez ni siquiera es legal: la Ley 27.078 dice que un proveedor solo puede bloquear con orden judicial. Así que no sacamos al juez: lo pusimos en el centro, de turno, en el celular."
 
 ### 3. Demo en vivo (0:50–2:10)
 Una persona maneja el celular del juez, proyectado. Otra muestra el registro y el verificador.
@@ -28,7 +29,7 @@ Una persona maneja el celular del juez, proyectado. Otra muestra el registro y e
 > "Corrimos el verificador oficial del desafío. El cliente de ejemplo bloqueó 1 de 7 streams y dejó ver el partido pirata al 92 % de la gente. Nosotros: [7 de 7] streams bloqueados, visibilidad residual [X %], cero sitios legítimos afectados, cero bloqueos al licenciatario, cero IPs bloqueadas después del partido."
 
 ### 5. Quién paga y qué hace falta (2:35–2:50)
-> "Lo paga quien pierde la plata: los titulares de derechos. La industria calcula entre 258 y 590 millones de dólares por año solo en Argentina, y el mismo problema está en Perú, México y Colombia. El juez y los proveedores lo usan sin costo. Para arrancar alcanza con un piloto en un partido de la liga y una resolución del ENACOM que obligue a cada proveedor a tener un canal electrónico de órdenes. Está en nuestra propuesta normativa y en `escenarios-y-modelo.md`."
+> "Lo paga quien pierde la plata: los titulares de derechos, que según la industria pierden cientos de millones de dólares por año solo en Argentina. El mismo problema está en Perú, México y Colombia. El juez y los proveedores lo usan sin costo. El software nunca fue lo caro: en Italia los proveedores reclaman unos 10 millones de euros por año de trabajo manual. A nosotros vigilar un partido nos cuesta centavos de dólar de nube, según nuestra estimación. Para arrancar alcanza con un piloto en un partido de la liga y una resolución del ENACOM que obligue a cada proveedor a tener un canal electrónico de órdenes. Está en nuestra propuesta normativa y en `escenarios-y-modelo.md`."
 
 ### 6. Cierre (2:50–3:00)
 > "Un juez, en segundos, con evidencia, y llegando a todos. Somos Alejo, Selene, Luciano, Rocío y Nahuel."
@@ -49,7 +50,33 @@ Se graba sobre un partido de práctica con `--acelerar 6` (con OBS o Win+Alt+R) 
 | 2:35–2:55 | Fin del partido: las IP vencen solas. Salida de `evaluacion/verificar.py` | Vencimiento + números finales |
 | 2:55–3:00 | Repo y nombres | — |
 
+## Preguntas probables del jurado
+Respuestas de 15 segundos. El detalle y las fuentes están en `coordinacion/investigacion/soluciones-parecidas.md`.
+
+| Si preguntan | Respondemos |
+|---|---|
+| ¿Y el sobrebloqueo? | Si la IP es compartida (CDN u hosting), bloqueamos solo el nombre. Toda IP vence al terminar el partido. El registro público deja que cualquiera vea si su sitio cayó y reclame. |
+| ¿Existe un juez de turno que firme esto un domingo a la noche? | Hoy no lo sabemos: es parte de la propuesta normativa (una acordada de turno). Sin firma no sale ninguna orden: preferimos no bloquear antes que bloquear sin juez. |
+| ¿Por qué no administrativo, como Brasil o Perú, que es más rápido? | Porque el art. 57 de la Ley 27.078 exige orden judicial. Nuestro objetivo es que firmar tarde lo mismo que un aviso administrativo. |
+| Se van a VPN o a DNS públicos. | Una minoría sí. Apuntamos al acceso masivo durante los 90 minutos y lo medimos con la visibilidad residual. En el Reino Unido, bloquear muchos sitios a la vez bajó la piratería un 16 a 22 %, aunque había VPN (estudio de Carnegie Mellon sobre sitios en general, no sobre fútbol en vivo). |
+| ¿Hay pruebas de que el bloqueo en vivo funciona? | No hay un estudio específico, y la Comisión Europea lo admite. Por eso el registro público genera esos datos. |
+| LaLiga ya tiene su orden en Argentina. ¿Para qué esto? | Esas órdenes pueden pasar por la plataforma y ganan acuse por proveedor, vencimiento y la regla anti-CDN. Somos el canal, no un competidor. |
+| ¿Quién paga? Los ISP chicos no pueden. | Paga el titular de derechos. Para el proveedor es gratis y recibe el tipo de bloqueo que declaró que puede aplicar. |
+| ¿No viola la neutralidad de red? | El art. 56 la garantiza y el art. 57 admite el bloqueo con orden judicial. Cada orden la tiene, con alcance y vencimiento. |
+| ¿El Estado va a vigilar qué mira la gente? | No. Se detectan streams piratas, no usuarios. Los expedientes no tienen datos de abonados. |
+| ¿Cuánto cuesta? | De nube, entre 20 y 60 dólares por mes para 30 partidos (estimación nuestra con precios de Vercel y Neon). Lo caro es la operación, y la cubre el titular. |
+| ¿Lo que vimos es real? | Decir qué está simulado (proveedores, firma HMAC, datos) y qué no. |
+
+## Números que no decimos en el escenario
+Se contradicen entre fuentes o los publica solo la industria:
+- **% de hogares argentinos que piratean** (42,6 / 45,5 / 46 / 54,4 %): el 42,6 % parece ser el promedio de LatAm. Si hace falta: "cerca de la mitad, según la industria".
+- **Pérdidas en dólares de Argentina** (258 / 571 / 590 millones): no hay cifra auditada. Decir "cientos de millones, según la industria".
+- **El "60 %" de LaLiga**: son dos afirmaciones distintas, las dos autodeclaradas. No usar.
+- **Costo de Piracy Shield**: va de 20 mil a 2 millones de euros según la fuente. Usar solo los ~10 M€/año que reclaman los proveedores.
+- **Nuestra velocidad**: solo la que muestre el cronómetro de la demo.
+
 ## Antes de subir
+- [ ] Cronómetro en pantalla durante la demo: desde la detección hasta la confirmación del último proveedor
 - [ ] Números reales del verificador en la sección 4 (sin corchetes)
 - [ ] Video grabado y subido a Hacki
 - [ ] URL pública de Vercel funcionando desde un celular
