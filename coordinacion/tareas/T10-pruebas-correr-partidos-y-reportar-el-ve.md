@@ -2,9 +2,9 @@
 id: T10
 titulo: Pruebas: correr partidos y reportar el verificador
 carpeta: salida/ (no se sube), reportes por buzón
-estado: libre
-dueno: 
-desde: 
+estado: en-curso
+dueno: luciano
+desde: 2026-11-11 13:00
 creada_por: alejo
 depende_de: 
 ---
