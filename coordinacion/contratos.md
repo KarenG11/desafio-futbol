@@ -1,9 +1,13 @@
-# Contratos entre piezas — v1.3
+# Contratos entre piezas — v1.4
 
 > **Versión v1 (cerrada por T00, 2026-11-11).** Reemplaza al borrador v0.
 > La versión en código, con TypedDict, constantes y ejemplos coherentes, está en `plataforma/contratos.py`.
 > Cualquier cambio se avisa con un mensaje a `todos` y sube la versión (v1 → v2).
 > Fuente de verdad del lado del simulador: `README.md`, `simulador/servidor.py` y `evaluacion/verificar.py`. Si este documento y el simulador no coinciden, manda el simulador: avisen en el buzón.
+
+## Cambios v1.3 → v1.4 (aditivo)
+- **API de T01 definida** (§2, al final): `Cerebro(partido, consultar_dns).procesar(deteccion) -> (caso, es_nuevo)`. Implementada en `plataforma/analisis/`.
+- `plataforma/contratos.py` se pone al día con v1.1: `EstadoMotor.turno_ratificado`, `AsumirTurnoReq` y `AsumirTurnoResp`, y `EJEMPLO_API_ASUMIR_TURNO_REQ` y `_RESP`. `VERSION_CONTRATOS = "v1.4"`.
 
 ## Cambios v1.2 → v1.3 (aditivo)
 
@@ -208,6 +212,26 @@ Un caso = un stream en un servidor: clave **`(host_stream, ip_servidor)`**. Vari
 Solo los `pirata` van al juez. Los demás se auditan como `caso_descartado`. En práctica son **7 casos piratas**: pelotaya ×3, golazo-cdn ×1, verpartido ×1, tribuna ×2 (ninguno del licenciatario ni de `resumenes-deportivos`).
 
 **Tipo recomendado.** `ip_compartida = True` si algún dominio de `dominios_en_ip` no pertenece al mismo `sitio` que el host (hay sitios legítimos u otros). Si es compartida → `tipo_recomendado = "dominio"`; si no → `"ip"`. Si el DNS pasivo da 404, por precaución `ip_compartida = True` y `"dominio"`.
+
+**API de T01 (v1.4)**, la que llama el motor (T05):
+```python
+from plataforma.analisis import Cerebro
+
+cerebro = Cerebro(partido, consultar_dns)   # partido = GET /partido
+                                            # consultar_dns(ip) -> DnsPorIp | None  (GET /dns-pasivo?ip=, None si 404)
+for deteccion in nuevas:                    # GET /detecciones?desde=
+    caso, es_nuevo = cerebro.procesar(deteccion)
+    if not es_nuevo:
+        continue                            # repetición: el caso ya sumó la detección a deteccion_ids
+    if caso["clasificacion"] == "pirata":
+        ...                                 # expediente (T03) + pedido al juez
+    else:
+        ...                                 # auditar caso_descartado
+cerebro.casos()                             # todos los casos, para guardar o mostrar
+```
+- El cerebro no hace red. Cachea el DNS por IP: una consulta por IP en todo el partido.
+- Los `caso_id` son `C-001`, `C-002`, … en orden de aparición, únicos por instancia de `Cerebro` (una por partido).
+- Pruebas: `python -m plataforma.analisis.test_cerebro`. Contra la verdad de práctica da 9 de 9 casos y 7 piratas con el tipo correcto.
 
 ---
 

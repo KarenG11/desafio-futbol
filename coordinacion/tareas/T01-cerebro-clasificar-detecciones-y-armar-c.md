@@ -2,9 +2,9 @@
 id: T01
 titulo: Cerebro: clasificar detecciones y armar casos
 carpeta: plataforma/analisis/
-estado: en-curso
+estado: hecha
 dueno: alejo
-desde: 2026-11-11 12:45
+desde: 2026-11-11 14:21
 creada_por: alejo
 depende_de: T00
 ---

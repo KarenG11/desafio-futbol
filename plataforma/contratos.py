@@ -22,7 +22,7 @@ import hashlib
 import json
 from typing import Any, Dict, List, Literal, Optional, TypedDict
 
-VERSION_CONTRATOS = "v1"
+VERSION_CONTRATOS = "v1.4"
 
 # =====================================================================================
 # Constantes
@@ -514,7 +514,18 @@ class EstadoMotor(TypedDict):         # GET /api/estado
     jueces_de_turno: List[str]
     proximo_cambio_turno_min: Optional[float]
     simulador_ok: bool
+    turno_ratificado: bool            # v1.1: False desde un cambio de turno hasta POST /api/turno/asumir
     contadores: ContadoresMotor
+
+
+class AsumirTurnoReq(TypedDict):      # POST /api/turno/asumir (v1.1)
+    juez_id: str
+
+
+class AsumirTurnoResp(TypedDict):
+    juez_id: str
+    ratificadas: List[str]            # orden_id de las órdenes vigentes que el entrante ratificó
+    decidido_min: float
 
 
 class ResumenExpediente(TypedDict):   # lo que la pantalla del juez muestra por pedido
@@ -908,6 +919,7 @@ EJEMPLO_API_ESTADO: EstadoMotor = {
     "jueces_de_turno": [_JUEZA],
     "proximo_cambio_turno_min": 50.0,
     "simulador_ok": True,
+    "turno_ratificado": True,
     "contadores": {
         "casos_piratas": 1, "casos_descartados": 0, "pedidos_pendientes": 0, "pedidos_aprobados": 1,
         "pedidos_rechazados": 0, "ordenes_activas": 4, "ordenes_fallidas": 0, "reclamos_pendientes": 0,
@@ -969,6 +981,14 @@ EJEMPLO_API_LEVANTAR_RESP: LevantarReclamoResp = {
 }
 
 EJEMPLO_API_PUBLICO: Dict[str, List[EntradaPublica]] = {"entradas": [EJEMPLO_ENTRADA_PUBLICA]}
+
+EJEMPLO_API_ASUMIR_TURNO_REQ: AsumirTurnoReq = {"juez_id": "juez-martin-ejemplo"}
+
+EJEMPLO_API_ASUMIR_TURNO_RESP: AsumirTurnoResp = {
+    "juez_id": "juez-martin-ejemplo",
+    "ratificadas": ["ord-c0a1-P-001-aurora-1", "ord-c0a1-P-001-andina-1"],
+    "decidido_min": 50.4,
+}
 
 
 # =====================================================================================
