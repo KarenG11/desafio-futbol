@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Partido de demo</title>
+  <link rel="stylesheet" href="estilos.css">
+  <style>
+    main.demo { max-width: 640px; margin: 0 auto; padding: 16px; }
+    .demo h1 { font: 600 1.5rem/1.2 var(--numeros); letter-spacing: .02em; margin: 8px 0 4px; }
+    .demo p { color: var(--tinta-suave); margin: 0 0 16px; }
+    .tarjeta { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); padding: 16px; margin-bottom: 16px; }
+    .campo { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .campo input[type=password], .campo select { font: inherit; padding: 10px; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--fondo); color: var(--tinta); }
+    .tilde { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+    #estado { min-height: 1.5em; font-weight: 600; }
+    #estado.error { color: var(--rechazo); }
+    #estado.ok { color: var(--sello); }
+    pre { white-space: pre-wrap; font: 13px/1.45 ui-monospace, Consolas, monospace; background: var(--fondo); border-radius: var(--radio); padding: 12px; margin: 0; max-height: 60vh; overflow: auto; }
+    a { color: var(--sello); }
+  </style>
+</head>
+<body>
+<main class="demo">
+  <h1>Partido de práctica en vivo</h1>
+  <p>Prende el simulador de la organización y nuestro motor en un Vercel Sandbox. El juez firma desde la
+     <a href="./">pantalla del juez</a>. Al terminar se muestra la salida del verificador oficial.</p>
+
+  <form class="tarjeta" id="form">
+    <label class="campo">PIN de juez
+      <input type="password" id="pin" autocomplete="current-password" required>
+    </label>
+    <label class="campo">Velocidad
+      <select id="acelerar">
+        <option value="6">x6 · unos 22 minutos</option>
+        <option value="10" selected>x10 · unos 14 minutos</option>
+        <option value="30">x30 · unos 7 minutos</option>
+      </select>
+    </label>
+    <label class="tilde"><input type="checkbox" id="auto"> Juez automático (aprueba solo, sin firmar a mano)</label>
+    <button type="submit" class="boton boton--firmar boton--ancho" id="iniciar">Correr partido de práctica</button>
+    <p id="estado" aria-live="polite"></p>
+  </form>
+
+  <section class="tarjeta">
+    <h2>Verificador oficial</h2>
+    <pre id="verificacion">Todavía no hay resultado del último partido.</pre>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+try { $("pin").value = sessionStorage.getItem("juez_pin") || ""; } catch (e) {}
+
+$("form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const estado = $("estado");
+  estado.className = ""; estado.textContent = "Prendiendo el Sandbox…";
+  $("iniciar").disabled = true;
+  try {
+    const r = await fetch("/api/demo/iniciar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Juez-Pin": $("pin").value },
+      body: JSON.stringify({ acelerar: Number($("acelerar").value), juez_automatico: $("auto").checked }),
+    });
+    const datos = await r.json();
+    if (!r.ok) throw new Error(datos.error || r.statusText);
+    try { sessionStorage.setItem("juez_pin", $("pin").value); } catch (e) {}
+    estado.className = "ok";
+    estado.textContent = `${datos.mensaje} Dura unos ${Math.round(datos.duracion_min)} minutos.`;
+  } catch (e) {
+    estado.className = "error"; estado.textContent = e.message;
+  } finally {
+    $("iniciar").disabled = false;
+  }
+});
+
+async function verificar() {
+  try {
+    const r = await fetch("/api/demo/verificacion");
+    const d = await r.json();
+    if (d.verificacion && d.verificacion.salida) $("verificacion").textContent = d.verificacion.salida;
+  } catch (e) {}
+}
+verificar(); setInterval(verificar, 15000);
+</script>
+</body>
+</html>

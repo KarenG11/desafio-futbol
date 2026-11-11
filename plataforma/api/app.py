@@ -30,6 +30,10 @@ _JUZGADO_DE_JUEZ: Dict[str, str] = {
 
 app = FastAPI(title="Plataforma Federal de Órdenes de Bloqueo en Vivo")
 
+# T12: partido de demo online (Vercel Sandbox). Las rutas viven en plataforma/nube/.
+from plataforma.nube.rutas import router as _router_demo  # noqa: E402
+app.include_router(_router_demo)
+
 
 @app.on_event("startup")
 def _startup() -> None:
