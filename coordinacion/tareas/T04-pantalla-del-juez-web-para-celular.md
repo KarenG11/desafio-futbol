@@ -2,9 +2,9 @@
 id: T04
 titulo: Pantalla del juez (web para celular)
 carpeta: plataforma/web/
-estado: libre
-dueno: 
-desde: 
+estado: en-curso
+dueno: alejo
+desde: 2026-11-11 12:57
 creada_por: alejo
 depende_de: T00
 ---
