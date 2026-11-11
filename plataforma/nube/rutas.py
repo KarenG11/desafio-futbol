@@ -33,6 +33,32 @@ class PedidoDemo(BaseModel):
     acelerar: float = 6.0
 
 
+RESERVA = ("__demo__", "lanzamiento")   # una fila en solicitudes: la PK hace la reserva atómica
+RESERVA_MIN = 45                          # lo que dura como máximo una sesión de Sandbox
+
+
+def _reservar() -> bool:
+    """Reserva el único lugar de demo. True si lo tomó; False si ya hay una demo lanzada hace menos de 45 min."""
+    from datetime import datetime, timedelta as td
+    limite = (datetime.now(db.ARG) - td(minutes=RESERVA_MIN)).isoformat(timespec="seconds")
+    try:
+        with db._sesion() as (_, cur, pg):
+            cur.execute(db._q("DELETE FROM solicitudes WHERE partido_id = ? AND solicitud_id = ? AND creada_ts < ?", pg),
+                        (*RESERVA, limite))
+        with db._sesion() as (_, cur, pg):
+            cur.execute(db._q("INSERT INTO solicitudes (partido_id, solicitud_id, tipo, datos, creada_ts) "
+                              "VALUES (?, ?, 'demo', ?, ?)", pg),
+                        (*RESERVA, db._json_param({}, pg), db.ahora_ts()))
+        return True
+    except Exception:          # PK repetida (ya hay una demo) o la base falló: en los dos casos, no se lanza
+        return False
+
+
+def _liberar() -> None:
+    with db._sesion() as (_, cur, pg):
+        cur.execute(db._q("DELETE FROM solicitudes WHERE partido_id = ? AND solicitud_id = ?", pg), RESERVA)
+
+
 def _hay_partido_corriendo() -> bool:
     pid = db.partido_actual()
     estado = db.estado_partido(pid) if pid else None
@@ -60,25 +86,33 @@ async def iniciar_demo(pedido: PedidoDemo):
     minutos = (105 + 5) / pedido.acelerar + 3          # partido + gracia + instalación
     if minutos > 42:
         raise HTTPException(status_code=400, detail={"error": "Con esa velocidad el partido no entra en una sesión"})
-    if _hay_partido_corriendo():
-        raise HTTPException(status_code=409, detail={"error": "Ya hay un partido corriendo"})
+    try:
+        corriendo = _hay_partido_corriendo()
+    except Exception:
+        corriendo = True       # si no se puede saber, no se lanza
+    if corriendo or not _reservar():
+        raise HTTPException(status_code=409, detail={"error": "Ya hay un partido de demo en marcha"})
 
     from vercel import sandbox
     from vercel.sandbox import GitSource
 
-    box = await sandbox.create_sandbox(
-        source=GitSource(url=REPO, revision="main", depth=1),
-        execution_time_limit=timedelta(minutes=min(44, minutos + 5)),
-        persistent=False,
-        tags={"tipo": "partido-demo"},
-        env={
-            "DATABASE_URL": os.environ["DATABASE_URL"],
-            "DEMO_ACELERAR": str(pedido.acelerar),
-            "DEMO_JUEZ_AUTOMATICO": "1" if pedido.juez_automatico else "0",
-        },
-    )
-    await box.create_command("bash", ["-lc", COMANDO], cwd="/vercel/sandbox",
-                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        box = await sandbox.create_sandbox(
+            source=GitSource(url=REPO, revision="main", depth=1),
+            execution_time_limit=timedelta(minutes=min(44, minutos + 5)),
+            persistent=False,
+            tags={"tipo": "partido-demo"},
+            env={
+                "DATABASE_URL": os.environ["DATABASE_URL"],
+                "DEMO_ACELERAR": str(pedido.acelerar),
+                "DEMO_JUEZ_AUTOMATICO": "1" if pedido.juez_automatico else "0",
+            },
+        )
+        await box.create_command("bash", ["-lc", COMANDO], cwd="/vercel/sandbox",
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        _liberar()             # no arrancó: se libera el lugar para reintentar
+        raise
     return {
         "sandbox": box.name,
         "acelerar": pedido.acelerar,

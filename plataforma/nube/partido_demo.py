@@ -67,6 +67,11 @@ def main() -> int:
             db.guardar_verificacion(partido, salida)
             log(f"Verificador guardado para {partido}")
         print(salida, flush=True)
+    try:   # libera el lugar de demo que reservó POST /api/demo/iniciar
+        from plataforma.nube.rutas import _liberar
+        _liberar()
+    except Exception as e:
+        log(f"No pude liberar la reserva (vence sola a los 45 min): {e}")
     log("Listo")
     return 0
 
