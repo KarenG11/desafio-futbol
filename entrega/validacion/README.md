@@ -5,6 +5,7 @@ Corridas del 2026-11-11 contra el simulador de práctica, con `evaluacion/verifi
 | Corrida | Archivo | Fases bloqueadas | Visibilidad residual | Colateral | Falsos positivos | Rechazos | Fuera de turno | IP después del partido |
 |---|---|---|---|---|---|---|---|---|
 | Partido completo, x10 | `partido-completo-x10.txt` | 7 de 7 | 2,9 % | 0 | 0 | 0 | 0 | 0 |
+| **Online: Vercel Sandbox + Neon, x30** | `online-vercel-sandbox-x30.txt` | 7 de 7 | 3,8 % | 0 | 0 | 0 | 0 | 0 |
 | Arranca en el minuto 40, x30 (cambio de turno en el 50) | `cambio-de-turno-min40-x30.txt` | 6 de 7 | 29,6 % | 0 | 0 | 0 | 0 | 0 |
 
 ## Qué prueba cada una
