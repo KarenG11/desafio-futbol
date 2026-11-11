@@ -2,9 +2,9 @@
 id: T07
 titulo: Registro público de transparencia
 carpeta: plataforma/transparencia/
-estado: libre
-dueno: 
-desde: 
+estado: en-curso
+dueno: rocio
+desde: 2026-11-11 14:57
 creada_por: alejo
 depende_de: T05
 ---
