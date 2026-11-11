@@ -2,9 +2,9 @@
 id: T06
 titulo: Reclamos: verificar, levantar con firma y reemplazar
 carpeta: plataforma/reclamos/
-estado: libre
-dueno: 
-desde: 
+estado: en-curso
+dueno: rocio
+desde: 2026-11-11 15:25
 creada_por: alejo
 depende_de: T02, T05
 ---
