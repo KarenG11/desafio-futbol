@@ -2,9 +2,9 @@
 id: T00
 titulo: Cerrar diseño y contratos v1
 carpeta: coordinacion/, plataforma/contratos.py
-estado: en-curso
+estado: hecha
 dueno: alejo
-desde: 2026-11-11 12:21
+desde: 2026-11-11 12:40
 creada_por: alejo
 depende_de: 
 ---
