@@ -64,12 +64,13 @@ const quitarAviso = (id) => { const a = document.querySelector(`[data-aviso="${i
 // ---------------------------------------------------------------------- avisos de pedido nuevo
 
 function prepararAvisos() {
+  estado.interactuo = true;   // el navegador solo deja vibrar o sonar después de un toque del usuario
   try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); } catch { audio = null; }
   if ("Notification" in window && Notification.permission === "default") Notification.requestPermission().catch(() => {});
 }
 
 function avisarNuevos(n) {
-  if (navigator.vibrate) navigator.vibrate([120, 80, 120]);
+  if (estado.interactuo && navigator.vibrate) navigator.vibrate([120, 80, 120]);
   if (audio) {
     const o = audio.createOscillator(), g = audio.createGain();
     o.frequency.value = 880; g.gain.setValueAtTime(0.15, audio.currentTime);
@@ -93,14 +94,12 @@ function textoBloqueo(p) {
     if (porNombre.length) t += ` En ${listaHumana(porNombre)}, el nombre ${r.host}, porque solo bloquea por nombre.`;
     return t;
   }
-  const ajenos = r.dominios_en_ip.filter((d) => !d.endsWith(r.host.split(".").slice(-2).join(".")));
+  // El cerebro ya explica por qué no se toca la IP (cuántos sitios ajenos o falta de datos): no se recalcula acá.
   const span = document.createElement("span");
   span.append(`Solo el nombre ${r.host}, en los ${p.objetivos.length} proveedores. `);
   const c = document.createElement("span");
   c.className = "compartida";
-  c.textContent = ajenos.length
-    ? `La IP no: la comparten ${ajenos.length} sitios que no tienen nada que ver.`
-    : "La IP no: no hay datos de quién más la usa.";
+  c.textContent = `${r.motivo_tipo}.`;
   span.append(c);
   return span;
 }
@@ -128,6 +127,11 @@ function renderEstado(e) {
     marca.style.left = `${(100 * e.proximo_cambio_turno_min) / e.fin_min}%`;
     $("nota-turno").textContent = `Cambio de turno en el minuto ${Math.floor(e.proximo_cambio_turno_min)}`;
   } else { marca.hidden = true; $("nota-turno").textContent = ""; }
+
+  if (!estado.juez && !e.finalizado) {
+    aviso("En este minuto no figura ningún juez de turno. Los pedidos quedan esperando hasta que entre uno.", "error",
+      { id: "sin-juez", titulo: "Sin juez de turno" });
+  } else quitarAviso("sin-juez");
 
   if (!e.simulador_ok) {
     aviso("La plataforma no recibe datos del partido hace unos segundos. Los pedidos nuevos pueden demorar.", "error",
@@ -162,7 +166,8 @@ function renderPedidos(pedidos) {
   document.title = n ? `(${n}) Juez de turno` : "Juez de turno";
   const boton = $("firmar-todos");
   boton.disabled = n === 0 || !estado.juez;
-  boton.textContent = n === 0 ? "No hay pedidos para firmar" : n === 1 ? "Firmar el pedido" : `Firmar los ${n} pedidos`;
+  const como = estado.juez ? ` como ${nombreJuez(estado.juez)}` : "";
+  boton.textContent = n === 0 ? "No hay pedidos para firmar" : n === 1 ? `Firmar el pedido${como}` : `Firmar los ${n} pedidos${como}`;
 }
 
 function crearTarjeta(p, esNuevo) {

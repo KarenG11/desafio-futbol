@@ -32,8 +32,8 @@ class Cerebro:
     def __init__(self, partido: Partido, consultar_dns: ConsultarDns):
         self.partido = partido
         self.consultar_dns = consultar_dns
-        self._origen = {m["prefijo"]: m["origen"] for m in partido.get("marcas_de_agua_validas", [])}
-        self._licenciatarios = {l["prefijo_marca"]: l for l in partido.get("licenciatarios", [])}
+        self._origen = {m["prefijo"].strip().upper(): m["origen"] for m in partido.get("marcas_de_agua_validas", [])}
+        self._licenciatarios = {l["prefijo_marca"].strip().upper(): l for l in partido.get("licenciatarios", [])}
         self._casos: Dict[Tuple[str, str], Caso] = {}
         self._dns: Dict[str, Optional[DnsPorIp]] = {}
 
@@ -61,31 +61,50 @@ class Cerebro:
             self._dns[ip] = self.consultar_dns(ip)
         return self._dns[ip]
 
+    def _licenciatario_del_dominio(self, host: str) -> Optional[dict]:
+        for lic in self._licenciatarios.values():
+            if _host_autorizado(host, lic["dominios_autorizados"]):
+                return lic
+        return None
+
     def _clasificar(self, marca: Optional[str], host: str) -> Tuple[str, Optional[str], str]:
         """(clasificacion, marca_origen, motivo)."""
+        marca = (marca or "").strip().upper()
         if not marca:
-            return "sin_marca", None, "El video no trae marca de agua: no se puede probar que sea la señal del partido"
+            return ("sin_marca", None,
+                    "El video no trae marca de agua: no se puede probar que sea la señal del partido. Queda registrado")
         prefijo = _prefijo_que_coincide(marca, list(self._origen))
         if prefijo is None:
             return "otra_senal", None, f"La marca {marca} no corresponde a este partido"
         origen = self._origen[prefijo]
+        dueno_del_dominio = self._licenciatario_del_dominio(host)
+        if dueno_del_dominio is not None:
+            # Un dominio autorizado de un licenciatario nunca se bloquea desde acá, aunque la marca sea otra:
+            # bloquear al licenciatario es un falso positivo grave y una disputa de contrato, no piratería.
+            if self._licenciatarios.get(prefijo) is dueno_del_dominio:
+                return ("licenciatario_legal", origen,
+                        f"{dueno_del_dominio['nombre']} retransmite con autorización en su propio dominio")
+            return ("licenciatario_legal", origen,
+                    f"Dominio autorizado de {dueno_del_dominio['nombre']} con una marca que no es la suya: "
+                    "no se bloquea; se informa al titular de derechos")
         licenciatario = self._licenciatarios.get(prefijo)
         if licenciatario is not None:
-            if _host_autorizado(host, licenciatario["dominios_autorizados"]):
-                return ("licenciatario_legal", origen,
-                        f"{licenciatario['nombre']} retransmite con autorización en su propio dominio")
             return ("pirata", origen,
                     f"Señal de {licenciatario['nombre']} retransmitida en un dominio que no es suyo")
         return "pirata", origen, "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla"
 
     def _riesgo_colateral(self, host: str, ip: str) -> Tuple[Optional[DnsPorIp], bool, str, str]:
         """(dns, ip_compartida, tipo_recomendado, motivo_tipo)."""
-        dns = self._dns_de(ip)
+        try:
+            dns = self._dns_de(ip)
+        except Exception:  # el DNS pasivo caído no puede frenar el circuito: se va a lo seguro
+            self._dns.pop(ip, None)
+            dns = None
         sitio = sitio_de(host)
-        if dns is None:
+        if dns is None or not dns.get("dominios"):
             return (None, True, "dominio",
                     f"No hay datos de DNS pasivo para {ip}: por precaución se bloquea solo {host}")
-        ajenos = sorted({d for d in dns["dominios"] if sitio_de(d) != sitio})
+        ajenos = sorted({d.lower() for d in dns["dominios"] if sitio_de(d) != sitio})
         if ajenos:
             muestra = ", ".join(ajenos[:3]) + (f" y {len(ajenos) - 3} más" if len(ajenos) > 3 else "")
             return (dns, True, "dominio",

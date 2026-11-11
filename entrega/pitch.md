@@ -27,8 +27,8 @@ Una persona maneja el celular del juez, proyectado. Otra muestra el registro y e
 ### 4. Resultado (2:10–2:35)
 > "Corrimos el verificador oficial del desafío. El cliente de ejemplo bloqueó 1 de 7 streams y dejó ver el partido pirata al 92 % de la gente. Nosotros: [7 de 7] streams bloqueados, visibilidad residual [X %], cero sitios legítimos afectados, cero bloqueos al licenciatario, cero IPs bloqueadas después del partido."
 
-### 5. Qué hace falta para que exista (2:35–2:50)
-> "Para usarlo mañana alcanza con una resolución del ENACOM que obligue a cada proveedor a declarar un canal electrónico de órdenes, y con turnos judiciales conectados a la plataforma. Está en nuestra propuesta normativa de una página."
+### 5. Quién paga y qué hace falta (2:35–2:50)
+> "Lo paga quien pierde la plata: los titulares de derechos. La industria calcula entre 258 y 590 millones de dólares por año solo en Argentina, y el mismo problema está en Perú, México y Colombia. El juez y los proveedores lo usan sin costo. Para arrancar alcanza con un piloto en un partido de la liga y una resolución del ENACOM que obligue a cada proveedor a tener un canal electrónico de órdenes. Está en nuestra propuesta normativa y en `escenarios-y-modelo.md`."
 
 ### 6. Cierre (2:50–3:00)
 > "Un juez, en segundos, con evidencia, y llegando a todos. Somos Alejo, Selene, Luciano, Rocío y Nahuel."

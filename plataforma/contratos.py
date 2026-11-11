@@ -22,7 +22,7 @@ import hashlib
 import json
 from typing import Any, Dict, List, Literal, Optional, TypedDict
 
-VERSION_CONTRATOS = "v1.4"
+VERSION_CONTRATOS = "v1.5"
 
 # =====================================================================================
 # Constantes
@@ -144,10 +144,30 @@ def vence_min_para(fin_min: float) -> int:
     return int(fin_min)
 
 
+# Sufijos donde cada subdominio es de un dueño distinto (subconjunto de la Public Suffix List).
+# Sin esto, "panaderia.com.ar" y "pirata.com.ar" serían el "mismo sitio" (com.ar), y dos clientes de
+# una plataforma de hosting (a.vercel.app, b.vercel.app) también: se bloquearía una IP compartida.
+SUFIJOS_PUBLICOS = frozenset({
+    # Argentina y región
+    "com.ar", "gob.ar", "gov.ar", "org.ar", "net.ar", "edu.ar", "int.ar", "mil.ar", "tur.ar", "musica.ar",
+    "com.br", "net.br", "org.br", "gov.br", "com.mx", "gob.mx", "org.mx", "net.mx", "com.co", "gov.co",
+    "com.pe", "gob.pe", "com.uy", "gub.uy", "com.py", "gov.py", "com.bo", "gob.bo", "com.ec", "gob.ec",
+    "com.ve", "gob.ve", "co.uk", "org.uk", "com.es", "com.au",
+    # plataformas de hosting/CDN donde cada subdominio es un cliente distinto
+    "github.io", "gitlab.io", "vercel.app", "netlify.app", "pages.dev", "workers.dev", "web.app",
+    "firebaseapp.com", "appspot.com", "herokuapp.com", "azurewebsites.net", "cloudfront.net",
+    "blogspot.com", "wordpress.com", "onrender.com", "fly.dev", "glitch.me", "repl.co", "ngrok.io",
+    "ngrok-free.app", "trycloudflare.com", "duckdns.org", "no-ip.org", "ddns.net",
+})
+
+
 def sitio_de(host: str) -> str:
-    """Sitio = últimas dos etiquetas del host (s1.pelotaya.test -> pelotaya.test).
-    Alcanza para .test/.example del simulador; en la vida real haría falta la Public Suffix List."""
-    return ".".join(host.lower().rstrip(".").split(".")[-2:])
+    """Sitio = dominio registrable del host: s1.pelotaya.test -> pelotaya.test, www.diario.com.ar -> diario.com.ar,
+    tienda.vercel.app -> tienda.vercel.app. Usa SUFIJOS_PUBLICOS (subconjunto de la Public Suffix List)."""
+    etiquetas = host.lower().strip().rstrip(".").split(".")
+    if len(etiquetas) >= 3 and ".".join(etiquetas[-2:]) in SUFIJOS_PUBLICOS:
+        return ".".join(etiquetas[-3:])
+    return ".".join(etiquetas[-2:])
 
 
 # =====================================================================================

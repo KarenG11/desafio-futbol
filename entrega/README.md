@@ -7,7 +7,7 @@ Mientras se juega el partido, la plataforma detecta un stream pirata y arma el e
 > Todo es ficticio: proveedores, juzgados, dominios `.test` e IPs de documentación. Solo trabajamos contra el simulador de la organización. No se bloquea nada real.
 
 ## Por qué un juez, y por qué en Argentina
-El art. 57 inc. a) de la **Ley 27.078 (Argentina Digital)** prohíbe a los proveedores bloquear contenidos "salvo orden judicial". Por eso el modelo italiano, donde el regulador bloquea sin juez, acá no tiene base legal. Además, la Corte Suprema ("Rodríguez c/ Google") exige examinar cada contenido concreto antes de bloquearlo. La plataforma resuelve eso: **cada objetivo nuevo pasa por el juez de turno**, en segundos, con la evidencia a la vista. La propuesta normativa está en [`propuesta-normativa.md`](propuesta-normativa.md).
+El art. 57 inc. a) de la **Ley 27.078 (Argentina Digital)** prohíbe a los proveedores bloquear contenidos "salvo orden judicial". Por eso el modelo italiano, donde el regulador bloquea sin juez, acá no tiene base legal. Además, la Corte Suprema ("Rodríguez c/ Google") exige examinar cada contenido concreto antes de bloquearlo. La plataforma resuelve eso: **cada objetivo nuevo pasa por el juez de turno**, en segundos, con la evidencia a la vista. La propuesta normativa está en [`propuesta-normativa.md`](propuesta-normativa.md). Los escenarios, la comparación con Italia y el modelo de negocio están en [`escenarios-y-modelo.md`](escenarios-y-modelo.md).
 
 ## Cómo funciona
 ```
@@ -39,7 +39,19 @@ En Windows, anteponé `PYTHONUTF8=1` a cada comando, porque el simulador imprime
 ```bash
 python -m plataforma.analisis.test_cerebro
 ```
-Resultado esperado: `7 de 7 pruebas OK`. Clasifica los 9 casos del partido de práctica tal como dice `evaluacion/verdad_practica.json`.
+Resultado esperado: `13 de 13 pruebas OK`. Incluye:
+- el partido de práctica completo (9 casos, igual que `evaluacion/verdad_practica.json`);
+- un "partido final" simulado con otros nombres y varios licenciatarios;
+- hosting real (`.com.ar`, `vercel.app`);
+- DNS caído;
+- mayúsculas y espacios.
+
+Para ensayarlo **en vivo contra el simulador**, solo leyendo, sin mandar órdenes:
+```bash
+python simulador/servidor.py --acelerar 30
+python -m plataforma.analisis.ensayo_en_vivo --sim http://localhost:8080 --verdad evaluacion/verdad_practica.json
+```
+El segundo comando va en otra terminal. Resultado: 9 de 9.
 
 **2. La evidencia y la auditoría** (detecta alteraciones):
 ```bash
@@ -65,7 +77,7 @@ El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde 
 ## Estado (se actualiza durante el evento)
 | Tarea | Estado |
 |---|---|
-| T01 Cerebro | ✅ Hecho y probado (7 de 7) |
+| T01 Cerebro | ✅ Hecho y probado (13 de 13, más 9 de 9 en vivo contra el simulador) |
 | T03 Evidencia y auditoría | ✅ Hecho y probado |
 | T04 Pantalla del juez | ✅ Funciona contra el mock. Falta probarla con la URL pública |
 | T02 Despacho, T05 Motor, T11 Base y Vercel | En curso |
@@ -96,6 +108,7 @@ El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde 
 
 ## Entregables (`entrega/`)
 - `README.md`: este archivo.
+- [`escenarios-y-modelo.md`](escenarios-y-modelo.md): cada escenario (del partido y del mundo real), cómo lo resuelve la plataforma, quién paga y el camino a producción.
 - [`pitch.md`](pitch.md): guion del pitch y del video de 3 minutos.
 - `propuesta-normativa.md`: 1 página (T08).
 - `expediente-final.json` y `auditoria-final.jsonl`: exportados del partido final (T03).

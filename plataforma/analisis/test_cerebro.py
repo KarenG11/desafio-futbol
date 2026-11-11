@@ -130,6 +130,100 @@ def prueba_sin_marca_y_prefijo_mas_largo():
     assert pegada["marca_origen"] == "Prefijo corto de prueba", "'OFIX' no es el prefijo 'OFI'"
 
 
+def prueba_marca_oficial_en_dominio_del_licenciatario_no_se_bloquea():
+    escenario = cargar("datos/escenario_practica.json")
+    cerebro = Cerebro(escenario["partido"], lambda ip: None)
+    caso, _ = cerebro.procesar(det("D-1", "canalnorte.test", "192.0.2.10", "LP26-PRA-OFI-S1"))
+    assert caso["clasificacion"] == "licenciatario_legal", "nunca bloquear un dominio autorizado del licenciatario"
+    assert "no es la suya" in caso["motivo_clasificacion"]
+
+
+def prueba_mayusculas_y_espacios():
+    escenario = cargar("datos/escenario_practica.json")
+    cerebro = Cerebro(escenario["partido"], dns_desde_escenario(escenario))
+    caso, _ = cerebro.procesar(det("D-1", "S1.PelotaYa.test.", "203.0.113.10", " lp26-pra-ofi-s048211 "))
+    assert caso["clasificacion"] == "pirata" and caso["tipo_recomendado"] == "ip", caso
+
+
+def prueba_sitio_con_sufijos_publicos():
+    from plataforma.contratos import sitio_de
+    assert sitio_de("s1.pelotaya.test") == "pelotaya.test"
+    assert sitio_de("www.diario.com.ar") == "diario.com.ar"
+    assert sitio_de("pirata.com.ar") == "pirata.com.ar"
+    assert sitio_de("tienda.vercel.app") == "tienda.vercel.app"
+    assert sitio_de("com.ar") == "com.ar"
+
+
+def prueba_hosting_compartido_real_va_por_dominio():
+    """En el mundo real: un pirata .com.ar en un hosting con otros .com.ar no es 'el mismo sitio'."""
+    escenario = cargar("datos/escenario_practica.json")
+    dns = {"ip": "200.1.1.1", "asn": 1, "organizacion": "Hosting Compartido SA",
+           "dominios": ["vivo.futbolgratis.com.ar", "panaderia.com.ar", "municipio.gob.ar"]}
+    cerebro = Cerebro(escenario["partido"], lambda ip: dns)
+    caso, _ = cerebro.procesar(det("D-1", "vivo.futbolgratis.com.ar", "200.1.1.1", "LP26-PRA-OFI-S9"))
+    assert caso["ip_compartida"] and caso["tipo_recomendado"] == "dominio", caso["motivo_tipo"]
+    dns2 = {"ip": "200.1.1.2", "asn": 1, "organizacion": "x", "dominios": ["a.vercel.app", "b.vercel.app"]}
+    cerebro2 = Cerebro(escenario["partido"], lambda ip: dns2)
+    caso2, _ = cerebro2.procesar(det("D-2", "a.vercel.app", "200.1.1.2", "LP26-PRA-OFI-S9"))
+    assert caso2["tipo_recomendado"] == "dominio", "clientes distintos de una plataforma no son el mismo sitio"
+
+
+def prueba_dns_caido_no_frena_el_circuito():
+    escenario = cargar("datos/escenario_practica.json")
+
+    def dns_roto(ip):
+        raise TimeoutError("DNS pasivo no responde")
+
+    cerebro = Cerebro(escenario["partido"], dns_roto)
+    caso, nuevo = cerebro.procesar(det("D-1", "s1.pelotaya.test", "203.0.113.10", "LP26-PRA-OFI-S1"))
+    assert nuevo and caso["clasificacion"] == "pirata" and caso["tipo_recomendado"] == "dominio"
+    vacio = Cerebro(escenario["partido"], lambda ip: {"ip": ip, "asn": None, "organizacion": None, "dominios": []})
+    caso2, _ = vacio.procesar(det("D-2", "x.pirata.test", "203.0.113.5", "LP26-PRA-OFI-S1"))
+    assert caso2["tipo_recomendado"] == "dominio", "sin dominios conocidos no hay forma de medir el colateral"
+
+
+def prueba_escenario_final_simulado():
+    """Un partido 'que nadie vio': otros nombres, varios licenciatarios y todas las trampas del enunciado."""
+    partido = {"id": "final-x", "nombre": "Final", "titular_derechos": "Liga", "inicio_iso": "", "fin_min": 105,
+               "marcas_de_agua_validas": [{"prefijo": "LF26-FIN-OFI", "origen": "oficial"},
+                                          {"prefijo": "LF26-FIN-LIC-SUR", "origen": "Canal Sur"},
+                                          {"prefijo": "LF26-FIN-LIC-OESTE", "origen": "Oeste TV"}],
+               "licenciatarios": [
+                   {"nombre": "Canal Sur", "prefijo_marca": "LF26-FIN-LIC-SUR", "dominios_autorizados": ["canalsur.test"]},
+                   {"nombre": "Oeste TV", "prefijo_marca": "LF26-FIN-LIC-OESTE", "dominios_autorizados": ["oestetv.example"]}]}
+    dns = {
+        "198.51.100.1": ["live.rojo.test", "rojo.test"],                                   # exclusiva
+        "198.51.100.2": ["cdn.verde.test", "almacen.test", "colegio.example"],              # CDN
+        "198.51.100.3": ["live2.rojo.test"],                                                 # exclusiva
+        "198.51.100.4": ["vivo.canalsur.test", "canalsur.test"],                             # licenciatario
+        "198.51.100.5": ["espejo.gris.test", "gris.test", "radio.example"],                  # compartida
+    }
+    consultar = lambda ip: ({"ip": ip, "asn": 1, "organizacion": "x", "dominios": dns[ip]} if ip in dns else None)
+    detecciones = [
+        det("F1", "live.rojo.test", "198.51.100.1", "LF26-FIN-OFI-A1", 1),
+        det("F2", "cdn.verde.test", "198.51.100.2", "LF26-FIN-OFI-A2", 2),
+        det("F3", "vivo.canalsur.test", "198.51.100.4", "LF26-FIN-LIC-SUR", 3),     # legal
+        det("F4", "espejo.gris.test", "198.51.100.5", "LF26-FIN-LIC-OESTE", 4),     # señal de Oeste robada
+        det("F5", "vod.otro.test", "198.51.100.9", "LF25-X-OFI-1", 5),              # otro partido
+        det("F6", "x.sinmarca.test", "198.51.100.8", None, 6),                      # sin marca
+        det("F7", "live.rojo.test", "198.51.100.1", "LF26-FIN-OFI-A1", 11),         # repetición
+        det("F8", "live2.rojo.test", "198.51.100.3", "LF26-FIN-OFI-A1", 40),        # mudanza a IP exclusiva
+        det("F9", "nuevo.rojo.test", "203.0.113.77", "LF26-FIN-OFI-A1", 70),        # mudanza a IP sin DNS
+    ]
+    cerebro = Cerebro(partido, consultar)
+    nuevos = [c for c, n in (cerebro.procesar(d) for d in detecciones) if n]
+    clas = {c["host"]: (c["clasificacion"], c["tipo_recomendado"]) for c in nuevos}
+    assert len(nuevos) == 8, len(nuevos)
+    assert clas["live.rojo.test"] == ("pirata", "ip")
+    assert clas["cdn.verde.test"] == ("pirata", "dominio")
+    assert clas["vivo.canalsur.test"][0] == "licenciatario_legal"
+    assert clas["espejo.gris.test"] == ("pirata", "dominio")
+    assert clas["vod.otro.test"][0] == "otra_senal"
+    assert clas["x.sinmarca.test"][0] == "sin_marca"
+    assert clas["live2.rojo.test"] == ("pirata", "ip")
+    assert clas["nuevo.rojo.test"] == ("pirata", "dominio")
+
+
 def main() -> int:
     pruebas = [v for k, v in globals().items() if k.startswith("prueba_")]
     fallas = 0

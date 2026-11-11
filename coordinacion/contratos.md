@@ -1,9 +1,13 @@
-# Contratos entre piezas — v1.4
+# Contratos entre piezas — v1.5
 
 > **Versión v1 (cerrada por T00, 2026-11-11).** Reemplaza al borrador v0.
 > La versión en código, con TypedDict, constantes y ejemplos coherentes, está en `plataforma/contratos.py`.
 > Cualquier cambio se avisa con un mensaje a `todos` y sube la versión (v1 → v2).
 > Fuente de verdad del lado del simulador: `README.md`, `simulador/servidor.py` y `evaluacion/verificar.py`. Si este documento y el simulador no coinciden, manda el simulador: avisen en el buzón.
+
+## Cambios v1.4 → v1.5
+- **`sitio_de(host)` usa una lista de sufijos públicos** (`SUFIJOS_PUBLICOS` en `contratos.py`, un subconjunto de la Public Suffix List). Ejemplos: `www.diario.com.ar` → `diario.com.ar` (antes `com.ar`) y `tienda.vercel.app` → `tienda.vercel.app`. Para los `.test` y `.example` del simulador no cambia nada.
+- **Cerebro:** un dominio autorizado de un licenciatario nunca se clasifica `pirata`, venga con la marca que venga. Marcas y hosts se comparan sin importar mayúsculas ni espacios. Si el DNS pasivo falla o no trae dominios, se va a `dominio`.
 
 ## Cambios v1.3 → v1.4 (aditivo)
 - **API de T01 definida** (§2, al final): `Cerebro(partido, consultar_dns).procesar(deteccion) -> (caso, es_nuevo)`. Implementada en `plataforma/analisis/`.
