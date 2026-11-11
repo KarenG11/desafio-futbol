@@ -64,13 +64,13 @@ uvicorn plataforma.web.mock_api:app --port 8000
 ```
 Abrir http://localhost:8000/juez/ con el PIN `1234`, idealmente en tamaño celular. El mock corre el partido de práctica a x10 con el cerebro real. Para ver el cambio de turno del minuto 50, arrancalo con `MOCK_INICIO_MIN=46`.
 
-**4. El circuito completo contra el simulador** (necesita que estén T02 y T05; ver "Estado"):
+**4. El circuito completo contra el simulador** (motor, despacho, API y pantalla del juez en un solo comando):
 ```bash
 python simulador/servidor.py --acelerar 6
 python -m plataforma.main --sim http://localhost:8080 --local
 python evaluacion/verificar.py --log salida/registro.jsonl
 ```
-El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde http://localhost:8000/juez/. El tercero se corre cuando termina el partido.
+El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde http://localhost:8000/juez/ con el PIN que imprime el motor al arrancar (o el de la variable `JUEZ_PIN`). Para entrar desde el celular por wifi agregá `--red`. Por defecto el motor solo escucha en la propia máquina. El tercero se corre cuando termina el partido.
 
 **En línea:** la web del juez y el registro público se publican en Vercel. La dirección se completa acá cuando esté el deploy (tarea T11).
 
@@ -81,9 +81,25 @@ El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde 
 | T03 Evidencia y auditoría | ✅ Hecho y probado |
 | T04 Pantalla del juez | ✅ Funciona contra el mock. Falta probarla con la URL pública |
 | T08 Propuesta normativa | ✅ Hecho (Rocío) |
-| T02 Despacho, T05 Motor, T11 Base y Vercel | En curso |
+| T02 Despacho + T05 Motor | ✅ Circuito completo: **7 de 7 fases bloqueadas, 3,1 % de visibilidad residual, 0 colateral** (ver abajo) |
+| T11 Base y Vercel | En curso (Selene) |
 | T07 Registro público | En curso (Rocío) |
 | T06 Reclamos, T12 Sandbox | Extras |
+
+## Resultado del verificador oficial
+Partido de práctica a x30 con `--juez-automatico`. Salida completa en [`practica/verificador-practica.txt`](practica/verificador-practica.txt).
+
+| Métrica | Cliente de ejemplo | Nuestra plataforma |
+|---|---|---|
+| Fases piratas bloqueadas | 1 de 7 | **7 de 7** |
+| Visibilidad residual promedio | 92,4 % | **3,1 %** |
+| Primer bloqueo después de la detección | 14,7 min | **0,5–0,7 min** |
+| Clientes cubiertos por fase | — | **100 %** |
+| Sitios legítimos afectados / falsos positivos | 0 / 0 | **0 / 0** |
+| Órdenes rechazadas / firmadas fuera de turno | 1 / 0 | **0 / 0** |
+| IP bloqueadas después del partido | 0 | **0** |
+
+Las 7 órdenes que Cumbre hizo fallar se reintentaron solas y quedaron aplicadas. En el partido real hay que sumarle al primer bloqueo lo que tarda el juez en firmar. La evidencia de esa corrida está en [`practica/`](practica/): el expediente y la auditoría, con la cadena de hashes íntegra.
 
 ## Supuestos
 - **La firma del juez es un HMAC** con la clave de demostración del simulador, porque es lo que acepta. **Legalmente no alcanza:**

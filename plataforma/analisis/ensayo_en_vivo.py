@@ -35,7 +35,7 @@ def main() -> int:
     p.add_argument("--sim", default="http://localhost:8080")
     p.add_argument("--verdad", type=Path)
     args = p.parse_args()
-    base = args.sim.rstrip("/")
+    base = args.sim.rstrip("/").replace("://localhost", "://127.0.0.1")  # evita la espera por IPv6 en Windows
 
     partido = pedir(base, "/partido")
     cerebro = Cerebro(partido, lambda ip: pedir(base, f"/dns-pasivo?ip={ip}"))

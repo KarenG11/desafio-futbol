@@ -2,7 +2,7 @@
 
 **La idea en una frase:** un juez de turno firma desde el celular en segundos, y la orden de bloqueo llega a todos los proveedores de internet del país, no solo a los grandes, con evidencia que nadie puede trucar.
 
-Los números entre [corchetes] se completan con la corrida del partido final. No inventar ninguno.
+Los números salen solo del verificador oficial. Hoy son los del partido de práctica; el viernes se reemplazan por los del final si cambian.
 
 ---
 
@@ -26,7 +26,9 @@ Una persona maneja el celular del juez, proyectado. Otra muestra el registro y e
 6. **Evidencia que no se puede trucar.** Abrir el expediente y mostrar la huella SHA-256. Alterar una línea de la auditoría y correr la verificación: "Salta la alerta en la línea exacta."
 
 ### 4. Resultado (2:10–2:35)
-> "Corrimos el verificador oficial del desafío. El cliente de ejemplo bloqueó 1 de 7 streams y dejó ver el partido pirata al 92 % de la gente. Nosotros: [7 de 7] streams bloqueados, visibilidad residual [X %], cero sitios legítimos afectados, cero bloqueos al licenciatario, cero IPs bloqueadas después del partido."
+> "Corrimos el verificador oficial del desafío. El cliente de ejemplo bloqueó 1 de 7 streams y dejó ver el partido pirata al 92 % de la gente. Nosotros: 7 de 7 streams bloqueados, en todos los proveedores, a menos de un minuto de cada detección. El partido pirata lo pudo ver el 3 % de la gente, contra el 92 % de antes. Cero sitios legítimos afectados, cero bloqueos al licenciatario, cero firmas fuera de turno y cero IPs bloqueadas después del partido."
+
+*(Partido de práctica a x30 con juez automático, `entrega/practica/verificador-practica.txt`. En vivo hay que sumarle lo que tarda el juez en firmar. Si la corrida del final da otros números, reemplazarlos.)*
 
 ### 5. Quién paga y qué hace falta (2:35–2:50)
 > "Lo paga quien pierde la plata: los titulares de derechos, que según la industria pierden cientos de millones de dólares por año solo en Argentina. El mismo problema está en Perú, México y Colombia. El juez y los proveedores lo usan sin costo. El software nunca fue lo caro: en Italia los proveedores reclaman unos 10 millones de euros por año de trabajo manual. A nosotros vigilar un partido nos cuesta centavos de dólar de nube, según nuestra estimación. Para arrancar alcanza con un piloto en un partido de la liga y una resolución del ENACOM que obligue a cada proveedor a tener un canal electrónico de órdenes. Está en nuestra propuesta normativa y en `escenarios-y-modelo.md`."
@@ -77,7 +79,7 @@ Se contradicen entre fuentes o los publica solo la industria:
 
 ## Antes de subir
 - [ ] Cronómetro en pantalla durante la demo: desde la detección hasta la confirmación del último proveedor
-- [ ] Números reales del verificador en la sección 4 (sin corchetes)
+- [x] Números reales del verificador en la sección 4 (práctica; actualizar con el final si cambian)
 - [ ] Video grabado y subido a Hacki
 - [ ] URL pública de Vercel funcionando desde un celular
 - [ ] `entrega/` con el expediente y la auditoría del partido final, y la propuesta normativa
