@@ -6,6 +6,7 @@ La regla número uno es **no pisarse**. Antes de tocar cualquier cosa, seguí el
 ## Qué estamos construyendo
 El MVP de una plataforma federal de órdenes de bloqueo en vivo contra transmisiones piratas de fútbol.
 Se conecta al simulador de la organización y hace el circuito completo: expediente → juez de turno → proveedores → confirmación → vencimiento → auditoría.
+**Deploy:** la web del juez, el registro público y la API van en **Vercel**, sobre una base Postgres. El motor corre en la notebook, conectado al simulador (decisiones 15 a 21 y `coordinacion/diseno.md` §1).
 El enunciado completo está en `README.md`. Las decisiones tomadas están en `coordinacion/decisiones.md`.
 
 ## Qué es nuestro y qué no

@@ -3,19 +3,32 @@
 Aprobado por Alejo el 2026-11-11 (T00). Los contratos de datos son los de `contratos.md` (v1) y `plataforma/contratos.py`. **Si este documento y los contratos difieren en un nombre o formato, mandan los contratos.** Este documento explica el *porqué* y las reglas de decisión.
 
 ## 1. Qué es
-Un solo programa Python (FastAPI) que se conecta al simulador y hace el circuito completo durante el partido:
+Dos procesos Python que comparten una base Postgres (decisiones 15 a 21):
 
 ```
-SIMULADOR ──detecciones, DNS pasivo, reclamos──► MOTOR (loop)
-   ▲                                              │
-   │ órdenes firmadas                             ├─► CEREBRO      clasifica y arma casos
-   │                                              ├─► EVIDENCIA    expediente + auditoría encadenada
+SIMULADOR ──detecciones, DNS pasivo, reclamos──► MOTOR (loop, en la notebook)
+   ▲                                              ├─► CEREBRO    clasifica y arma casos
+   │ órdenes firmadas                             ├─► EVIDENCIA  expediente + auditoría encadenada
    └──────────── DESPACHO ◄── pedido aprobado ────┤
-                                                  └─► API ◄──► WEB DEL JUEZ (celular, aprueba en lote)
-                                                             └► REGISTRO PÚBLICO (/api/publico)
+                                                  ▼
+                              POSTGRES (Neon): casos, expedientes, pedidos, ordenes, reclamos, auditoria
+                                                  ▲
+                              VERCEL (FastAPI) ───┤
+                                 ├─► WEB DEL JUEZ (celular, PIN, aprueba en lote)
+                                 ├─► REGISTRO PÚBLICO
+                                 └─► API (contratos §5)
 ```
 
-Se corre con `python -m plataforma.main --sim http://localhost:8080`. El flag `--juez-automatico` sirve solo para probar partidos acelerados. En el partido final aprueba una persona desde el celular.
+- **Motor:** `python -m plataforma.motor --sim http://localhost:8080` (con `DATABASE_URL`). Es el único que habla con el simulador, firma y escribe la auditoría.
+- **Web + API:** se despliega en Vercel. Lee y escribe la base. Al aprobar, marca el pedido como `aprobado` y el motor lo toma en el próximo ciclo (~1 s).
+- **Modo local (plan B):** `python -m plataforma.main --sim http://localhost:8080 --local` levanta motor y web en un solo proceso con SQLite. Es el mismo código con otra `DATABASE_URL`.
+
+El flag `--juez-automatico` sirve solo para probar partidos acelerados. En el partido final aprueba una persona desde el celular.
+
+### Escala
+- Cada fila lleva `partido_id`: varios partidos en paralelo, con un motor por partido y una sola web.
+- La web no tiene estado ni claves, así que Vercel la escala sola.
+- La base es el punto de encuentro: los motores y la web no se hablan directo.
 
 ## 2. Cerebro (`plataforma/analisis/`)
 Probado contra `evaluacion/verdad_practica.json`: 9 de 9 casos correctos.
@@ -63,4 +76,4 @@ Los casos descartados se registran en la auditoría con su motivo. Solo los `pir
 `evaluacion/verificar.py`: 7 de 7 fases bloqueadas, visibilidad residual mínima, 0 colateral, 0 falsos positivos, 0 rechazos, 0 firmas fuera de turno y 0 IP activas después del partido. Línea base (cliente de ejemplo): 1 de 7 y 92,4 %.
 
 ## 8. Fuera de alcance
-Login y usuarios reales, base de datos (alcanza con memoria + JSONL), firma digital real (se explica en el pitch y en la propuesta normativa) y deploy en la nube del motor (corre en la notebook, conectado al simulador que asigne la organización).
+Login y usuarios reales (alcanza con el PIN de demo), firma digital real (se explica en el pitch y en la propuesta normativa) y deploy en la nube del motor (corre en la notebook, conectado al simulador que asigne la organización; ver decisión 16).

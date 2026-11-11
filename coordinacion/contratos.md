@@ -1,9 +1,16 @@
-# Contratos entre piezas — v1
+# Contratos entre piezas — v1.2
 
 > **Versión v1 (cerrada por T00, 2026-11-11).** Reemplaza al borrador v0.
 > La versión en código, con TypedDict, constantes y ejemplos coherentes, está en `plataforma/contratos.py`.
 > Cualquier cambio se avisa con un mensaje a `todos` y sube la versión (v1 → v2).
 > Fuente de verdad del lado del simulador: `README.md`, `simulador/servidor.py` y `evaluacion/verificar.py`. Si este documento y el simulador no coinciden, manda el simulador: avisen en el buzón.
+
+## Cambios v1.1 → v1.2 (aditivo: no cambia ninguna forma)
+
+- **Dónde vive el estado.** La API de §5 ya no la sirve el proceso del motor: la sirve la web en Vercel, que lee y escribe la base Postgres (decisiones 15 a 21). Las rutas, los requests y los responses son los mismos.
+- **Base de datos (§10, nuevo).** Una tabla por contrato, con el dict completo en JSONB. Todas las filas llevan `partido_id`.
+- **`POST /api/pedidos/aprobar`, `/api/pedidos/rechazar`, `/api/turno/asumir` y `/api/reclamos/levantar`** piden el header `X-Juez-Pin` (variable `JUEZ_PIN`). Sin PIN o con un PIN incorrecto → 401 `{"error": ...}`.
+- **Aprobar ya no despacha en el acto.** Deja el pedido en `aprobado` y el motor lo despacha en su próximo ciclo (~1 s). La auditoría de la aprobación la escribe el motor.
 
 ## Cambios v0 → v1
 
@@ -250,7 +257,7 @@ Solo los `pirata` van al juez. Los demás se auditan como `caso_descartado`. En 
 
 ## 5. API del motor (T05 la sirve; T04, T06 y T07 la consumen)
 
-Mismo proceso FastAPI. JSON en request y response. Errores: `{"error": "..."}` con 400/404/409.
+La sirve la web en Vercel (FastAPI), que lee la base (§10); en modo local la sirve el mismo proceso que el motor. JSON en request y response. Errores: `{"error": "..."}` con 400/404/409.
 
 | Método y ruta | Request | Response (ejemplo en `contratos.py`) |
 |---|---|---|
@@ -382,6 +389,13 @@ Una entrada por **(pedido, tipo, objetivo)**, servida por `GET /api/publico`:
 - Tiene que coincidir con la auditoría interna.
 
 ---
+
+## 10. Base de datos (v1.2) — `plataforma/db/` (T11)
+
+- `DATABASE_URL`: `postgres://...` en Vercel y en el motor, o `sqlite:///salida/plataforma.db` en modo local. El mismo código funciona con las dos.
+- Tablas: `casos`, `expedientes`, `pedidos`, `ordenes`, `reclamos`, `auditoria`. Columnas: `partido_id`, el id del contrato (`caso_id`, `pedido_id`, …), `estado` cuando corresponda y `datos` (el dict del contrato, JSONB en Postgres y TEXT en SQLite). `auditoria` suma `seq` y `hash`, con `UNIQUE (partido_id, seq)`.
+- Quién escribe qué: el **motor** escribe todo, menos la decisión del juez. La **web** solo cambia `pedidos.estado` (y `juez_id`, `decidido_min`, `motivo_rechazo`), las ratificaciones de turno y los pedidos de levantamiento. **Solo el motor escribe en `auditoria`.**
+- Nadie guarda en la base claves de firma, firmas completas ni `contenido_b64`.
 
 ## Ejemplos
 
