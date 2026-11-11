@@ -3,10 +3,10 @@
 Aprobado por Alejo el 2026-11-11 (T00). Los contratos de datos son los de `contratos.md` (v1) y `plataforma/contratos.py`. **Si este documento y los contratos difieren en un nombre o formato, mandan los contratos.** Este documento explica el *porqué* y las reglas de decisión.
 
 ## 1. Qué es
-Dos procesos Python que comparten una base Postgres (decisiones 15 a 21):
+Todo online en Vercel: la web en una función, el motor en un Vercel Sandbox y una base Postgres en el medio (decisiones 15 a 24):
 
 ```
-SIMULADOR ──detecciones, DNS pasivo, reclamos──► MOTOR (loop, en la notebook)
+SIMULADOR ──detecciones, DNS pasivo, reclamos──► MOTOR (loop, en Vercel Sandbox)
    ▲                                              ├─► CEREBRO    clasifica y arma casos
    │ órdenes firmadas                             ├─► EVIDENCIA  expediente + auditoría encadenada
    └──────────── DESPACHO ◄── pedido aprobado ────┤
@@ -19,7 +19,8 @@ SIMULADOR ──detecciones, DNS pasivo, reclamos──► MOTOR (loop, en la no
                                  └─► API (contratos §5)
 ```
 
-- **Motor:** `python -m plataforma.motor --sim http://localhost:8080` (con `DATABASE_URL`). Es el único que habla con el simulador, firma y escribe la auditoría.
+- **Motor:** `python -m plataforma.motor --sim <url>` (con `DATABASE_URL`). Es el único que habla con el simulador, firma y escribe la auditoría. Corre en un **Vercel Sandbox** que prende la web. Si el simulador del final no se alcanza desde internet, corre en la notebook (decisión 24).
+- **Partido de demo:** el botón "Correr partido de práctica" prende un Sandbox con el simulador de la organización y el motor, y al final muestra la salida de `verificar.py` (decisión 23).
 - **Web + API:** se despliega en Vercel. Lee y escribe la base. Al aprobar, marca el pedido como `aprobado` y el motor lo toma en el próximo ciclo (~1 s).
 - **Modo local (plan B):** `python -m plataforma.main --sim http://localhost:8080 --local` levanta motor y web en un solo proceso con SQLite. Es el mismo código con otra `DATABASE_URL`.
 
