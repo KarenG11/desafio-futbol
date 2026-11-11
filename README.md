@@ -242,7 +242,7 @@ El día 3 se corre el mismo script contra el escenario final.
 ## Entregables del día 3
 
 1. Repositorio público con el código y el README.
-2. Video de hasta 3 minutos, cargado en Hacki, que muestre el circuito completo (carga, juez, proveedores, confirmación, vencimiento) y un reclamo resuelto. Puede grabarse sobre un partido de práctica y mostrar al final la salida de `evaluacion/verificar.py`.
+2. Video de hasta 3 minutos, cargado en Hacki, que muestre el circuito completo (carga, juez, proveedores, confirmación, vencimiento) y, si implementaron reclamos, uno resuelto. Puede grabarse sobre un partido de práctica y mostrar al final la salida de `evaluacion/verificar.py`.
 3. En la carpeta `entrega/` del repo: un ejemplo exportado de un expediente y del registro de auditoría generados durante el partido final.
 4. En la misma carpeta, la **propuesta normativa** de 1 página, en Markdown o PDF: qué tendría que establecer una ley o una resolución para que la plataforma funcione (orden marco, registro de proveedores, plazos, control de daño colateral, reclamos, transparencia). No hace falta lenguaje jurídico: alcanza con que diga qué debería establecerse y por qué.
 5. Pitch ante el jurado.
