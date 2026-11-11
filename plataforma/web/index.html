@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14213D">
+  <title>Juez de turno</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="marcador" aria-live="polite">
+    <div class="marcador__fila">
+      <p class="minuto"><span id="minuto">0</span><span class="minuto__comilla">'</span></p>
+      <div class="marcador__texto">
+        <p class="partido" id="partido">Conectando con la plataforma…</p>
+        <p class="turno">De turno: <strong id="juez">—</strong></p>
+      </div>
+    </div>
+    <div class="reloj" aria-hidden="true">
+      <div class="reloj__avance" id="avance"></div>
+      <div class="reloj__cambio" id="marca-turno" hidden></div>
+    </div>
+    <p class="marcador__nota" id="nota-turno"></p>
+  </header>
+
+  <section class="ingreso" id="ingreso" hidden>
+    <form id="form-pin">
+      <h1>Firma de órdenes de bloqueo</h1>
+      <p>Ingresá el PIN del juzgado para ver los pedidos y firmarlos.</p>
+      <label for="pin">PIN</label>
+      <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="one-time-code" required>
+      <p class="ingreso__error" id="pin-error" role="alert"></p>
+      <button type="submit" class="boton boton--firmar">Entrar</button>
+    </form>
+  </section>
+
+  <div class="avisos" id="avisos" aria-live="assertive"></div>
+
+  <main id="tablero" hidden>
+    <section aria-labelledby="t-pedidos">
+      <h2 id="t-pedidos" class="titulo-seccion">Esperan tu firma <span class="cuenta" id="cuenta">0</span></h2>
+      <ol class="pedidos" id="pedidos"></ol>
+      <p class="vacio" id="vacio">No hay pedidos esperando. Cuando el radar detecte un stream pirata del partido, aparece acá con su evidencia.</p>
+    </section>
+
+    <section aria-labelledby="t-ordenes" class="ordenes">
+      <h2 id="t-ordenes" class="titulo-seccion">Órdenes enviadas</h2>
+      <p class="ordenes__ayuda">Una fila por stream, una casilla por proveedor de internet.</p>
+      <div id="ordenes"></div>
+      <p class="vacio" id="vacio-ordenes">Todavía no firmaste ninguna orden.</p>
+    </section>
+  </main>
+
+  <footer class="accion" id="accion" hidden>
+    <button type="button" class="boton boton--firmar boton--ancho" id="firmar-todos" disabled>Firmar los pedidos</button>
+  </footer>
+
+  <template id="tpl-pedido">
+    <li class="pedido">
+      <header class="pedido__cabeza">
+        <h3 class="pedido__sitio"></h3>
+        <p class="pedido__cuando"></p>
+      </header>
+      <dl class="pedido__datos">
+        <div><dt>Por qué es el partido</dt><dd class="d-porque"></dd></div>
+        <div><dt>De dónde sale el video</dt><dd class="d-servidor"></dd></div>
+        <div><dt>Qué se bloquea</dt><dd class="d-bloqueo"></dd></div>
+        <div><dt>Hasta cuándo</dt><dd class="d-hasta"></dd></div>
+      </dl>
+      <details class="expediente">
+        <summary>Ver expediente</summary>
+        <div class="expediente__cuerpo">Cargando…</div>
+      </details>
+      <div class="rechazo" hidden>
+        <label>Motivo del rechazo<textarea rows="2" required></textarea></label>
+        <div class="pedido__botones">
+          <button type="button" class="boton boton--suave b-cancelar">Volver</button>
+          <button type="button" class="boton boton--rechazar b-confirmar-rechazo">Confirmar rechazo</button>
+        </div>
+      </div>
+      <div class="pedido__botones b-acciones">
+        <button type="button" class="boton boton--suave b-rechazar">Rechazar</button>
+        <button type="button" class="boton boton--firmar b-firmar">Firmar</button>
+      </div>
+    </li>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

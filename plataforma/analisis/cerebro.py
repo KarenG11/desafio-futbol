@@ -76,7 +76,7 @@ class Cerebro:
                         f"{licenciatario['nombre']} retransmite con autorización en su propio dominio")
             return ("pirata", origen,
                     f"Señal de {licenciatario['nombre']} retransmitida en un dominio que no es suyo")
-        return "pirata", origen, f"Señal oficial del partido ({origen}) en un dominio no autorizado"
+        return "pirata", origen, "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla"
 
     def _riesgo_colateral(self, host: str, ip: str) -> Tuple[Optional[DnsPorIp], bool, str, str]:
         """(dns, ip_compartida, tipo_recomendado, motivo_tipo)."""
