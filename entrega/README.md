@@ -72,7 +72,13 @@ El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde 
 | T06 Reclamos, T07 Registro público, T12 Sandbox | Extras |
 
 ## Supuestos
-- **La firma del juez es un HMAC** con la clave de demostración del simulador. En la vida real sería firma digital (Ley 25.506) con el certificado del juez.
+- **La firma del juez es un HMAC** con la clave de demostración del simulador, porque es lo que acepta. **Legalmente no alcanza:**
+  - la clave es compartida, así que cualquiera que la tenga puede firmar;
+  - no se puede verificar sin tenerla;
+  - el art. 288 del Código Civil y Comercial exige **firma digital** en documentos electrónicos.
+
+  En producción, la plataforma arma cada orden como documento PDF con su expediente y sus hashes. **El juez la firma con su propio certificado** de firma digital (Ley 25.506), desde el celular, con la [Plataforma de Firma Digital Remota](https://www.argentina.gob.ar/jefatura/innovacion-ciencia-y-tecnologia/innovacion/firma-digital/pfdr), que funciona sin token y con un código de un solo uso. **La plataforma nunca tiene la clave del juez.** Cada proveedor verifica la firma con el certificado público antes de bloquear. "Firmar en lote" son varias firmas, una por orden y cada una con su fundamento; no una sola firma que cubra todo.
+- **El acceso del juez es un PIN de demo.** En producción, la identidad la da la propia firma digital.
 - **"Sitio" son las dos últimas etiquetas del dominio** (`s1.pelotaya.test` → `pelotaya.test`). Alcanza para los dominios `.test` del simulador; en producción haría falta la Public Suffix List.
 - **Si el DNS pasivo no tiene datos de una IP, la tratamos como compartida** y bloqueamos solo el nombre: preferimos no bloquear de más.
 - **Todas las órdenes vencen en el minuto en que termina el partido**, también las de nombre. Extenderlas requiere una orden nueva, por proporcionalidad.
