@@ -23,6 +23,7 @@ class SincroDB:
         self._pedidos_subidos: set = set()
         self._rechazos_vistos: set = set()
         self._aud_offset = 0
+        db.usar_conexion_persistente()
         db.crear_esquema()
 
     def _cambio(self, clave: str, obj) -> bool:

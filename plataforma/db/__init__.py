@@ -6,6 +6,7 @@ SQLite en modo local (DATABASE_URL=sqlite:///salida/plataforma.db).
 import json
 import os
 import sqlite3
+import threading
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
@@ -85,10 +86,40 @@ def conectar():
     return conn
 
 
+# Procesos largos (el motor) reusan una conexión por hilo: abrir una contra Neon cuesta ~0,8 s y, a x30,
+# eso son minutos de partido por vuelta. La web de Vercel sigue con una conexión por request.
+_persistente = False
+_local = threading.local()
+
+
+def usar_conexion_persistente(si: bool = True) -> None:
+    global _persistente
+    _persistente = si
+
+
 @contextmanager
 def _sesion() -> Iterator[Tuple[Any, Any, bool]]:
-    conn = conectar()
     pg = _es_postgres()
+    if _persistente:
+        conn = getattr(_local, "conn", None)
+        if conn is None or getattr(conn, "closed", False):
+            conn = conectar()
+            _local.conn = conn
+        try:
+            cur = conn.cursor()
+            yield conn, cur, pg
+            conn.commit()
+        except Exception:
+            # Ante cualquier error se descarta la conexión: la próxima sesión abre una sana.
+            for cerrar in (conn.rollback, conn.close):
+                try:
+                    cerrar()
+                except Exception:
+                    pass
+            _local.conn = None
+            raise
+        return
+    conn = conectar()
     try:
         cur = conn.cursor()
         yield conn, cur, pg

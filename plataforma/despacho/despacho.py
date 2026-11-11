@@ -108,6 +108,11 @@ class Despacho:
         with self.lock:
             juez = self.de_turno[0] if self.de_turno else None
             enviadas = []
+            if self.minuto >= int(pedido["vence_min"]):
+                # El proveedor la rechazaría (vence_min tiene que ser futuro) y cada rechazo cuenta en contra.
+                self.auditar("despacho", "pedido_vencido_sin_enviar",
+                             {"pedido_id": pedido["pedido_id"], "vence_min": int(pedido["vence_min"])})
+                return enviadas
             for ob in pedido["objetivos"]:
                 if juez is None:
                     break

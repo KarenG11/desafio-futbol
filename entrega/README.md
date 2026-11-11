@@ -4,6 +4,8 @@
 
 Mientras se juega el partido, la plataforma detecta un stream pirata y arma el expediente con evidencia verificable. Después se lo muestra al **juez de turno en el celular**, que firma con un toque, y manda la orden a **todos los proveedores de internet**, cada uno en el tipo de bloqueo que acepta. Sigue cada orden hasta que confirma, reintenta las que fallan, levanta sola los bloqueos por IP al terminar el partido y deja todo en una auditoría que no se puede alterar sin que se note.
 
+**En línea:** https://desafio-futbol-iota.vercel.app (pantalla del juez en `/juez/`, partido de práctica en vivo en `/juez/demo.html`, registro público en `/api/publico`).
+
 > Todo es ficticio: proveedores, juzgados, dominios `.test` e IPs de documentación. Solo trabajamos contra el simulador de la organización. No se bloquea nada real.
 
 ## Por qué un juez, y por qué en Argentina
@@ -78,20 +80,23 @@ DATABASE_URL=postgres://...  python -m plataforma.main --sim URL_DEL_SIMULADOR -
 ```
 Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/plataforma.db JUEZ_PIN=<pin> uvicorn plataforma.api.app:app --port 8020` en una terminal, el motor con `--base --sin-web` en otra, y la pantalla del juez en http://localhost:8020/juez/. Así se hizo la corrida `practica-juez-humano/`.
 
-**En línea:** la dirección de Vercel se completa acá cuando Selene publique el deploy (T11).
+**En línea:** https://desafio-futbol-iota.vercel.app. La web y la API corren en Vercel sobre una base Postgres en Neon (São Paulo).
+
+**6. Partido de práctica online (T12), sin ninguna notebook.** En https://desafio-futbol-iota.vercel.app/juez/demo.html se pone el PIN y se aprieta "Correr partido de práctica". La web prende un Vercel Sandbox que clona este repo y levanta el simulador de la organización y nuestro motor apuntando a la base. El juez firma desde `/juez/` en el celular y, al terminar, la página muestra la salida de `evaluacion/verificar.py`. Hay un solo partido a la vez, con velocidad de x6 a x30.
 
 ## Estado (se actualiza durante el evento)
 | Tarea | Estado |
 |---|---|
 | T01 Cerebro | ✅ Hecho y probado (13 de 13, más 9 de 9 en vivo contra el simulador) |
 | T03 Evidencia y auditoría | ✅ Hecho y probado |
-| T04 Pantalla del juez | ✅ Funciona contra el mock. Falta probarla con la URL pública |
+| T04 Pantalla del juez | ✅ En línea en Vercel, leyendo la base real |
 | T08 Propuesta normativa | ✅ Hecho (Rocío) |
 | T02 Despacho + T05 Motor | ✅ Circuito completo, conectado a la base de T11: **7 de 7, 0 colateral** (ver abajo) |
-| T11 Base y API | ✅ Probada en integración con el motor y la pantalla del juez (SQLite). Falta el deploy público en Vercel (Selene) |
+| T11 Base y API | ✅ En línea: Vercel + Neon (Selene escribió la base y la API; Alejo publicó el deploy) |
 | T06 Reclamos | ✅ El motor lee `/reclamos`, verifica, levanta con firma y reemplaza por dominio; la web los pide por solicitud |
-| T07 Registro público | En curso (Rocío) |
-| T06 Reclamos, T12 Sandbox | Extras |
+| T07 Registro público | ✅ Hecho (Rocío) |
+| T10 Validación | ✅ Partido completo y cambio de turno, en `entrega/validacion/` |
+| T12 Partido de demo online | ✅ Vercel Sandbox con simulador + motor, lanzado desde la web |
 
 ## Resultado del verificador oficial
 Dos corridas del partido de práctica. Cada una tiene su evidencia (expediente con hash verificado, auditoría íntegra y salida del verificador):

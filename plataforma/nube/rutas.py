@@ -103,6 +103,7 @@ async def iniciar_demo(pedido: PedidoDemo):
             source=GitSource(url=REPO, revision="main", depth=1),
             execution_time_limit=timedelta(minutes=min(44, minutos + 5)),
             persistent=False,
+            region="gru1",                 # la misma región que la base Neon (São Paulo)
             tags={"tipo": "partido-demo"},
             env={
                 "DATABASE_URL": os.environ["DATABASE_URL"],
