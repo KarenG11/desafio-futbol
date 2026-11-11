@@ -15,7 +15,9 @@ from pydantic import BaseModel
 from plataforma import db
 
 REPO = "https://github.com/alejogomezmdz14-hash/desafio-futbol.git"
-COMANDO = ("python3 -m venv /tmp/venv && /tmp/venv/bin/pip install -q -r requirements.txt "
+# GitSource clona en /vercel/<nombre del repo>: se busca la carpeta por su requirements.txt.
+COMANDO = ('cd "$(dirname "$(find /vercel -maxdepth 2 -name requirements.txt | head -1)")" '
+           "&& python3 -m venv /tmp/venv && /tmp/venv/bin/pip install -q -r requirements.txt "
            "&& /tmp/venv/bin/python -m plataforma.nube.partido_demo > /tmp/partido_demo.log 2>&1")
 ACTIVO_S = 30   # si el motor escribió hace menos de esto y el partido no terminó, hay un partido corriendo
 
@@ -108,7 +110,7 @@ async def iniciar_demo(pedido: PedidoDemo):
                 "DEMO_JUEZ_AUTOMATICO": "1" if pedido.juez_automatico else "0",
             },
         )
-        await box.create_command("bash", ["-lc", COMANDO], cwd="/vercel/sandbox",
+        await box.create_command("bash", ["-lc", COMANDO],
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
         _liberar()             # no arrancó: se libera el lugar para reintentar
