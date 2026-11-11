@@ -2,9 +2,9 @@
 id: T08
 titulo: Propuesta normativa (1 página)
 carpeta: entrega/propuesta-normativa.md
-estado: libre
-dueno: 
-desde: 
+estado: en-curso
+dueno: rocio
+desde: 2026-11-11 14:53
 creada_por: alejo
 depende_de: 
 ---
