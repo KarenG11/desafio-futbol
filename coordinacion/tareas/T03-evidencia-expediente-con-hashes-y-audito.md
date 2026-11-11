@@ -2,9 +2,9 @@
 id: T03
 titulo: Evidencia: expediente con hashes y auditoría encadenada
 carpeta: plataforma/evidencia/
-estado: en-curso
+estado: hecha
 dueno: rocio
-desde: 2026-11-11 13:11
+desde: 2026-11-11 13:41
 creada_por: alejo
 depende_de: T00
 ---
