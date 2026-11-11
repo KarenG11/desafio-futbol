@@ -2,3 +2,8 @@ salida/
 __pycache__/
 *.pyc
 coordinacion/.leidos/
+
+# Secretos y config local de Vercel (DATABASE_URL, JUEZ_PIN)
+.env
+.env.*
+.vercel/
