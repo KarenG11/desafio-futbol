@@ -2,9 +2,8 @@ import base64
 import json
 import os
 from datetime import datetime, timezone
-from typing import Dict, Any, List
+from typing import Dict, Any
 
-# Importamos las herramientas que hizo Alejo en contratos.py
 from plataforma.contratos import (
     Caso, Deteccion, Expediente, EventoAuditoria,
     sha256_captura, hash_expediente, hash_evento_auditoria, HASH_INICIAL
@@ -94,3 +93,34 @@ class GestorEvidencia:
             f.write(json.dumps(evento) + "\n")
             
         return evento
+
+    def verificar_integridad(self) -> bool:
+        """Revisa que la cadena de auditoría no haya sido alterada."""
+        if not os.path.exists(self.ruta_auditoria):
+            print("No hay archivo de auditoría para verificar.")
+            return True
+
+        prev_hash_esperado = HASH_INICIAL
+        
+        with open(self.ruta_auditoria, "r", encoding="utf-8") as f:
+            for num_linea, linea in enumerate(f, 1):
+                if not linea.strip():
+                    continue
+                
+                evento = json.loads(linea)
+                
+                # 1. Verificar que el enlace (hash_prev) apunte al evento anterior
+                if evento["hash_prev"] != prev_hash_esperado:
+                    print(f"❌ ALERTA: Cadena rota en la línea {num_linea} (seq {evento['seq']}). Alguien alteró el pasado.")
+                    return False
+                
+                # 2. Re-calcular el hash del evento para ver si sus datos fueron cambiados
+                hash_calculado = hash_evento_auditoria(evento)
+                if evento["hash"] != hash_calculado:
+                    print(f"❌ ALERTA: Datos alterados en la línea {num_linea} (seq {evento['seq']}).")
+                    return False
+                
+                prev_hash_esperado = evento["hash"]
+                
+        print("✅ Integridad verificada: la cadena de auditoría es válida y no fue alterada.")
+        return True
