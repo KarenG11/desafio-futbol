@@ -72,7 +72,13 @@ python evaluacion/verificar.py --log salida/registro.jsonl
 ```
 El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde http://localhost:8000/juez/ con el PIN que imprime el motor al arrancar (o el de la variable `JUEZ_PIN`). Para entrar desde el celular por wifi agregá `--red`. Por defecto el motor solo escucha en la propia máquina. El tercero se corre cuando termina el partido.
 
-**En línea:** la web del juez y el registro público se publican en Vercel. La dirección se completa acá cuando esté el deploy (tarea T11).
+**5. Con la base y la web de Vercel** (modo del partido final). La web de T11 corre en Vercel y lee y decide sobre la base. El motor corre donde llegue al simulador y sincroniza con esa misma base:
+```bash
+DATABASE_URL=postgres://...  python -m plataforma.main --sim URL_DEL_SIMULADOR --base --sin-web --exportar-entrega
+```
+Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/plataforma.db JUEZ_PIN=<pin> uvicorn plataforma.api.app:app --port 8020` en una terminal, el motor con `--base --sin-web` en otra, y la pantalla del juez en http://localhost:8020/juez/. Así se hizo la corrida `practica-juez-humano/`.
+
+**En línea:** la dirección de Vercel se completa acá cuando Selene publique el deploy (T11).
 
 ## Estado (se actualiza durante el evento)
 | Tarea | Estado |
@@ -81,25 +87,29 @@ El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde 
 | T03 Evidencia y auditoría | ✅ Hecho y probado |
 | T04 Pantalla del juez | ✅ Funciona contra el mock. Falta probarla con la URL pública |
 | T08 Propuesta normativa | ✅ Hecho (Rocío) |
-| T02 Despacho + T05 Motor | ✅ Circuito completo: **7 de 7 fases bloqueadas, 3,1 % de visibilidad residual, 0 colateral** (ver abajo) |
-| T11 Base y Vercel | En curso (Selene) |
+| T02 Despacho + T05 Motor | ✅ Circuito completo, conectado a la base de T11: **7 de 7, 0 colateral** (ver abajo) |
+| T11 Base y API | ✅ Probada en integración con el motor y la pantalla del juez (SQLite). Falta el deploy público en Vercel (Selene) |
+| T06 Reclamos | ✅ El motor lee `/reclamos`, verifica, levanta con firma y reemplaza por dominio; la web los pide por solicitud |
 | T07 Registro público | En curso (Rocío) |
 | T06 Reclamos, T12 Sandbox | Extras |
 
 ## Resultado del verificador oficial
-Partido de práctica a x30 con `--juez-automatico`. Salida completa en [`practica/verificador-practica.txt`](practica/verificador-practica.txt).
+Dos corridas del partido de práctica. Cada una tiene su evidencia (expediente con hash verificado, auditoría íntegra y salida del verificador):
 
-| Métrica | Cliente de ejemplo | Nuestra plataforma |
-|---|---|---|
-| Fases piratas bloqueadas | 1 de 7 | **7 de 7** |
-| Visibilidad residual promedio | 92,4 % | **3,1 %** |
-| Primer bloqueo después de la detección | 14,7 min | **0,5–0,7 min** |
-| Clientes cubiertos por fase | — | **100 %** |
-| Sitios legítimos afectados / falsos positivos | 0 / 0 | **0 / 0** |
-| Órdenes rechazadas / firmadas fuera de turno | 1 / 0 | **0 / 0** |
-| IP bloqueadas después del partido | 0 | **0** |
+- [`practica-juez-automatico/`](practica-juez-automatico/): a x30, el juez aprueba al instante. Es el techo técnico.
+- [`practica-juez-humano/`](practica-juez-humano/): a x10, **con la web de T11 y la base**, y un juez que firma desde la pantalla revisándola cada ~10 segundos. Es la prueba de integración completa: el motor escribe en la base, la web la lee, el juez decide ahí, el cambio de turno va por solicitud y el motor despacha.
 
-Las 7 órdenes que Cumbre hizo fallar se reintentaron solas y quedaron aplicadas. En el partido real hay que sumarle al primer bloqueo lo que tarda el juez en firmar. La evidencia de esa corrida está en [`practica/`](practica/): el expediente y la auditoría, con la cadena de hashes íntegra.
+| Métrica | Cliente de ejemplo | Juez automático (x30) | **Juez desde la web (x10)** |
+|---|---|---|---|
+| Fases piratas bloqueadas | 1 de 7 | 7 de 7 | **7 de 7** |
+| Visibilidad residual promedio | 92,4 % | 3,1 % | **6,3 %** |
+| Primer bloqueo después de la detección | 14,7 min | 0,4–0,9 min | **0,9–1,8 min** (5,3 en el primero, que esperó el ingreso del PIN) |
+| Clientes cubiertos por fase | — | 100 % | **100 %** |
+| Sitios legítimos afectados / falsos positivos | 0 / 0 | 0 / 0 | **0 / 0** |
+| Órdenes rechazadas / firmadas fuera de turno | 1 / 0 | 0 / 0 | **0 / 0** |
+| IP bloqueadas después del partido | 0 | 0 | **0** |
+
+**Cómo leer la diferencia:** a x10, los 10 segundos que tarda el juez son 1,7 minutos de partido. En un partido real (x1), esos mismos 10 segundos son 0,17 minutos, así que el resultado real se acerca al del juez automático. Las órdenes que Cumbre hace fallar se reintentan solas.
 
 ## Supuestos
 - **La firma del juez es un HMAC** con la clave de demostración del simulador, porque es lo que acepta. **Legalmente no alcanza:**

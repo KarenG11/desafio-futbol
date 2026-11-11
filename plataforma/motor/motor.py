@@ -23,7 +23,8 @@ ESPERA_S = 0.25        # a x30, un cuarto de segundo real son ~0,12 minutos de p
 
 
 class Motor:
-    def __init__(self, sim: str, juez_automatico: bool = False, salida: Path = RAIZ / "salida"):
+    def __init__(self, sim: str, juez_automatico: bool = False, salida: Path = RAIZ / "salida",
+                 con_base: bool = False):
         self.sim = normalizar_sim(sim)
         self.juez_automatico = juez_automatico
         self.corrida = secrets.token_hex(2)
@@ -48,6 +49,14 @@ class Motor:
         self.desde = -1.0
         self.terminado = False
         self.descartados = 0
+        self.reclamos: Dict[str, dict] = {}
+        self.desde_reclamos = -1.0
+        # Con base (T11): la web en Vercel lee y decide ahí. Un partido_id por corrida para no mezclar corridas.
+        self.partido_db_id = f"{self.partido['id']}-{self.corrida}"
+        self.sincro = None
+        if con_base:
+            from plataforma.motor.sincro_db import SincroDB
+            self.sincro = SincroDB(self, self.partido_db_id)
 
     # --- utilidades -------------------------------------------------------------------------
 
@@ -89,6 +98,10 @@ class Motor:
         for d in lote["detecciones"]:
             self._procesar(d)
         self.desde = lote["minuto_actual"]
+        self._leer_reclamos()
+
+        if self.sincro:
+            self.sincro.traer()             # decisiones y solicitudes que llegaron desde la web
 
         if self.juez_automatico:
             if self.de_turno and not self.despacho.turno_ratificado():
@@ -96,12 +109,18 @@ class Motor:
             pendientes = [p for p, x in self.pedidos.items() if x["estado"] == "pendiente"]
             if pendientes and self.de_turno:
                 self.decidir(pendientes, self.de_turno[0], "aprobado")
+            for r in list(self.reclamos.values()):
+                if r["estado"] == "pendiente" and r["verificado"] and self.de_turno:
+                    self.levantar_por_reclamo(r["reclamo_id"], self.de_turno[0],
+                                              "Sitio legítimo afectado: se reemplaza por bloqueo de dominio", True)
 
         for pid, p in list(self.pedidos.items()):
             if p["estado"] == "aprobado" and pid not in self.despachados:
                 self.despachados.add(pid)
                 self.despacho.despachar(p)
         self.despacho.seguir(self.pedidos)
+        if self.sincro:
+            self.sincro.empujar()
 
         if self.minuto >= self.fin + GRACIA_MIN + 0.5:
             self._cerrar()
@@ -155,13 +174,94 @@ class Motor:
                 elif p["estado"] != "pendiente":
                     errores.append({"pedido_id": pid, "error": f"El pedido ya está {p['estado']}"})
                 else:
-                    p.update(estado=nuevo, juez_id=juez_id, juzgado_id=self.despacho.juzgado_de(juez_id),
-                             decidido_min=round(self.minuto, 3), motivo_rechazo=motivo if nuevo == "rechazado" else None)
                     hechos.append(pid)
         for pid in hechos:
-            self.auditar(f"juez:{juez_id}", "pedido_aprobado" if nuevo == "aprobado" else "pedido_rechazado",
-                         {"pedido_id": pid, **({"motivo": motivo} if motivo else {})})
+            if self.sincro:   # con base, se decide en la base (como la web) y vuelve por sincro.traer()
+                self.sincro.decidir_en_base(pid, nuevo, juez_id, self.despacho.juzgado_de(juez_id),
+                                            round(self.minuto, 3), motivo)
+            else:
+                self.aplicar_decision(pid, nuevo, juez_id, round(self.minuto, 3), motivo)
         return {"hechos": hechos, "errores": errores, "decidido_min": round(self.minuto, 3)}
+
+    def aplicar_decision(self, pid: str, nuevo: str, juez_id: str, decidido_min: Optional[float],
+                         motivo: Optional[str] = None) -> None:
+        """Registra la decisión del juez en el pedido local. El despacho la toma en la próxima vuelta."""
+        with self.lock:
+            p = self.pedidos.get(pid)
+            if p is None or p["estado"] != "pendiente":
+                return
+            p.update(estado=nuevo, juez_id=juez_id, juzgado_id=self.despacho.juzgado_de(juez_id),
+                     decidido_min=decidido_min if decidido_min is not None else round(self.minuto, 3),
+                     motivo_rechazo=motivo if nuevo == "rechazado" else None)
+        self.auditar(f"juez:{juez_id}", "pedido_aprobado" if nuevo == "aprobado" else "pedido_rechazado",
+                     {"pedido_id": pid, **({"motivo": motivo} if motivo else {})})
+
+    # --- reclamos (T06): verificar, levantar con firma y reemplazar por algo más preciso ----------
+
+    def _leer_reclamos(self) -> None:
+        estado, lote = _http(self.sim, f"/reclamos?desde={self.desde_reclamos}")
+        if estado != 200:
+            return
+        piratas = {c["host"] for c in self.cerebro.casos() if c["clasificacion"] == "pirata"}
+        for r in lote.get("reclamos", []):
+            if r["id"] in self.reclamos:
+                continue
+            afectadas = []
+            for o in self.despacho.vista():
+                if o["proveedor_id"] != r["proveedor"] or o["estado"] not in ("recibida", "aplicada"):
+                    continue
+                if o["tipo"] == "dominio":
+                    cubre = o["objetivo"] == r["dominio"]
+                else:
+                    cubre = r["dominio"] in (self._dns(o["objetivo"]) or {}).get("dominios", [])
+                if cubre:
+                    afectadas.append(o["orden_id"])
+            verificado = r["dominio"] not in piratas and bool(afectadas)
+            rec = {"reclamo_id": r["id"], "minuto": r["minuto"], "dominio": r["dominio"],
+                   "proveedor_id": r["proveedor"], "mensaje": r.get("mensaje"),
+                   "estado": "pendiente" if verificado else "descartado", "verificado": verificado,
+                   "ordenes_afectadas": afectadas, "ordenes_levantadas": [], "pedido_reemplazo_id": None}
+            with self.lock:
+                self.reclamos[r["id"]] = rec
+            self.auditar("motor", "reclamo_recibido", {k: rec[k] for k in (
+                "reclamo_id", "dominio", "proveedor_id", "verificado", "ordenes_afectadas")})
+        self.desde_reclamos = lote.get("minuto_actual", self.desde_reclamos)
+
+    def levantar_por_reclamo(self, reclamo_id: str, juez_id: str, motivo: str, reemplazar: bool) -> dict:
+        """El juez levanta las órdenes que tocaban al sitio legítimo y, si eran por IP, las reemplaza por el dominio."""
+        rec = self.reclamos.get(reclamo_id)
+        if rec is None or rec["estado"] != "pendiente":
+            return {"error": f"El reclamo {reclamo_id} no está pendiente"}
+        levantadas, reemplazos = [], []
+        for oid in rec["ordenes_afectadas"]:
+            if self.despacho.levantar(oid, juez_id, motivo)["ok"]:
+                levantadas.append(oid)
+                o = next(x for x in self.despacho.vista() if x["orden_id"] == oid)
+                if reemplazar and o["tipo"] == "ip":
+                    reemplazos.append((o, self.expedientes[o["expediente_id"]]["caso"]["host"]))
+        pedido_reemplazo = None
+        if reemplazos:
+            with self.lock:
+                pedido_reemplazo = f"P-{len(self.pedidos) + 1:03d}"
+                o0, host = reemplazos[0]
+                self.pedidos[pedido_reemplazo] = {
+                    "pedido_id": pedido_reemplazo, "expediente_id": o0["expediente_id"],
+                    "origen": f"reclamo:{reclamo_id}",
+                    "objetivos": [{"proveedor_id": o["proveedor_id"], "tipo": "dominio", "objetivo": h}
+                                  for o, h in reemplazos],
+                    "vence_min": vence_min_para(self.fin), "creado_min": round(self.minuto, 3), "estado": "aprobado",
+                    "juez_id": juez_id, "juzgado_id": self.despacho.juzgado_de(juez_id),
+                    "decidido_min": round(self.minuto, 3), "motivo_rechazo": None}
+                base = self.resumenes[next(iter(self.resumenes))] if self.resumenes else {}
+                self.resumenes[pedido_reemplazo] = dict(base, host=host, tipo_recomendado="dominio",
+                                                        motivo_tipo=f"Reemplazo por el reclamo {reclamo_id}")
+        with self.lock:
+            rec.update(estado="levantado", ordenes_levantadas=levantadas, pedido_reemplazo_id=pedido_reemplazo)
+        self.auditar(f"juez:{juez_id}", "reclamo_resuelto", {
+            "reclamo_id": reclamo_id, "ordenes_levantadas": levantadas,
+            "pedido_reemplazo_id": pedido_reemplazo, "motivo": motivo})
+        return {"reclamo_id": reclamo_id, "estado": "levantado", "ordenes_levantadas": levantadas,
+                "pedido_reemplazo_id": pedido_reemplazo}
 
     # --- vistas para la API ---------------------------------------------------------------
 
@@ -184,7 +284,7 @@ class Motor:
                     "pedidos_rechazados": sum(p["estado"] == "rechazado" for p in ps),
                     "ordenes_activas": sum(o["estado"] in ("recibida", "aplicada") for o in ordenes),
                     "ordenes_fallidas": sum(o["estado"] == "fallida" for o in ordenes),
-                    "reclamos_pendientes": 0,
+                    "reclamos_pendientes": sum(r["estado"] == "pendiente" for r in self.reclamos.values()),
                 },
             }
 
@@ -216,11 +316,13 @@ class Motor:
             integra = self.evidencia.verificar_integridad()
         print(f"\nPartido cerrado. Auditoría: {self.ruta_auditoria} (íntegra: {integra}).")
 
-    def exportar_entrega(self, destino: Path) -> None:
-        destino.mkdir(parents=True, exist_ok=True)
-        shutil.copy(self.ruta_auditoria, destino / "auditoria-final.jsonl")
+    def exportar_entrega(self, destino: Path) -> Path:
+        """Copia la auditoría y el primer expediente a entrega/<partido_id>/ (el viernes: el del partido final)."""
+        carpeta = destino / self.partido["id"]
+        carpeta.mkdir(parents=True, exist_ok=True)
+        shutil.copy(self.ruta_auditoria, carpeta / "auditoria.jsonl")
         with self.lock:
             primero = next(iter(self.expedientes.values()), None)
         if primero:
-            (destino / "expediente-final.json").write_text(json.dumps(primero, ensure_ascii=False, indent=2),
-                                                           encoding="utf-8")
+            (carpeta / "expediente.json").write_text(json.dumps(primero, ensure_ascii=False, indent=2), encoding="utf-8")
+        return carpeta

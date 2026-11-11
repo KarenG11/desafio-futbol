@@ -63,6 +63,7 @@ Qué pasa en cada situación que puede aparecer, qué hace la plataforma, dónde
 ### Operativos
 - **El juez no responde:** la pantalla avisa con vibración, sonido y notificación. **Siguiente paso:** escalar al juez suplente pasados N minutos.
 - **El proveedor no confirma:** el estado queda visible por proveedor; el incumplimiento queda auditado y se puede informar a ENACOM.
+- **La máquina del motor se suspende** (nos pasó en una prueba: se cerró la tapa y el motor se congeló una hora). En producción, el motor corre en un servidor siempre prendido (Vercel Sandbox o similar), no en una notebook. El viernes, si corre en la notebook: enchufada, tapa abierta y suspensión desactivada.
 - **Se cae la plataforma:** el estado vive en la base, así que el motor retoma. Plan B: todo corre en una notebook con SQLite (decisión 20).
 - **Confianza en la auditoría:** la cadena de hashes ya detecta alteraciones. **Siguiente paso:** publicar el hash del día en el registro público, para que nadie pueda reescribir la historia completa sin que se note.
 

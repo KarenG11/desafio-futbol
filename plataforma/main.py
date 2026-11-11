@@ -29,12 +29,20 @@ def main() -> int:
     p.add_argument("--juez-automatico", action="store_true", help="aprueba solo (SOLO para pruebas)")
     p.add_argument("--puerto", type=int, default=8000)
     p.add_argument("--sin-web", action="store_true", help="solo el motor, sin API ni pantalla")
+    p.add_argument("--base", action="store_true",
+                   help="sincronizar con la base de T11 (DATABASE_URL) para que decida la web de Vercel")
     p.add_argument("--red", action="store_true",
                    help="escuchar en toda la red local (para el celular del juez); por defecto solo esta máquina")
     p.add_argument("--exportar-entrega", action="store_true", help="al cerrar, copia expediente y auditoría a entrega/")
     args = p.parse_args()
 
-    motor = Motor(args.sim, juez_automatico=args.juez_automatico)
+    if args.base and not os.environ.get("DATABASE_URL"):
+        print("--base necesita DATABASE_URL (postgres://... de Neon, o sqlite:///salida/plataforma.db).", file=sys.stderr)
+        return 2
+    motor = Motor(args.sim, juez_automatico=args.juez_automatico, con_base=args.base)
+    if args.base:
+        print(f"Escribiendo en la base como partido {motor.partido_db_id}: la web de Vercel lo muestra y decide ahí.",
+              flush=True)
     print(f"Motor conectado a {args.sim}: {motor.partido['nombre']} (corrida {motor.corrida})", flush=True)
     if args.juez_automatico:
         print("ATENCIÓN: juez automático encendido. Solo para pruebas; en el partido final va apagado.", flush=True)
@@ -58,8 +66,8 @@ def main() -> int:
         hilo.join()
         servidor.should_exit = True
     if args.exportar_entrega:
-        motor.exportar_entrega(RAIZ / "entrega")
-        print("Expediente y auditoría copiados a entrega/.")
+        carpeta = motor.exportar_entrega(RAIZ / "entrega")
+        print(f"Expediente y auditoría copiados a {carpeta}. Sumá ahí la salida de evaluacion/verificar.py.")
     return 0
 
 
