@@ -2,9 +2,9 @@
 id: T02
 titulo: Despacho: firmar, enviar, seguir y reintentar
 carpeta: plataforma/despacho/
-estado: libre
-dueno: 
-desde: 
+estado: en-curso
+dueno: alejo
+desde: 2026-11-11 15:02
 creada_por: alejo
 depende_de: T00
 ---
