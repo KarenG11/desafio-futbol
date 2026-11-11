@@ -6,9 +6,12 @@ Corridas del 2026-11-11 contra el simulador de práctica, con `evaluacion/verifi
 |---|---|---|---|---|---|---|---|---|
 | Partido completo, x10 | `partido-completo-x10.txt` | 7 de 7 | 2,9 % | 0 | 0 | 0 | 0 | 0 |
 | **Online: Vercel Sandbox + Neon, x30** | `online-vercel-sandbox-x30.txt` | 7 de 7 | 3,8 % | 0 | 0 | 0 | 0 | 0 |
+| **Online con juez que firma por la web, x10** (cambio de turno ratificado en el 50) | `online-juez-humano-x10.txt` | 7 de 7 | 4,2 % | 0 | 0 | 0 | 0 | 0 |
 | Arranca en el minuto 40, x30 (cambio de turno en el 50) | `cambio-de-turno-min40-x30.txt` | 6 de 7 | 29,6 % | 0 | 0 | 0 | 0 | 0 |
 
 ## Qué prueba cada una
+
+- **Online con juez por la web:** el partido corre en un Vercel Sandbox y nadie aprueba solo. Los 7 pedidos se firmaron por la API pública con el PIN, como desde el celular. En el minuto 50 el juez entrante asumió el turno y ratificó las 16 órdenes vigentes. La auditoría guardada en Neon (126 eventos) verifica íntegra recalculando la cadena de hashes.
 
 - **Partido completo:** todos los streams piratas quedan bloqueados entre 0,4 y 0,6 minutos de partido después de detectarlos, con el 100 % de los clientes cubiertos. Las 10 fallas del proveedor inestable (Cumbre) se reenviaron solas.
 - **Cambio de turno:** el partido arranca en el minuto 40 y el turno cambia en el 50. Ninguna orden salió firmada por un juez fuera de turno y no hubo rechazos.
