@@ -3,10 +3,11 @@
 Mismas rutas y formas que la app de T11 en Vercel: la web del juez (plataforma/web) funciona igual contra las dos.
 """
 import hmac
+import time
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -20,10 +21,19 @@ def crear_app(motor: Motor, pin: str) -> FastAPI:
     if not pin:
         raise RuntimeError("Falta el PIN del juez (JUEZ_PIN)")
     app = FastAPI(title="Plataforma federal de órdenes de bloqueo en vivo")
+    fallos: dict = {}            # ip -> (intentos fallidos, bloqueado_hasta)
+    MAX_FALLOS, BLOQUEO_S = 5, 300
 
-    def exigir_pin(x_juez_pin: Optional[str] = Header(default=None)) -> None:
+    def exigir_pin(request: Request, x_juez_pin: Optional[str] = Header(default=None)) -> None:
+        ip = request.client.host if request.client else "?"
+        n, hasta = fallos.get(ip, (0, 0.0))
+        if time.monotonic() < hasta:
+            raise HTTPException(429, "Demasiados intentos con PIN incorrecto. Esperá 5 minutos.")
         if not x_juez_pin or not hmac.compare_digest(x_juez_pin.encode(), pin.encode()):
+            n += 1
+            fallos[ip] = (0, time.monotonic() + BLOQUEO_S) if n >= MAX_FALLOS else (n, 0.0)
             raise HTTPException(status_code=401, detail="PIN inválido o ausente")
+        fallos.pop(ip, None)
 
     @app.exception_handler(HTTPException)
     async def _error(_, exc: HTTPException):

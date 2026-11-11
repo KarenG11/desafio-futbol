@@ -45,7 +45,10 @@ def main() -> int:
         hilo.join()
     else:
         # Sin PIN fijo: o lo define el juzgado en JUEZ_PIN, o se genera uno al azar por corrida y se muestra acá.
-        pin = os.environ.get("JUEZ_PIN") or f"{secrets.randbelow(10**6):06d}"
+        pin = os.environ.get("JUEZ_PIN") or secrets.token_urlsafe(6)   # 8 caracteres, 48 bits; se tipea una vez
+        if args.red and len(pin) < 8:
+            print("Con --red el PIN tiene que tener al menos 8 caracteres (JUEZ_PIN).", file=sys.stderr)
+            return 2
         host = "0.0.0.0" if args.red else "127.0.0.1"
         print(f"Pantalla del juez: http://localhost:{args.puerto}/juez/  (PIN: {pin})", flush=True)
         if args.red:
