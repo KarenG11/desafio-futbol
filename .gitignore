@@ -7,3 +7,4 @@ coordinacion/.leidos/
 .env
 .env.*
 .vercel/
+.venv/
