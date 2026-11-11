@@ -80,8 +80,10 @@ El segundo comando va en otra terminal. Sin `--juez-automatico`, aprobás desde 
 | T01 Cerebro | ✅ Hecho y probado (13 de 13, más 9 de 9 en vivo contra el simulador) |
 | T03 Evidencia y auditoría | ✅ Hecho y probado |
 | T04 Pantalla del juez | ✅ Funciona contra el mock. Falta probarla con la URL pública |
+| T08 Propuesta normativa | ✅ Hecho (Rocío) |
 | T02 Despacho, T05 Motor, T11 Base y Vercel | En curso |
-| T06 Reclamos, T07 Registro público, T12 Sandbox | Extras |
+| T07 Registro público | En curso (Rocío) |
+| T06 Reclamos, T12 Sandbox | Extras |
 
 ## Supuestos
 - **La firma del juez es un HMAC** con la clave de demostración del simulador, porque es lo que acepta. **Legalmente no alcanza:**
