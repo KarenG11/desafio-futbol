@@ -1,5 +1,7 @@
 # Demo manual de la pantalla del juez
 
+> Las capturas de esta carpeta son de la **pantalla del juez anterior al rediseño** (tema claro). La lógica de firma, turno y reclamos es la misma; el diseño actual (negro y lima, logo Tarjeta Roja) se ve en https://desafio-futbol-karen.vercel.app/juez/.
+
 Esta carpeta tiene dos pruebas independientes de la pantalla del juez. En las dos se firmó a mano, sin `--juez-automatico`:
 
 | Prueba | Carpeta | Tipo | Qué demuestra |

@@ -222,7 +222,7 @@ Dos corridas del partido de práctica. Cada una tiene su evidencia (expediente c
 - `README.md`: este archivo.
 - [`escenarios-y-modelo.md`](escenarios-y-modelo.md): cada escenario (del partido y del mundo real), cómo lo resuelve la plataforma, quién paga y el camino a producción.
 - [`pitch.md`](pitch.md): guion del pitch y del video de 3 minutos.
-- [`propuesta_normativa.md`](propuesta_normativa.md): propuesta normativa de una página (T08), la versión de entrega. [`propuesta-normativa.md`](propuesta-normativa.md) es la versión original de Rocío, conservada como referencia.
+- [`propuesta_normativa.md`](propuesta_normativa.md): propuesta normativa de una página (T08), la versión de entrega. [`anexos/propuesta-normativa-original-rocio.md`](anexos/propuesta-normativa-original-rocio.md) es la versión original de Rocío, conservada como referencia.
 - `expediente-final.json` y `auditoria-final.jsonl`: exportados de la corrida definitiva sobre el **partido de práctica** (T03). La auditoría es interna y está encadenada con hashes. Si se corre el partido final, regenerarlos con `--exportar entrega`.
 - `registro.jsonl`: registro **oficial del simulador** de esa misma corrida, el que lee `evaluacion/verificar.py`. La plataforma no lo escribe.
 - [`evidencias/`](evidencias/RESULTADOS.md): salida del verificador, registro y chequeos de cada corrida definitiva, más la base y el log del motor de la práctica. La corrida v2 anterior está en `evidencias/v2/` y la v1 (anterior al fix de IP compartida) en `evidencias/v1/`.

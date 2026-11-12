@@ -1,6 +1,6 @@
 # Propuesta normativa: órdenes judiciales de bloqueo en vivo
 
-*Versión de entrega (1 página). Amplía [`propuesta-normativa.md`](propuesta-normativa.md), escrita por Rocío durante el evento, con lo que aprendimos al probar la plataforma contra el simulador oficial. No es asesoramiento legal.*
+*Versión de entrega (1 página). Amplía [`anexos/propuesta-normativa-original-rocio.md`](anexos/propuesta-normativa-original-rocio.md), escrita por Rocío durante el evento, con lo que aprendimos al probar la plataforma contra el simulador oficial. No es asesoramiento legal.*
 
 **Objetivo:** que un juez pueda ordenar en minutos, durante un partido, el bloqueo de un stream pirata en **todos** los proveedores de internet, sin dañar sitios legítimos y dejando un rastro verificable.
 

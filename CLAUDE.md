@@ -1,5 +1,7 @@
 # CLAUDE.md — Equipo Desafío Fútbol (Hackatón Argentina Space 2026)
 
+> **Este fork (KarenG11/desafio-futbol) es la entrega individual de Karen Gutierrez.** El protocolo del buzón de abajo es el del repo del equipo (`alejogomezmdz14-hash/desafio-futbol`); en este fork se trabaja directo en `main`. Producto: **Tarjeta Roja**, en línea en https://desafio-futbol-karen.vercel.app.
+
 Este repo lo usan **5 personas, cada una con su propio agente**, al mismo tiempo.
 La regla número uno es **no pisarse**. Antes de tocar cualquier cosa, seguí el protocolo de abajo.
 

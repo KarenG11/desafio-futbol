@@ -47,6 +47,10 @@
             <option value="30">x30 · unos 7 minutos</option>
           </select>
         </label>
+        <label class="campo">URL del simulador <span style="text-transform:none;font-style:normal;font-weight:400;color:var(--texto-3)">(opcional: solo para el partido final)</span>
+          <input type="url" id="simulador" placeholder="https://… (vacío = partido de práctica)" autocomplete="off">
+        </label>
+        <p class="tenue" id="aviso-sim" hidden style="font-size:13px;margin:-6px 0 14px">Con un simulador externo la velocidad la pone la organización. La sesión en la nube dura como máximo unos 40 minutos: si el partido es más largo, corré el motor en la notebook.</p>
         <label class="tilde"><input type="checkbox" id="auto"> Juez automático (aprueba solo, sin firmar a mano)</label>
         <button type="submit" class="boton boton--primario" id="iniciar" style="width:100%">Correr partido de práctica</button>
         <p id="estado" aria-live="polite"></p>
@@ -68,6 +72,11 @@
 <script>
 const $ = (id) => document.getElementById(id);
 try { $("pin").value = sessionStorage.getItem("juez_pin") || ""; } catch (e) {}
+$("simulador").addEventListener("input", () => {
+  const externo = $("simulador").value.trim() !== "";
+  $("aviso-sim").hidden = !externo;
+  $("acelerar").disabled = externo;
+});
 
 $("form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
@@ -78,13 +87,15 @@ $("form").addEventListener("submit", async (ev) => {
     const r = await fetch("/api/demo/iniciar", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Juez-Pin": $("pin").value },
-      body: JSON.stringify({ acelerar: Number($("acelerar").value), juez_automatico: $("auto").checked }),
+      body: JSON.stringify({ acelerar: Number($("acelerar").value), juez_automatico: $("auto").checked,
+                             simulador: $("simulador").value.trim() || null }),
     });
     const datos = await r.json();
     if (!r.ok) throw new Error(datos.error || r.statusText);
     try { sessionStorage.setItem("juez_pin", $("pin").value); } catch (e) {}
     estado.className = "ok";
-    estado.textContent = `${datos.mensaje} Dura unos ${Math.round(datos.duracion_min)} minutos.`;
+    estado.textContent = datos.simulador && datos.simulador !== "práctica" ? datos.mensaje
+      : `${datos.mensaje} Dura unos ${Math.round(datos.duracion_min)} minutos.`;
   } catch (e) {
     estado.className = "error"; estado.textContent = e.message;
   } finally {

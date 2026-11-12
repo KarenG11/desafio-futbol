@@ -34,6 +34,18 @@ def _pin(x_juez_pin: Optional[str] = Header(default=None)) -> None:
 class PedidoDemo(BaseModel):
     juez_automatico: bool = False
     acelerar: float = 6.0
+    simulador: Optional[str] = None     # URL de un simulador externo (partido final); vacío = el de práctica
+
+
+def _url_simulador(url: Optional[str]) -> Optional[str]:
+    url = (url or "").strip().rstrip("/")
+    if not url:
+        return None
+    from urllib.parse import urlsplit
+    partes = urlsplit(url)
+    if partes.scheme not in ("http", "https") or not partes.hostname:
+        raise HTTPException(status_code=400, detail={"error": "La URL del simulador tiene que empezar con http:// o https://"})
+    return url
 
 
 RESERVA = ("__demo__", "lanzamiento")   # una fila en solicitudes: la PK hace la reserva atómica
@@ -84,9 +96,11 @@ def _hay_partido_corriendo() -> bool:
 async def iniciar_demo(pedido: PedidoDemo):
     if not os.environ.get("DATABASE_URL"):
         raise HTTPException(status_code=409, detail={"error": "La demo necesita DATABASE_URL (base de Neon)"})
-    if not 1 <= pedido.acelerar <= 30:
+    sim = _url_simulador(pedido.simulador)
+    if not sim and not 1 <= pedido.acelerar <= 30:
         raise HTTPException(status_code=400, detail={"error": "acelerar tiene que estar entre 1 y 30"})
-    minutos = (105 + 5) / pedido.acelerar + 3          # partido + gracia + instalación
+    # Con un simulador externo la velocidad la pone la organización: se usa la sesión entera (máx. ~44 min).
+    minutos = 41.0 if sim else (105 + 5) / pedido.acelerar + 3          # partido + gracia + instalación
     if minutos > 42:
         raise HTTPException(status_code=400, detail={"error": "Con esa velocidad el partido no entra en una sesión"})
     try:
@@ -97,7 +111,8 @@ async def iniciar_demo(pedido: PedidoDemo):
         raise HTTPException(status_code=409, detail={"error": "Ya hay un partido de demo en marcha"})
 
     if not os.environ.get("VERCEL"):
-        return _iniciar_local(pedido, minutos)
+        return _iniciar_local(pedido, minutos, sim)
+    extra = {"DEMO_SIM": sim} if sim else {}
 
     from vercel import sandbox
     from vercel.sandbox import GitSource
@@ -113,6 +128,7 @@ async def iniciar_demo(pedido: PedidoDemo):
                 "DATABASE_URL": os.environ["DATABASE_URL"],
                 "DEMO_ACELERAR": str(pedido.acelerar),
                 "DEMO_JUEZ_AUTOMATICO": "1" if pedido.juez_automatico else "0",
+                **extra,
             },
         )
         await box.create_command("bash", ["-lc", COMANDO],
@@ -125,11 +141,13 @@ async def iniciar_demo(pedido: PedidoDemo):
         "acelerar": pedido.acelerar,
         "juez_automatico": pedido.juez_automatico,
         "duracion_min": round(minutos, 1),
-        "mensaje": "Partido en marcha: en ~30 s aparece en la pantalla del juez.",
+        "simulador": sim or "práctica",
+        "mensaje": (f"Motor conectado a {sim}: en ~30 s aparece en la pantalla del juez. La sesión de la nube dura como "
+                    "máximo unos 40 minutos." if sim else "Partido en marcha: en ~30 s aparece en la pantalla del juez."),
     }
 
 
-def _iniciar_local(pedido: PedidoDemo, minutos: float) -> dict:
+def _iniciar_local(pedido: PedidoDemo, minutos: float, sim: Optional[str] = None) -> dict:
     """Fuera de Vercel no hay Sandbox: el simulador y el motor corren en esta máquina, contra la misma base."""
     import socket
     import sys
@@ -139,7 +157,7 @@ def _iniciar_local(pedido: PedidoDemo, minutos: float) -> dict:
         s.bind(("127.0.0.1", 0))
         puerto = s.getsockname()[1]
     env = dict(os.environ, PYTHONUTF8="1", DEMO_ACELERAR=str(pedido.acelerar), DEMO_PUERTO_SIM=str(puerto),
-               DEMO_JUEZ_AUTOMATICO="1" if pedido.juez_automatico else "0")
+               DEMO_JUEZ_AUTOMATICO="1" if pedido.juez_automatico else "0", **({"DEMO_SIM": sim} if sim else {}))
     log = raiz / "salida" / "partido_demo.log"
     log.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -153,7 +171,9 @@ def _iniciar_local(pedido: PedidoDemo, minutos: float) -> dict:
         "acelerar": pedido.acelerar,
         "juez_automatico": pedido.juez_automatico,
         "duracion_min": round(minutos - 3, 1),
-        "mensaje": "Partido en marcha en esta máquina: en unos segundos aparece en la pantalla del juez y en /monitoreo.",
+        "simulador": sim or "práctica",
+        "mensaje": (f"Motor de esta máquina conectado a {sim}: en unos segundos aparece en la pantalla del juez y en /monitoreo."
+                    if sim else "Partido en marcha en esta máquina: en unos segundos aparece en la pantalla del juez y en /monitoreo."),
     }
 
 

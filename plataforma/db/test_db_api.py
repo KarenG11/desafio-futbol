@@ -132,6 +132,17 @@ def correr_pruebas() -> None:
         integ = api_auditoria_integridad()
         assert integ["integra"] is False and integ["falla_en_seq"] == 2, integ
 
+        # URL del simulador externo (partido final) para la demo en la nube
+        from plataforma.nube.rutas import _url_simulador
+        assert _url_simulador(None) is None and _url_simulador("  ") is None
+        assert _url_simulador("https://sim.final.example/") == "https://sim.final.example"
+        for mala in ("ftp://x", "javascript:alert(1)", "sim.example"):
+            try:
+                _url_simulador(mala)
+                raise AssertionError(f"{mala} no debería aceptarse")
+            except HTTPException as exc:
+                assert exc.status_code == 400
+
         # Portada, monitoreo y registro público
         for pagina in (raiz(), monitoreo(), registro(), partidos(), partido()):
             assert Path(pagina.path).is_file(), pagina.path
