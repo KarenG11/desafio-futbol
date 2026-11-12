@@ -2,9 +2,9 @@
 id: T05
 titulo: Motor: loop principal y API
 carpeta: plataforma/motor/, plataforma/main.py
-estado: en-curso
+estado: hecha
 dueno: alejo
-desde: 2026-11-11 15:02
+desde: 2026-11-11 16:49
 creada_por: alejo
 depende_de: T00, T01, T02, T03, T11
 ---

@@ -1,0 +1,49 @@
+{
+  "expediente_id": "EXP-2026-000001",
+  "partido_id": "practica-01",
+  "caso": {
+    "caso_id": "C-001",
+    "host": "s1.pelotaya.test",
+    "ip": "203.0.113.10",
+    "asn": 64600,
+    "organizacion": "Bruma Hosting Dedicado (ficticio)",
+    "sitio": "pelotaya.test",
+    "pagina": "https://pelotaya.test/en-vivo",
+    "deteccion_ids": [
+      "D-0001"
+    ],
+    "primer_minuto": 2.0,
+    "marca": "LP26-PRA-OFI-S048211",
+    "marca_origen": "Señal oficial del titular (plataforma propia)",
+    "clasificacion": "pirata",
+    "motivo_clasificacion": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+    "dominios_en_ip": [
+      "s1.pelotaya.test",
+      "s1-respaldo.pelotaya.test"
+    ],
+    "ip_compartida": false,
+    "tipo_recomendado": "ip",
+    "motivo_tipo": "Todos los dominios de la IP 203.0.113.10 son de pelotaya.test: se bloquea la IP"
+  },
+  "capturas": [
+    {
+      "deteccion_id": "D-0001",
+      "capturada_min": 2.0,
+      "formato": "mpegts",
+      "duracion_seg": 6,
+      "bytes": 64,
+      "sha256": "77b14ea8874ef8bbbf99cc292fd820a9e8df09fa4d4c00ebaeb9003e6b9bfbe1"
+    }
+  ],
+  "promocion": [
+    {
+      "red": "x",
+      "url": "https://x.example/futbolya_ok/status/1001",
+      "minuto": 1.0
+    }
+  ],
+  "vence_propuesto_min": 105,
+  "creado_min": 2.01,
+  "creado_ts": "2026-11-11T19:35:48.425252+00:00",
+  "hash": "97d059cde8547cbb5191f6d0122468e0dc7238e9902104df31a9519a76f18651"
+}

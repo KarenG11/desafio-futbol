@@ -4,6 +4,8 @@
 
 Mientras se juega el partido, la plataforma detecta un stream pirata y arma el expediente con evidencia verificable. Después se lo muestra al **juez de turno en el celular**, que firma con un toque, y manda la orden a **todos los proveedores de internet**, cada uno en el tipo de bloqueo que acepta. Sigue cada orden hasta que confirma, reintenta las que fallan, levanta sola los bloqueos por IP al terminar el partido y deja todo en una auditoría que no se puede alterar sin que se note.
 
+**En línea:** https://desafio-futbol-iota.vercel.app (pantalla del juez en `/juez/`, partido de práctica en vivo en `/juez/demo.html`, registro público en `/api/publico`).
+
 > Todo es ficticio: proveedores, juzgados, dominios `.test` e IPs de documentación. Solo trabajamos contra el simulador de la organización. No se bloquea nada real.
 
 ## Por qué un juez, y por qué en Argentina
@@ -104,7 +106,7 @@ Corre cerebro, evidencia, reclamos, registro público, base + API (incluye contr
 python simulador/servidor.py --acelerar 6
 python -m plataforma.main --sim http://localhost:8080 --local
 ```
-El segundo comando va en otra terminal. Abrí http://localhost:8000/juez/ con el PIN de `JUEZ_PIN` (con `--local`, `1234` si no está definida). Firmás los pedidos, asumís el turno en el minuto 50 y resolvés los reclamos desde la pantalla. El registro público queda en http://localhost:8000/api/publico. Para la presentación usamos `--acelerar 3` (unos 35 minutos reales). Un recorrido completo así, firmado a mano, está en [`evidencias/demo-manual/`](evidencias/demo-manual/README.md). Cuando el simulador pasa el minuto 110 (el verificador lo necesita para evaluar las IP activas después del partido):
+El segundo comando va en otra terminal. Abrí http://localhost:8000/juez/ con el PIN de `JUEZ_PIN` (con `--local`, `1234` si no está definida). Firmás los pedidos, asumís el turno en el minuto 50 y resolvés los reclamos desde la pantalla. El registro público queda en http://localhost:8000/api/publico. Para la presentación usamos `--acelerar 3` (unos 35 minutos reales). Un recorrido completo así, firmado a mano, está en [`evidencias/demo-manual/`](evidencias/demo-manual/README.md). Por defecto la API escucha solo en esta máquina (`127.0.0.1`). Para entrar desde el celular por wifi agregá `--red` (escucha en `0.0.0.0`): exige `JUEZ_PIN` de al menos 8 caracteres y no acepta el `1234` de demo; usalo solo en una red confiable. Cuando el simulador pasa el minuto 110 (el verificador lo necesita para evaluar las IP activas después del partido):
 ```bash
 python evaluacion/verificar.py --log salida/registro.jsonl
 ```
@@ -125,7 +127,15 @@ Con `--falla dns-desactualizado` (`plataforma/pruebas/motor_con_falla.py`, **sol
 
 Resultados reales de las corridas: [`evidencias/RESULTADOS.md`](evidencias/RESULTADOS.md).
 
-**En línea:** la web del juez y el registro público se publican en Vercel. La dirección se completa acá cuando esté el deploy (tarea T11).
+**5. Con la base y la web de Vercel** (modo del partido final). La web de T11 corre en Vercel y lee y decide sobre la base. El motor corre donde llegue al simulador y sincroniza con esa misma base:
+```bash
+DATABASE_URL=postgres://...  python -m plataforma.main --sim URL_DEL_SIMULADOR --base --sin-web --exportar-entrega
+```
+Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/plataforma.db JUEZ_PIN=<pin> uvicorn plataforma.api.app:app --port 8020` en una terminal, el motor con `--base --sin-web` en otra, y la pantalla del juez en http://localhost:8020/juez/. Así se hizo la corrida `practica-juez-humano/`.
+
+**En línea:** https://desafio-futbol-iota.vercel.app. La web y la API corren en Vercel sobre una base Postgres en Neon (São Paulo).
+
+**6. Partido de práctica online (T12), sin ninguna notebook.** En https://desafio-futbol-iota.vercel.app/juez/demo.html se pone el PIN y se aprieta "Correr partido de práctica". La web prende un Vercel Sandbox que clona este repo y levanta el simulador de la organización y nuestro motor apuntando a la base. El juez firma desde `/juez/` en el celular y, al terminar, la página muestra la salida de `evaluacion/verificar.py`. Hay un solo partido a la vez, con velocidad de x6 a x30.
 
 ## Estado (se actualiza durante el evento)
 | Tarea | Estado |
@@ -138,9 +148,30 @@ Resultados reales de las corridas: [`evidencias/RESULTADOS.md`](evidencias/RESUL
 | T06 Reclamos | ✅ Correlación real con órdenes activas, levantamiento en todos los proveedores y reemplazo por dominio |
 | T07 Registro público | ✅ Desde la base: una entrada por objetivo, estado real por proveedor (`/api/publico`) |
 | T08 Propuesta normativa | ✅ [`propuesta_normativa.md`](propuesta_normativa.md), de una página, basada en la versión de Rocío |
-| T11 Vercel | ❌ No hay deploy público verificado |
+| T10 Validación | ✅ Partido completo y cambio de turno del equipo, en `validacion/` |
+| T11 Base y Vercel | ✅ En línea en Vercel + Neon (Selene escribió la base y la API; Alejo publicó el deploy). **No re-verificado después de integrar este motor** |
 | Video y pitch | Guion listo en [`pitch.md`](pitch.md). El video todavía no está grabado |
-| T12 Sandbox | Extra, no hecho |
+| T12 Partido de demo online | ✅ Vercel Sandbox con simulador + motor, lanzado desde la web (Alejo). **No re-verificado después de integrar este motor** |
+
+## Corridas del equipo en `main` antes de la integración
+Las hizo el motor anterior (en memoria, sincronizado con la base por `sincro_db.py`), que en esta integración se reemplazó por el motor de `plataforma/motor/motor.py`. Se conservan como evidencia de esa etapa; las corridas del motor actual están en [`evidencias/RESULTADOS.md`](evidencias/RESULTADOS.md).
+
+Dos corridas del partido de práctica. Cada una tiene su evidencia (expediente con hash verificado, auditoría íntegra y salida del verificador):
+
+- [`practica-juez-automatico/`](practica-juez-automatico/): a x30, el juez aprueba al instante. Es el techo técnico.
+- [`practica-juez-humano/`](practica-juez-humano/): a x10, **con la web de T11 y la base**, y un juez que firma desde la pantalla revisándola cada ~10 segundos. Es la prueba de integración completa: el motor escribe en la base, la web la lee, el juez decide ahí, el cambio de turno va por solicitud y el motor despacha.
+
+| Métrica | Cliente de ejemplo | Juez automático (x30) | **Juez desde la web (x10)** |
+|---|---|---|---|
+| Fases piratas bloqueadas | 1 de 7 | 7 de 7 | **7 de 7** |
+| Visibilidad residual promedio | 92,4 % | 3,1 % | **6,3 %** |
+| Primer bloqueo después de la detección | 14,7 min | 0,4–0,9 min | **0,9–1,8 min** (5,3 en el primero, que esperó el ingreso del PIN) |
+| Clientes cubiertos por fase | — | 100 % | **100 %** |
+| Sitios legítimos afectados / falsos positivos | 0 / 0 | 0 / 0 | **0 / 0** |
+| Órdenes rechazadas / firmadas fuera de turno | 1 / 0 | 0 / 0 | **0 / 0** |
+| IP bloqueadas después del partido | 0 | 0 | **0** |
+
+**Cómo leer la diferencia:** a x10, los 10 segundos que tarda el juez son 1,7 minutos de partido. En un partido real (x1), esos mismos 10 segundos son 0,17 minutos, así que el resultado real se acerca al del juez automático. Las órdenes que Cumbre hace fallar se reintentan solas.
 
 ## Supuestos
 - **La firma del juez es un HMAC** con la clave de demostración del simulador, porque es lo que acepta. **Legalmente no alcanza:**

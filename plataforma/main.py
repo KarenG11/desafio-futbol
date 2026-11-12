@@ -16,26 +16,39 @@ def main() -> None:
     ap.add_argument("--sim", default="http://localhost:8080")
     ap.add_argument("--local", action="store_true", help="base SQLite local en salida/plataforma.db")
     ap.add_argument("--puerto", type=int, default=8000)
+    ap.add_argument("--red", action="store_true",
+                    help="escuchar en toda la red (0.0.0.0) para entrar desde el celular; exige JUEZ_PIN de 8+ caracteres")
     ap.add_argument("--juez-automatico", action="store_true",
                     help="SOLO PRUEBAS: el juez de turno aprueba, asume turnos y resuelve reclamos solo")
     ap.add_argument("--auditoria", default="salida/auditoria_interna.jsonl")
     ap.add_argument("--publico", default="salida/registro_publico.json")
     ap.add_argument("--exportar", type=Path, default=None)
+    ap.add_argument("--base", action="store_true", help="usar la base de DATABASE_URL (es lo que pasa sin --local)")
+    ap.add_argument("--sin-web", action="store_true", help="solo el motor, sin API ni pantalla (Vercel Sandbox)")
+    ap.add_argument("--exportar-entrega", action="store_true", help="igual que --exportar entrega")
     a = ap.parse_args()
+    if a.exportar_entrega and a.exportar is None:
+        a.exportar = Path("entrega")
     Path("salida").mkdir(exist_ok=True)
     if a.local:
         os.environ["DATABASE_URL"] = "sqlite:///salida/plataforma.db"
-        os.environ.setdefault("JUEZ_PIN", "1234")
+        if not a.red:
+            os.environ.setdefault("JUEZ_PIN", "1234")
     elif not os.environ.get("DATABASE_URL"):
         ap.error("sin --local hace falta DATABASE_URL")
+    if a.red and not a.sin_web:
+        pin = os.environ.get("JUEZ_PIN", "")
+        if len(pin) < 8 or pin == "1234":
+            ap.error("con --red hace falta JUEZ_PIN de al menos 8 caracteres (el 1234 de demo es solo para esta máquina)")
 
     import uvicorn
     from plataforma.motor.motor import Motor
 
     motor = Motor(a.sim, juez_automatico=a.juez_automatico, ruta_auditoria=a.auditoria, ruta_publico=a.publico)
-    api = uvicorn.Server(uvicorn.Config("plataforma.api.app:app", host="0.0.0.0", port=a.puerto, log_level="warning"))
-    threading.Thread(target=api.run, daemon=True).start()
-    print(f"[main] web del juez: http://localhost:{a.puerto}/juez/  (PIN: variable JUEZ_PIN; con --local, 1234 si no está definida)")
+    api = uvicorn.Server(uvicorn.Config("plataforma.api.app:app", host="0.0.0.0" if a.red else "127.0.0.1", port=a.puerto, log_level="warning"))
+    if not a.sin_web:
+        threading.Thread(target=api.run, daemon=True).start()
+        print(f"[main] web del juez: http://localhost:{a.puerto}/juez/  (PIN: variable JUEZ_PIN; con --local, 1234 si no está definida)")
     motor.correr()
     if a.exportar:
         from plataforma.motor.exportar import exportar

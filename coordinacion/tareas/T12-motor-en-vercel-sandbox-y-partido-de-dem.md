@@ -2,9 +2,9 @@
 id: T12
 titulo: Motor en Vercel Sandbox y partido de demo online
 carpeta: plataforma/nube/
-estado: libre
-dueno: 
-desde: 
+estado: hecha
+dueno: alejo
+desde: 2026-11-11 19:18
 creada_por: alejo
 depende_de: T05, T11
 ---

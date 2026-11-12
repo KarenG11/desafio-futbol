@@ -60,7 +60,7 @@ def pin_juez(x_juez_pin: Optional[str] = Header(default=None), request: Request 
     if len(fallos) >= MAX_FALLOS_PIN:
         raise HTTPException(status_code=429, detail={"error": "Demasiados intentos de PIN; esperá un minuto"})
     esperado = os.environ.get("JUEZ_PIN", "")
-    if not esperado or not x_juez_pin or not hmac.compare_digest(x_juez_pin, esperado):
+    if not esperado or not x_juez_pin or not hmac.compare_digest(x_juez_pin.encode(), esperado.encode()):
         _FALLOS_PIN[cliente] = fallos + [ahora]
         raise HTTPException(status_code=401, detail={"error": "PIN de juez inválido"})
 
@@ -332,3 +332,9 @@ def raiz():
 
 if WEB_DIR.exists():
     app.mount("/juez", StaticFiles(directory=str(WEB_DIR), html=True), name="juez")
+
+
+# T12: partido de demo online (Vercel Sandbox). Las rutas viven en plataforma/nube/.
+from plataforma.nube.rutas import router as _router_demo  # noqa: E402
+
+app.include_router(_router_demo)
