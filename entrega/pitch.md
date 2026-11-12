@@ -113,6 +113,6 @@ Se contradicen entre fuentes o los publica solo la industria:
 - [x] Ensayo del comando de la final en la notebook (`--sim http://localhost:8080 --local`): 7 de 7, 3,4 %, todo en 0, auditoría y expediente íntegros
 - [ ] Notebook sin suspensión ni acción al cerrar la tapa, enchufada
 - [ ] Video grabado y subido a Hacki
-- [x] URL pública de Vercel (deploy propio) funcionando: partido online 7 de 7, 3,8 %. Falta probarla desde el celular
+- [x] URL pública de Vercel (deploy propio) funcionando: partido online 7 de 7, 3,8 %. Probada desde el celular (firma del juez OK)
 - [x] `entrega/` con expediente, auditoría (del partido de práctica) y [propuesta normativa](propuesta_normativa.md). Regenerar con el partido final si se corre
 - [ ] Ensayado con cronómetro, dos veces
