@@ -2,7 +2,7 @@
 
     salida/video/.venv/Scripts/python.exe entrega/video/hacer_presentacion.py
 
-Mismos requisitos que hacer_video.py. Deja salida/video/tarjeta-roja-presentacion.mp4 (1920x1080).
+Requisitos en comun.py. Deja salida/video/tarjeta-roja-presentacion.mp4 (1920x1080).
 """
 import json
 import re
@@ -16,7 +16,7 @@ from playwright.sync_api import sync_playwright
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hacer_short as hs  # noqa: E402
-import hacer_video as hv  # noqa: E402
+import comun as hv  # noqa: E402
 
 D, AQUI, APP, PIN = hv.D, hv.AQUI, hv.APP, hv.PIN
 ACELERAR, NOMBRE = 30, "presentacion"
@@ -42,7 +42,7 @@ def grabar(segmentos: list):
             t_rec = time.monotonic()
             pg = ctx.new_page()
             pg.on("pageerror", lambda e: print("[escena] error:", e))
-            pg.goto("http://127.0.0.1:8765/escenario_presentacion.html")
+            pg.goto("http://127.0.0.1:8765/escenario_presentacion.html", wait_until="domcontentloaded", timeout=120000)
             pg.wait_for_function("window.listo === true", timeout=90000)
             pg.evaluate(f"app('{APP}/', 'navegador', 'tarjetaroja.ar')")
             procesos.append(hv.levantar([hv.PY, "simulador/servidor.py", "--acelerar", str(ACELERAR), "--puerto", "8090",
@@ -191,6 +191,10 @@ def grabar(segmentos: list):
             ev(f"limpiar(); quitar('tablilla'); app('{APP}/partidos', 'navegador', 'tarjetaroja.ar/partidos'); pose('saluda')")
             esperar(S["cierre"]["fin"] + 0.5); ev("telon()")
             esperar(S["cierre"]["fin"] + 3.0)
+            desbordes = pg.evaluate("window.desbordes")
+            print(f"[bordes] {len(desbordes)} indicador(es) tocan el borde", flush=True)
+            for x in desbordes:
+                print(f"  t={x['t']} s {x['k']} {x['r']}", flush=True)
             desfase = t0 - t_rec
             video = Path(pg.video.path())
             ctx.close(); nav.close()

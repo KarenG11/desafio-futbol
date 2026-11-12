@@ -3,7 +3,7 @@ app real, resaltados, sellos, stickers y transiciones de franjas y semitono.
 
     salida/video/.venv/Scripts/python.exe entrega/video/hacer_short.py
 
-Mismos requisitos que hacer_video.py. Deja salida/video/tarjeta-roja-short.mp4 (1080x1920).
+Requisitos en comun.py. Deja salida/video/tarjeta-roja-short.mp4 (1080x1920).
 """
 import asyncio
 import json
@@ -21,7 +21,7 @@ import edge_tts
 from playwright.sync_api import sync_playwright
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import hacer_video as hv  # noqa: E402
+import comun as hv  # noqa: E402
 
 D, AQUI, APP, PIN, TASA, FFMPEG = hv.D, hv.AQUI, hv.APP, hv.PIN, hv.TASA, hv.FFMPEG
 ANTES, ENTRE, ACELERAR = 0.6, 0.35, 30
@@ -102,7 +102,7 @@ def grabar(segmentos: list):
             t_rec = time.monotonic()
             pg = ctx.new_page()
             pg.on("pageerror", lambda e: print("[escena] error:", e))
-            pg.goto("http://127.0.0.1:8765/escenario_short.html")
+            pg.goto("http://127.0.0.1:8765/escenario_short.html", wait_until="domcontentloaded", timeout=120000)
             pg.wait_for_function("window.listo === true", timeout=90000)
             pg.evaluate(f"app('{APP}/partidos', 'navegador', 'tarjetaroja.ar/partidos')")
 
@@ -223,6 +223,10 @@ def grabar(segmentos: list):
             esperar(palabra("cierre", 5)); pg.evaluate("pildora('tarjetaroja.ar/demo', 170, 690, true)")
             esperar(S["cierre"]["fin"] + 0.5); pg.evaluate("telon()")
             esperar(S["cierre"]["fin"] + 2.2)
+            desbordes = pg.evaluate("window.desbordes")
+            print(f"[bordes] {len(desbordes)} indicador(es) tocan el borde", flush=True)
+            for x in desbordes:
+                print(f"  t={x['t']} s {x['k']} {x['r']}", flush=True)
             desfase = t0 - t_rec
             video = Path(pg.video.path())
             ctx.close(); nav.close()
