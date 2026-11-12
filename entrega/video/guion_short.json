@@ -1,0 +1,15 @@
+{
+  "voz": "es-AR-ElenaNeural",
+  "velocidad": "+8%",
+  "segmentos": [
+    {"id": "problema", "etiqueta": "// 01 — el problema", "texto": "Un partido dura dos horas. Un pirata cambia de *servidor* en minutos."},
+    {"id": "marca", "etiqueta": "// 02 — la solución", "texto": "Por eso existe *Tarjeta Roja*."},
+    {"id": "detecta", "etiqueta": "// 03 — detecta", "texto": "El radar encuentra el stream y arma la *evidencia*, con huellas digitales."},
+    {"id": "firma", "etiqueta": "// 04 — firma", "texto": "El juez de turno firma desde el *celular*, con un toque."},
+    {"id": "bloquea", "etiqueta": "// 05 — bloquea", "texto": "La orden llega a *todos* los proveedores en menos de un minuto."},
+    {"id": "colateral", "etiqueta": "// 06 — cero daño", "texto": "Si la IP es compartida, bloquea solo el *nombre*. Ningún sitio legítimo cae."},
+    {"id": "tarjetas", "etiqueta": "// 07 — en cancha", "texto": "Cada pirata expulsado es una *tarjeta roja*."},
+    {"id": "resultado", "etiqueta": "// 08 — resultado", "texto": "Siete de siete piratas bloqueados, siempre con *orden judicial*."},
+    {"id": "cierre", "etiqueta": "// 09 — probalo", "texto": "Tarjeta Roja. Entrá y probá la *demo*."}
+  ]
+}
