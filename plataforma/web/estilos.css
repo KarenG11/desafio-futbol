@@ -31,8 +31,9 @@ button, input, textarea { font: inherit; color: inherit; }
 /* --- Marcador --- */
 .marcador { position: sticky; top: 0; z-index: 5; background: var(--rayas), linear-gradient(180deg, #14171C, #0B0D10); border-bottom: 1px solid var(--linea); padding: 0 16px 10px; }
 .marcador__barra { display: flex; align-items: stretch; max-width: 1180px; margin: 0 auto; border-bottom: 1px solid var(--linea); }
-.logo { display: flex; align-items: center; gap: 9px; padding: 10px 14px 10px 0; text-decoration: none; font: italic 900 19px/1 var(--numeros); text-transform: uppercase; letter-spacing: .02em; }
-.logo__tarjeta { width: 12px; height: 17px; border-radius: 2px; background: var(--rechazo); transform: rotate(-12deg); box-shadow: 0 0 12px rgba(255,59,78,.6); }
+.logo { display: flex; align-items: center; gap: 9px; padding: 10px 14px 10px 0; text-decoration: none; font: 800 17px/1 var(--sans); text-transform: uppercase; letter-spacing: .03em; }
+.logo__icono { width: 26px; height: 26px; flex: none; background: url("/sitio/isotipo.svg") center / contain no-repeat; }
+.logo__texto b { color: #E8262B; font-weight: 800; }
 .rol { display: flex; align-items: center; margin-left: auto; padding: 6px 12px; background: var(--lima); color: var(--negro); font: italic 900 13px/1 var(--numeros); text-transform: uppercase; letter-spacing: .05em; }
 .marcador__fila { display: flex; align-items: center; gap: 14px; max-width: 1180px; margin: 12px auto 0; }
 .minuto { background: var(--lima); color: var(--negro); font: italic 900 50px/1 var(--numeros); padding: 4px 12px 2px; min-width: 2.4ch; text-align: center; font-variant-numeric: tabular-nums; }

@@ -52,8 +52,9 @@ h1, h2, h3, p { margin: 0; }
 /* ---------- Barra superior ---------- */
 .barra { position: sticky; top: 0; z-index: 30; background: rgba(7,8,10,.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--linea); }
 .barra__fila { display: flex; align-items: stretch; height: 62px; }
-.marca { display: flex; align-items: center; gap: 10px; padding: 0 18px 0 0; text-decoration: none; font: italic 900 22px/1 var(--display); text-transform: uppercase; letter-spacing: .02em; }
-.marca__tarjeta { width: 15px; height: 21px; border-radius: 2px; background: var(--rojo); transform: rotate(-12deg); box-shadow: 0 0 16px rgba(255,59,78,.6); }
+.marca { display: flex; align-items: center; gap: 10px; padding: 0 18px 0 0; text-decoration: none; font: 800 19px/1 var(--sans); text-transform: uppercase; letter-spacing: .03em; }
+.marca__icono { width: 30px; height: 30px; flex: none; background: url("/sitio/isotipo.svg") center / contain no-repeat; }
+.marca__texto b { color: #E8262B; font-weight: 800; }
 .marca small { font: 600 11px/1.2 var(--sans); color: var(--texto-3); text-transform: none; font-style: normal; letter-spacing: 0; border-left: 1px solid var(--linea); padding-left: 10px; margin-left: 4px; }
 .nav { display: flex; align-items: stretch; margin-left: auto; gap: 2px; }
 .nav a { display: flex; align-items: center; gap: 6px; padding: 0 14px; text-decoration: none; color: var(--texto-2); font: italic 800 15px/1 var(--display); text-transform: uppercase; letter-spacing: .05em; border-top: 3px solid transparent; transition: color .15s; }

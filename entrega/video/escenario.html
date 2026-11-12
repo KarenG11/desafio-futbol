@@ -16,8 +16,8 @@
   body.celular #pantalla { left: 250px; top: 40px; width: 312px; height: 600px; border-radius: 36px; border: 10px solid #1B2539; }
   body.celular #pantalla iframe { width: 390px; height: 750px; transform: scale(.749); }
   #avatar { position: absolute; right: -10px; bottom: 0; width: 470px; height: 720px; }
-  #marca { position: absolute; left: 36px; top: 18px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
-  #marca i { width: 14px; height: 20px; border-radius: 3px; background: #F0384B; transform: rotate(-10deg); box-shadow: 0 0 18px rgba(240,56,75,.6); }
+  #marca { position: absolute; left: 36px; top: 16px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; letter-spacing: .03em; }
+  #marca b { margin-left: -3px; }
   #escena { position: absolute; left: 230px; top: 18px; padding: 4px 12px; border-radius: 999px; background: rgba(240,56,75,.16); color: #F0384B; font-weight: 600; font-size: 14px; transition: opacity .3s; }
   #subtitulo { position: absolute; left: 36px; right: 36px; bottom: 26px; min-height: 64px; display: flex; align-items: center; justify-content: center; text-align: center;
     font-size: 23px; line-height: 1.3; font-weight: 600; text-shadow: 0 2px 8px #000; }
@@ -37,7 +37,9 @@
 </script>
 </head>
 <body>
-  <div id="marca"><i></i>Tarjeta Roja</div>
+  <div id="marca"><svg viewBox="0 0 100 100" width="28" height="28" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 26V8h18"/><path d="M74 8h18v18"/><path d="M92 74v18H74"/><path d="M26 92H8V74"/></g>
+    <rect x="31" y="21" width="38" height="58" rx="4" fill="#E8262B" transform="rotate(12 50 50)"/></svg>TARJETA <b style="color:#E8262B">ROJA</b></div>
   <div id="escena"></div>
   <div id="pantalla"><iframe id="app" src="about:blank"></iframe></div>
   <canvas id="avatar" width="940" height="1440"></canvas>
