@@ -1,0 +1,110 @@
+registro.jsonl: {'simulacion_iniciada': 1, 'orden_recibida': 32, 'orden_aplicada': 28, 'orden_fallida': 4, 'orden_vencida': 28, 'partido_finalizado': 1, 'ventana_cerrada': 1}
+
+1. Órdenes fallidas
+  ord-33cc-P-001-cumbre-1 (cumbre, ip 203.0.113.10): falló min 5.573 «Error interno del proveedor. Reenviar la orden con un nuevo orden_id.»
+     -> reenviada como ord-33cc-P-001-cumbre-2 min 5.717; recibida 5.712, aplicada 8.831, estado final: vencida min 105.0
+  OK    ord-33cc-P-001-cumbre-1: el proveedor nunca la aplicó (no hay bloqueo duplicado)
+  OK    ord-33cc-P-001-cumbre-1: el proveedor pidió reenviar con orden_id nuevo
+  OK    ord-33cc-P-001-cumbre-1: el pedido seguía vigente al fallar (min 5.573 < vence 105)
+  OK    ord-33cc-P-001-cumbre-1: el proveedor acepta el tipo ip
+  OK    ord-33cc-P-001-cumbre-1: hubo reenvío con orden_id distinto
+  OK    ord-33cc-P-001-cumbre-2: mismo tipo, objetivo, vencimiento y expediente que la original
+  OK    cadena de reintentos ord-33cc-P-001-cumbre-1 -> ord-33cc-P-001-cumbre-2: la última quedó aplicada (min 8.831) y vencida (min 105.0)
+  OK    ord-33cc-P-001-cumbre-1: estado en la base = fallida
+  ord-33cc-P-004-cumbre-1 (cumbre, ip 203.0.113.11): falló min 40.917 «Error interno del proveedor. Reenviar la orden con un nuevo orden_id.»
+     -> reenviada como ord-33cc-P-004-cumbre-2 min 41.043; recibida 41.044, aplicada 43.209, estado final: vencida min 105.0
+  OK    ord-33cc-P-004-cumbre-1: el proveedor nunca la aplicó (no hay bloqueo duplicado)
+  OK    ord-33cc-P-004-cumbre-1: el proveedor pidió reenviar con orden_id nuevo
+  OK    ord-33cc-P-004-cumbre-1: el pedido seguía vigente al fallar (min 40.917 < vence 105)
+  OK    ord-33cc-P-004-cumbre-1: el proveedor acepta el tipo ip
+  OK    ord-33cc-P-004-cumbre-1: hubo reenvío con orden_id distinto
+  OK    ord-33cc-P-004-cumbre-2: mismo tipo, objetivo, vencimiento y expediente que la original
+  OK    cadena de reintentos ord-33cc-P-004-cumbre-1 -> ord-33cc-P-004-cumbre-2: la última quedó aplicada (min 43.209) y vencida (min 105.0)
+  OK    ord-33cc-P-004-cumbre-1: estado en la base = fallida
+  ord-33cc-P-007-cumbre-1 (cumbre, ip 203.0.113.41): falló min 84.659 «Error interno del proveedor. Reenviar la orden con un nuevo orden_id.»
+     -> reenviada como ord-33cc-P-007-cumbre-2 min 84.753; recibida 84.754, aplicada None, estado final: fallida
+  OK    ord-33cc-P-007-cumbre-1: el proveedor nunca la aplicó (no hay bloqueo duplicado)
+  OK    ord-33cc-P-007-cumbre-1: el proveedor pidió reenviar con orden_id nuevo
+  OK    ord-33cc-P-007-cumbre-1: el pedido seguía vigente al fallar (min 84.659 < vence 105)
+  OK    ord-33cc-P-007-cumbre-1: el proveedor acepta el tipo ip
+  OK    ord-33cc-P-007-cumbre-1: hubo reenvío con orden_id distinto
+  OK    ord-33cc-P-007-cumbre-2: mismo tipo, objetivo, vencimiento y expediente que la original
+  OK    cadena de reintentos ord-33cc-P-007-cumbre-1 -> ord-33cc-P-007-cumbre-2 -> ord-33cc-P-007-cumbre-3: la última quedó aplicada (min 91.793) y vencida (min 105.0)
+  OK    ord-33cc-P-007-cumbre-1: estado en la base = fallida
+  ord-33cc-P-007-cumbre-2 (cumbre, ip 203.0.113.41): falló min 87.922 «Error interno del proveedor. Reenviar la orden con un nuevo orden_id.»
+     -> reenviada como ord-33cc-P-007-cumbre-3 min 88.104; recibida 88.104, aplicada 91.793, estado final: vencida min 105.0
+  OK    ord-33cc-P-007-cumbre-2: el proveedor nunca la aplicó (no hay bloqueo duplicado)
+  OK    ord-33cc-P-007-cumbre-2: el proveedor pidió reenviar con orden_id nuevo
+  OK    ord-33cc-P-007-cumbre-2: el pedido seguía vigente al fallar (min 87.922 < vence 105)
+  OK    ord-33cc-P-007-cumbre-2: el proveedor acepta el tipo ip
+  OK    ord-33cc-P-007-cumbre-2: hubo reenvío con orden_id distinto
+  OK    ord-33cc-P-007-cumbre-3: mismo tipo, objetivo, vencimiento y expediente que la original
+  OK    cadena de reintentos ord-33cc-P-007-cumbre-2 -> ord-33cc-P-007-cumbre-3: la última quedó aplicada (min 91.793) y vencida (min 105.0)
+  OK    ord-33cc-P-007-cumbre-2: estado en la base = fallida
+  Tasa de falla configurada: aurora 0.0, andina 0.0, valle 0.0, cumbre 0.35
+
+2. Órdenes aplicadas
+  OK    ord-33cc-P-001-aurora-1: recibida 2.033 (juez de turno) -> aplicada 2.52 -> vencida 105.0
+  OK    ord-33cc-P-001-andina-1: recibida 2.035 (juez de turno) -> aplicada 3.757 -> vencida 105.0
+  OK    ord-33cc-P-001-valle-1: recibida 2.038 (juez de turno) -> aplicada 8.962 -> vencida 105.0
+  OK    ord-33cc-P-001-cumbre-2: recibida 5.712 (juez de turno) -> aplicada 8.831 -> vencida 105.0
+  OK    ord-33cc-P-002-aurora-1: recibida 6.045 (juez de turno) -> aplicada 6.512 -> vencida 105.0
+  OK    ord-33cc-P-002-andina-1: recibida 6.047 (juez de turno) -> aplicada 8.547 -> vencida 105.0
+  OK    ord-33cc-P-002-valle-1: recibida 6.048 (juez de turno) -> aplicada 12.433 -> vencida 105.0
+  OK    ord-33cc-P-002-cumbre-1: recibida 6.049 (juez de turno) -> aplicada 9.15 -> vencida 105.0
+  OK    ord-33cc-P-003-aurora-1: recibida 9.061 (juez de turno) -> aplicada 9.675 -> vencida 105.0
+  OK    ord-33cc-P-003-andina-1: recibida 9.062 (juez de turno) -> aplicada 11.097 -> vencida 105.0
+  OK    ord-33cc-P-003-valle-1: recibida 9.064 (juez de turno) -> aplicada 15.114 -> vencida 105.0
+  OK    ord-33cc-P-003-cumbre-1: recibida 9.065 (juez de turno) -> aplicada 11.775 -> vencida 105.0
+  OK    ord-33cc-P-004-aurora-1: recibida 37.53 (juez de turno) -> aplicada 38.038 -> vencida 105.0
+  OK    ord-33cc-P-004-andina-1: recibida 37.531 (juez de turno) -> aplicada 39.264 -> vencida 105.0
+  OK    ord-33cc-P-004-valle-1: recibida 37.532 (juez de turno) -> aplicada 45.12 -> vencida 105.0
+  OK    ord-33cc-P-004-cumbre-2: recibida 41.044 (juez de turno) -> aplicada 43.209 -> vencida 105.0
+  OK    ord-33cc-P-005-aurora-1: recibida 55.113 (juez de turno) -> aplicada 55.537 -> vencida 105.0
+  OK    ord-33cc-P-005-andina-1: recibida 55.114 (juez de turno) -> aplicada 57.019 -> vencida 105.0
+  OK    ord-33cc-P-005-valle-1: recibida 55.115 (juez de turno) -> aplicada 62.864 -> vencida 105.0
+  OK    ord-33cc-P-005-cumbre-1: recibida 55.116 (juez de turno) -> aplicada 57.642 -> vencida 105.0
+  OK    ord-33cc-P-006-aurora-1: recibida 71.022 (juez de turno) -> aplicada 71.479 -> vencida 105.0
+  OK    ord-33cc-P-006-andina-1: recibida 71.024 (juez de turno) -> aplicada 72.843 -> vencida 105.0
+  OK    ord-33cc-P-006-valle-1: recibida 71.025 (juez de turno) -> aplicada 77.37 -> vencida 105.0
+  OK    ord-33cc-P-006-cumbre-1: recibida 71.026 (juez de turno) -> aplicada 73.687 -> vencida 105.0
+  OK    ord-33cc-P-007-aurora-1: recibida 82.076 (juez de turno) -> aplicada 82.55 -> vencida 105.0
+  OK    ord-33cc-P-007-andina-1: recibida 82.077 (juez de turno) -> aplicada 84.553 -> vencida 105.0
+  OK    ord-33cc-P-007-valle-1: recibida 82.078 (juez de turno) -> aplicada 89.617 -> vencida 105.0
+  OK    ord-33cc-P-007-cumbre-3: recibida 88.104 (juez de turno) -> aplicada 91.793 -> vencida 105.0
+  OK    una sola orden aplicada por objetivo y proveedor (28 combinaciones)
+
+3. Correspondencia registro / auditoría / verificador
+  OK    órdenes recibidas por el simulador (32) = enviadas/reenviadas en la auditoría (32)
+  OK    = órdenes en la base de la plataforma (32)
+  OK    orden_aplicada: mismas órdenes en registro y auditoría (28)
+  OK    orden_fallida: mismas órdenes en registro y auditoría (4)
+  OK    orden_vencida: mismas órdenes en registro y auditoría (28)
+  OK    verificador ordenes_recibidas = 32 = registro 32
+  OK    verificador ordenes_aplicadas = 28 = registro 28
+  OK    verificador ordenes_fallidas = 4 = registro 4
+  OK    0 órdenes rechazadas (firma HMAC aceptada en todas)
+  OK    0 fuera de turno, y todas las recibidas con juez_de_turno=true
+  OK    fase pelotaya-1: primer bloqueo 0.52 min; proveedores según registro ['andina', 'aurora', 'cumbre', 'valle']
+  OK    fase pelotaya-2: primer bloqueo 0.54 min; proveedores según registro ['andina', 'aurora', 'cumbre', 'valle']
+  OK    fase pelotaya-3: primer bloqueo 0.48 min; proveedores según registro ['andina', 'aurora', 'cumbre', 'valle']
+  OK    fase golazo-cdn-1: primer bloqueo 0.51 min; proveedores según registro ['andina', 'aurora', 'cumbre', 'valle']
+  OK    fase verpartido-1: primer bloqueo 0.68 min; proveedores según registro ['andina', 'aurora', 'cumbre', 'valle']
+  OK    fase tribuna-1: primer bloqueo 0.54 min; proveedores según registro ['andina', 'aurora', 'cumbre', 'valle']
+  OK    fase tribuna-2: primer bloqueo 0.55 min; proveedores según registro ['andina', 'aurora', 'cumbre', 'valle']
+  OK    0 IP activas al cierre (todas vencidas o levantadas)
+  OK    los 7 expedientes citados en las órdenes están creados en la auditoría
+
+4. Cadena de hashes de la auditoría
+  OK    160 eventos, seq 1..160 contiguo, hash_prev encadenado y hash recalculado (rotos: [])
+  primer hash_prev 000…0, último hash 7d09ae21e3135d19c9cb13063988624596aae47703d93a3f91c86446216f6163
+  OK    hashes iguales a la tabla auditoria de la base (160 filas)
+
+5. Expediente
+  OK    EXP-2026-000001: hash recalculado 6dcf6e5373444e527107c3a9c4fab85589ba92a236eca54964eb7c18ebdb4984
+  OK    el mismo hash quedó en la auditoría (seq 3)
+  OK    el simulador recibió órdenes que citan este expediente
+  OK    partido del expediente practica-01 = escenario del registro practica-01 = del verificador practica-01
+  OK    idéntico al guardado en la base de la plataforma
+
+TODO OK

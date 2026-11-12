@@ -5,10 +5,11 @@ No guarda estado en memoria ni lee claves de firma: todo sale de `plataforma.db`
 """
 import hmac
 import os
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -47,10 +48,51 @@ async def _http_error(_, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content={"error": str(detalle)})
 
 
-def pin_juez(x_juez_pin: Optional[str] = Header(default=None)) -> None:
+_FALLOS_PIN: Dict[str, List[float]] = {}
+MAX_FALLOS_PIN = 5          # por cliente y por minuto
+ESPERA_SOLICITUD_SEG = float(os.environ.get("ESPERA_SOLICITUD_SEG", "8"))
+
+
+def pin_juez(x_juez_pin: Optional[str] = Header(default=None), request: Request = None) -> None:
+    cliente = request.client.host if request is not None and request.client else "?"
+    ahora = time.monotonic()
+    fallos = [t for t in _FALLOS_PIN.get(cliente, []) if ahora - t < 60]
+    if len(fallos) >= MAX_FALLOS_PIN:
+        raise HTTPException(status_code=429, detail={"error": "Demasiados intentos de PIN; esperá un minuto"})
     esperado = os.environ.get("JUEZ_PIN", "")
     if not esperado or not x_juez_pin or not hmac.compare_digest(x_juez_pin, esperado):
+        _FALLOS_PIN[cliente] = fallos + [ahora]
         raise HTTPException(status_code=401, detail={"error": "PIN de juez inválido"})
+
+
+def _control_turno(pid: str, juez_id: str, exigir_ratificado: bool = True) -> Dict[str, Any]:
+    """Fail-closed: sin estado del motor, con el simulador caído o con un juez fuera de turno, no se decide nada."""
+    est = db.estado_partido(pid)
+    if est is None or not est.get("simulador_ok", False):
+        raise HTTPException(status_code=503, detail="El motor no reporta estado del partido: no se puede decidir")
+    if juez_id not in _juzgado_de_juez(est):
+        raise HTTPException(status_code=400, detail=f"Juez desconocido: {juez_id}")
+    minuto = round(float(est["minuto_actual"]), 2)
+    if juez_id not in est.get("jueces_de_turno", []):
+        raise HTTPException(status_code=409, detail=f"{juez_id} no está de turno en el minuto {minuto}")
+    if exigir_ratificado and (not est.get("turno_ratificado", False) or est.get("juez_ratificado", juez_id) != juez_id):
+        raise HTTPException(status_code=409, detail=f"{juez_id} tiene que asumir el turno antes de decidir")
+    return est
+
+
+def _juzgado_de_juez(est: Optional[Dict[str, Any]]) -> Dict[str, str]:
+    juzgados = (est or {}).get("juzgados") or EJEMPLO_SIM_JUZGADOS
+    return {j["id"]: jz["id"] for jz in juzgados["juzgados"] for j in jz["jueces"]}
+
+
+def _esperar_solicitud(pid: str, solicitud_id: str) -> Optional[Dict[str, Any]]:
+    limite = time.monotonic() + ESPERA_SOLICITUD_SEG
+    while time.monotonic() < limite:
+        s = db.obtener_solicitud(pid, solicitud_id)
+        if s and s["resultado"] is not None:
+            return s["resultado"]
+        time.sleep(0.25)
+    return None
 
 
 def _partido_o_defecto(partido_id: Optional[str] = None) -> str:
@@ -101,16 +143,16 @@ def _recalcular_contadores(pid: str, estado_base: Dict[str, Any]) -> Dict[str, A
 def api_estado(partido_id: Optional[str] = None):
     pid = _partido_o_defecto(partido_id)
     est = db.estado_partido(pid)
-    if est is None:
+    if est is None:   # sin motor: nada de valores inventados
         return {
             "partido_id": pid,
-            "minuto_actual": 0.0,
-            "fin_min": 105.0,
+            "minuto_actual": None,
+            "fin_min": None,
             "finalizado": False,
-            "jueces_de_turno": ["jueza-laura-ficticia"],
-            "proximo_cambio_turno_min": 50.0,
+            "jueces_de_turno": [],
+            "proximo_cambio_turno_min": None,
             "simulador_ok": False,
-            "turno_ratificado": True,
+            "turno_ratificado": False,
             "contadores": {
                 "casos_piratas": 0,
                 "casos_descartados": 0,
@@ -166,10 +208,9 @@ def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, partid
         if not motivo:
             raise HTTPException(status_code=400, detail="Rechazar requiere un motivo")
 
-    est_partido = db.estado_partido(pid)
-    minuto_actual = round(float(est_partido["minuto_actual"]), 2) if est_partido else 0.0
-    jueces_turno = est_partido.get("jueces_de_turno", []) if est_partido else []
-    juzgado_id = _JUZGADO_DE_JUEZ.get(juez_id, "jg-centro-3")
+    est_partido = _control_turno(pid, juez_id)
+    minuto_actual = round(float(est_partido["minuto_actual"]), 2)
+    juzgado_id = _juzgado_de_juez(est_partido)[juez_id]
 
     decididos: List[str] = []
     errores: List[Dict[str, str]] = []
@@ -178,9 +219,6 @@ def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, partid
         actual = db.obtener("pedidos", pid, req_pid)
         if actual is None:
             errores.append({"pedido_id": req_pid, "error": "No existe el pedido"})
-            continue
-        if jueces_turno and juez_id not in jueces_turno:
-            errores.append({"pedido_id": req_pid, "error": f"{juez_id} no está de turno en el minuto {minuto_actual}"})
             continue
         if actual.get("estado") != "pendiente":
             errores.append({"pedido_id": req_pid, "error": f"El pedido ya está {actual.get('estado')}"})
@@ -237,18 +275,29 @@ def api_asumir_turno(cuerpo: Dict[str, Any], partido_id: Optional[str] = None):
     juez_id = cuerpo.get("juez_id")
     if not juez_id:
         raise HTTPException(status_code=400, detail="Falta juez_id")
+    est = _control_turno(pid, juez_id, exigir_ratificado=False)
+    sid = db.crear_solicitud(pid, "asumir_turno", {"juez_id": juez_id, "decidido_min": est["minuto_actual"]})
+    return _respuesta_solicitud(pid, sid)
 
-    est = db.estado_partido(pid)
-    minuto_actual = round(float(est["minuto_actual"]), 2) if est else 0.0
-    jueces_turno = est.get("jueces_de_turno", []) if est else []
-    if jueces_turno and juez_id not in jueces_turno:
-        raise HTTPException(status_code=409, detail=f"{juez_id} no está de turno en el minuto {minuto_actual}")
 
-    db.crear_solicitud(pid, "asumir_turno", {"juez_id": juez_id, "decidido_min": minuto_actual})
+def _respuesta_solicitud(pid: str, sid: str):
+    resultado = _esperar_solicitud(pid, sid)
+    if resultado is None:   # el motor todavía no la procesó: no se informa un resultado que no ocurrió
+        return JSONResponse(status_code=202, content={"solicitud_id": sid, "estado": "pendiente"})
+    if "error" in resultado:
+        raise HTTPException(status_code=409, detail=resultado["error"])
+    if resultado.get("errores") and resultado.get("estado") != "levantado":
+        return JSONResponse(status_code=502, content=resultado)
+    return resultado
 
-    ordenes = db.listar("ordenes", pid)
-    vigentes = [o["orden_id"] for o in ordenes if o.get("estado") in ESTADOS_ORDEN_ACTIVA]
-    return {"juez_id": juez_id, "ratificadas": vigentes, "decidido_min": minuto_actual}
+
+@app.get("/api/solicitudes/{solicitud_id}")
+def api_solicitud(solicitud_id: str, partido_id: Optional[str] = None):
+    pid = _partido_o_defecto(partido_id)
+    s = db.obtener_solicitud(pid, solicitud_id)
+    if s is None:
+        raise HTTPException(status_code=404, detail=f"No existe la solicitud {solicitud_id}")
+    return s
 
 
 @app.post("/api/reclamos/levantar", dependencies=[Depends(pin_juez)])
@@ -258,47 +307,24 @@ def api_levantar_reclamo(cuerpo: Dict[str, Any], partido_id: Optional[str] = Non
     juez_id = cuerpo.get("juez_id")
     motivo = (cuerpo.get("motivo") or "").strip()
     reemplazar = bool(cuerpo.get("reemplazar", True))
-
     if not reclamo_id or not juez_id or not motivo:
         raise HTTPException(status_code=400, detail="Faltan reclamo_id, juez_id o motivo")
-
     reclamo = db.obtener("reclamos", pid, reclamo_id)
     if reclamo is None:
         raise HTTPException(status_code=404, detail=f"No existe el reclamo {reclamo_id}")
-
-    est = db.estado_partido(pid)
-    minuto_actual = round(float(est["minuto_actual"]), 2) if est else 0.0
-    jueces_turno = est.get("jueces_de_turno", []) if est else []
-    if jueces_turno and juez_id not in jueces_turno:
-        raise HTTPException(status_code=409, detail=f"{juez_id} no está de turno en el minuto {minuto_actual}")
-
-    db.crear_solicitud(pid, "levantar", {
-        "reclamo_id": reclamo_id,
-        "juez_id": juez_id,
-        "motivo": motivo,
-        "reemplazar": reemplazar,
-        "decidido_min": minuto_actual,
-    })
-
-    return {
-        "reclamo_id": reclamo_id,
-        "estado": "levantado",
-        "ordenes_levantadas": reclamo.get("ordenes_levantadas", []),
-        "errores": [],
-        "pedido_reemplazo_id": reclamo.get("pedido_reemplazo_id"),
-    }
+    if reclamo.get("estado") != "pendiente":
+        raise HTTPException(status_code=409, detail=f"El reclamo ya está {reclamo.get('estado')}")
+    est = _control_turno(pid, juez_id)
+    sid = db.crear_solicitud(pid, "levantar", {"reclamo_id": reclamo_id, "juez_id": juez_id, "motivo": motivo,
+                                               "reemplazar": reemplazar, "decidido_min": est["minuto_actual"]})
+    return _respuesta_solicitud(pid, sid)
 
 
 @app.get("/api/publico")
 def api_publico(partido_id: Optional[str] = None):
+    from plataforma.transparencia import armar_entradas_publicas
     pid = _partido_o_defecto(partido_id)
-    try:
-        from plataforma.transparencia import armar_entradas_publicas  # type: ignore
-        return {"entradas": armar_entradas_publicas(pid)}
-    except Exception:
-        return {"entradas": []}
-
-
+    return {"entradas": armar_entradas_publicas(pid)}
 @app.get("/")
 def raiz():
     return RedirectResponse("/juez/")

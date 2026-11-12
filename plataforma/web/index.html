@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilos.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23123'/%3E%3C/svg%3E">
 </head>
 <body>
   <header class="marcador" aria-live="polite">
@@ -51,6 +52,12 @@
       <p class="ordenes__ayuda">Una fila por stream, una casilla por proveedor de internet.</p>
       <div id="ordenes"></div>
       <p class="vacio" id="vacio-ordenes">Todavía no firmaste ninguna orden.</p>
+    </section>
+
+    <section aria-labelledby="t-reclamos" class="reclamos">
+      <h2 id="t-reclamos" class="titulo-seccion">Reclamos de sitios afectados</h2>
+      <ol class="reclamos__lista" id="reclamos"></ol>
+      <p class="vacio" id="vacio-reclamos">No hay reclamos.</p>
     </section>
   </main>
 

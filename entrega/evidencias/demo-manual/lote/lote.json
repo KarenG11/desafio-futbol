@@ -1,0 +1,276 @@
+{
+ "pedidos": [
+  {
+   "pedido_id": "P-001",
+   "expediente_id": "EXP-2026-000001",
+   "origen": "deteccion",
+   "objetivos": [
+    {
+     "proveedor_id": "aurora",
+     "tipo": "ip",
+     "objetivo": "203.0.113.10"
+    },
+    {
+     "proveedor_id": "andina",
+     "tipo": "ip",
+     "objetivo": "203.0.113.10"
+    },
+    {
+     "proveedor_id": "valle",
+     "tipo": "dominio",
+     "objetivo": "s1.pelotaya.test"
+    },
+    {
+     "proveedor_id": "cumbre",
+     "tipo": "ip",
+     "objetivo": "203.0.113.10"
+    }
+   ],
+   "vence_min": 105,
+   "creado_min": 2.031,
+   "estado": "aprobado",
+   "juez_id": "jueza-laura-ficticia",
+   "juzgado_id": "jg-centro-3",
+   "decidido_min": 6.22,
+   "motivo_rechazo": null,
+   "resumen": {
+    "caso_id": "C-001",
+    "host": "s1.pelotaya.test",
+    "ip": "203.0.113.10",
+    "organizacion": "Bruma Hosting Dedicado (ficticio)",
+    "marca": "LP26-PRA-OFI-S048211",
+    "motivo_clasificacion": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+    "ip_compartida": false,
+    "dominios_en_ip": [
+     "s1.pelotaya.test",
+     "s1-respaldo.pelotaya.test"
+    ],
+    "tipo_recomendado": "ip",
+    "motivo_tipo": "Todos los dominios de la IP 203.0.113.10 son de pelotaya.test y el ASN es de Bruma Hosting Dedicado (ficticio) (hosting no compartido): se bloquea la IP",
+    "primer_minuto": 2.0
+   }
+  },
+  {
+   "pedido_id": "P-002",
+   "expediente_id": "EXP-2026-000002",
+   "origen": "deteccion",
+   "objetivos": [
+    {
+     "proveedor_id": "aurora",
+     "tipo": "dominio",
+     "objetivo": "live.golazo-libre.test"
+    },
+    {
+     "proveedor_id": "andina",
+     "tipo": "dominio",
+     "objetivo": "live.golazo-libre.test"
+    },
+    {
+     "proveedor_id": "valle",
+     "tipo": "dominio",
+     "objetivo": "live.golazo-libre.test"
+    },
+    {
+     "proveedor_id": "cumbre",
+     "tipo": "dominio",
+     "objetivo": "live.golazo-libre.test"
+    }
+   ],
+   "vence_min": 105,
+   "creado_min": 6.051,
+   "estado": "aprobado",
+   "juez_id": "jueza-laura-ficticia",
+   "juzgado_id": "jg-centro-3",
+   "decidido_min": 6.22,
+   "motivo_rechazo": null,
+   "resumen": {
+    "caso_id": "C-003",
+    "host": "live.golazo-libre.test",
+    "ip": "198.51.100.20",
+    "organizacion": "NubeRápida CDN (ficticia)",
+    "marca": "LP26-PRA-OFI-S077310",
+    "motivo_clasificacion": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+    "ip_compartida": true,
+    "dominios_en_ip": [
+     "live.golazo-libre.test",
+     "tienda-mate-y-yerba.test",
+     "noticias-del-valle.test",
+     "turismo-cafayate.example",
+     "radio-comunitaria-fm.test",
+     "municipio-ejemplo.example",
+     "biblioteca-popular-norte.test",
+     "delivery-salta-ejemplo.test",
+     "clinica-veterinaria-sol.test",
+     "inmobiliaria-ejemplo.test",
+     "academia-de-ingles.test",
+     "feria-artesanal.example"
+    ],
+    "tipo_recomendado": "dominio",
+    "motivo_tipo": "La IP 198.51.100.20 aloja 11 sitio(s) de terceros (academia-de-ingles.test, biblioteca-popular-norte.test, clinica-veterinaria-sol.test y 8 más): se bloquea solo live.golazo-libre.test",
+    "primer_minuto": 6.0
+   }
+  }
+ ],
+ "ordenes": [
+  {
+   "orden_id": "ord-7f81-P-001-andina-1",
+   "expediente_id": "EXP-2026-000001",
+   "tipo": "ip",
+   "objetivo": "203.0.113.10",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-001",
+   "proveedor_id": "andina",
+   "estado": "recibida",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.301,
+   "recibida_min": 6.301,
+   "aplicada_min": null,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/andina/ordenes/ord-7f81-P-001-andina-1"
+  },
+  {
+   "orden_id": "ord-7f81-P-001-aurora-1",
+   "expediente_id": "EXP-2026-000001",
+   "tipo": "ip",
+   "objetivo": "203.0.113.10",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-001",
+   "proveedor_id": "aurora",
+   "estado": "aplicada",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.301,
+   "recibida_min": 6.301,
+   "aplicada_min": 6.843,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/aurora/ordenes/ord-7f81-P-001-aurora-1"
+  },
+  {
+   "orden_id": "ord-7f81-P-001-cumbre-1",
+   "expediente_id": "EXP-2026-000001",
+   "tipo": "ip",
+   "objetivo": "203.0.113.10",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-001",
+   "proveedor_id": "cumbre",
+   "estado": "recibida",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.301,
+   "recibida_min": 6.301,
+   "aplicada_min": null,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/cumbre/ordenes/ord-7f81-P-001-cumbre-1"
+  },
+  {
+   "orden_id": "ord-7f81-P-001-valle-1",
+   "expediente_id": "EXP-2026-000001",
+   "tipo": "dominio",
+   "objetivo": "s1.pelotaya.test",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-001",
+   "proveedor_id": "valle",
+   "estado": "recibida",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.301,
+   "recibida_min": 6.301,
+   "aplicada_min": null,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/valle/ordenes/ord-7f81-P-001-valle-1"
+  },
+  {
+   "orden_id": "ord-7f81-P-002-andina-1",
+   "expediente_id": "EXP-2026-000002",
+   "tipo": "dominio",
+   "objetivo": "live.golazo-libre.test",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-002",
+   "proveedor_id": "andina",
+   "estado": "recibida",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.303,
+   "recibida_min": 6.303,
+   "aplicada_min": null,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/andina/ordenes/ord-7f81-P-002-andina-1"
+  },
+  {
+   "orden_id": "ord-7f81-P-002-aurora-1",
+   "expediente_id": "EXP-2026-000002",
+   "tipo": "dominio",
+   "objetivo": "live.golazo-libre.test",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-002",
+   "proveedor_id": "aurora",
+   "estado": "aplicada",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.303,
+   "recibida_min": 6.303,
+   "aplicada_min": 6.889,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/aurora/ordenes/ord-7f81-P-002-aurora-1"
+  },
+  {
+   "orden_id": "ord-7f81-P-002-cumbre-1",
+   "expediente_id": "EXP-2026-000002",
+   "tipo": "dominio",
+   "objetivo": "live.golazo-libre.test",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-002",
+   "proveedor_id": "cumbre",
+   "estado": "recibida",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.303,
+   "recibida_min": 6.303,
+   "aplicada_min": null,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/cumbre/ordenes/ord-7f81-P-002-cumbre-1"
+  },
+  {
+   "orden_id": "ord-7f81-P-002-valle-1",
+   "expediente_id": "EXP-2026-000002",
+   "tipo": "dominio",
+   "objetivo": "live.golazo-libre.test",
+   "vence_min": 105,
+   "juzgado_id": "jg-centro-3",
+   "juez_id": "jueza-laura-ficticia",
+   "pedido_id": "P-002",
+   "proveedor_id": "valle",
+   "estado": "recibida",
+   "intentos": 1,
+   "reemplaza_a": null,
+   "enviada_min": 6.303,
+   "recibida_min": 6.303,
+   "aplicada_min": null,
+   "finalizada_min": null,
+   "motivo": null,
+   "consultar": "/proveedores/valle/ordenes/ord-7f81-P-002-valle-1"
+  }
+ ]
+}

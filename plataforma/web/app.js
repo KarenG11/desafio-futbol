@@ -2,6 +2,7 @@
 "use strict";
 
 const REFRESCO_MS = 2000;
+const TIEMPO_MAX_MS = 10000;
 const CLAVE_PIN = "juez-pin";
 const PROVEEDORES = { aurora: "Aurora", andina: "Andina", valle: "FibraValle", cumbre: "Cumbre" };
 const ESTADOS_ORDEN = {
@@ -10,16 +11,18 @@ const ESTADOS_ORDEN = {
 };
 
 const $ = (id) => document.getElementById(id);
-const estado = { pin: leerPin(), juez: null, minuto: 0, pendientes: [], vistos: new Set(), primeraCarga: true };
+const estado = { pin: leerPin(), juez: null, minuto: 0, pendientes: [], vistos: new Set(), primeraCarga: true, licenciatarios: [], nombres: {} };
 let audio = null;
 
 // ---------------------------------------------------------------------- utilidades
 
-function leerPin() { try { return localStorage.getItem(CLAVE_PIN); } catch { return null; } }
-function guardarPin(pin) { try { pin ? localStorage.setItem(CLAVE_PIN, pin) : localStorage.removeItem(CLAVE_PIN); } catch { /* sin storage */ } }
+// sessionStorage: el PIN no sobrevive al cierre de la pestaña (localStorage lo dejaba guardado en la máquina).
+function leerPin() { try { return sessionStorage.getItem(CLAVE_PIN); } catch { return null; } }
+function guardarPin(pin) { try { pin ? sessionStorage.setItem(CLAVE_PIN, pin) : sessionStorage.removeItem(CLAVE_PIN); } catch { /* sin storage */ } }
 
 function nombreJuez(id) {
   if (!id) return "nadie";
+  if (estado.nombres[id]) return estado.nombres[id];
   const [cargo, nombre] = id.split("-");
   const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : "");
   return `${cap(cargo)} ${cap(nombre)}`;
@@ -35,11 +38,18 @@ async function api(ruta, cuerpo) {
   const opciones = { headers: { "Content-Type": "application/json" } };
   if (estado.pin) opciones.headers["X-Juez-Pin"] = estado.pin;
   if (cuerpo !== undefined) { opciones.method = "POST"; opciones.body = JSON.stringify(cuerpo); }
-  const r = await fetch(ruta, opciones);
+  const corte = new AbortController();
+  const reloj = setTimeout(() => corte.abort(), TIEMPO_MAX_MS);
+  opciones.signal = corte.signal;
+  let r;
+  try { r = await fetch(ruta, opciones); }
+  catch (err) { throw new Error(err.name === "AbortError" ? "la plataforma no respondió a tiempo" : "sin conexión con la plataforma"); }
+  finally { clearTimeout(reloj); }
   let datos = null;
   try { datos = await r.json(); } catch { /* sin cuerpo */ }
   if (r.status === 401) { pedirPin("El PIN no es correcto. Volvé a ingresarlo."); throw new Error("401"); }
   if (!r.ok) throw new Error((datos && datos.error) || `La plataforma respondió ${r.status}`);
+  if (r.status === 202) return { ...(datos || {}), pendiente: true };
   return datos;
 }
 
@@ -117,6 +127,8 @@ function textoPorque(r) {
 function renderEstado(e) {
   estado.minuto = e.minuto_actual;
   estado.juez = (e.jueces_de_turno || [])[0] || null;
+  if (e.licenciatarios) estado.licenciatarios = e.licenciatarios;
+  for (const jz of (e.juzgados && e.juzgados.juzgados) || []) for (const j of jz.jueces) estado.nombres[j.id] = j.nombre;
   $("minuto").textContent = Math.floor(e.minuto_actual);
   $("partido").textContent = e.finalizado ? `Partido ${e.partido_id} terminado` : `Partido ${e.partido_id} en juego`;
   $("juez").textContent = nombreJuez(estado.juez);
@@ -183,8 +195,10 @@ function crearTarjeta(p, esNuevo) {
   li.querySelector(".d-bloqueo").append(textoBloqueo(p));
   li.querySelector(".d-hasta").textContent = `Minuto ${p.vence_min}, fin del partido. Después se levanta sola.`;
 
-  const exp = li.querySelector(".expediente");
-  exp.addEventListener("toggle", () => { if (exp.open) cargarExpediente(p.expediente_id, exp.querySelector(".expediente__cuerpo")); });
+  // Se pide apenas se crea la tarjeta; al abrir se reintenta si todavía no llegó o falló.
+  const exp = li.querySelector(".expediente"), cuerpo = exp.querySelector(".expediente__cuerpo");
+  cargarExpediente(p, cuerpo);
+  exp.addEventListener("toggle", () => { if (exp.open && cuerpo.dataset.cargado !== "si") cargarExpediente(p, cuerpo); });
 
   const rechazo = li.querySelector(".rechazo"), acciones = li.querySelector(".b-acciones");
   li.querySelector(".b-firmar").addEventListener("click", () => firmar([p.pedido_id]));
@@ -200,26 +214,45 @@ function crearTarjeta(p, esNuevo) {
   return li;
 }
 
-async function cargarExpediente(id, cuerpo) {
+async function cargarExpediente(p, cuerpo) {
+  if (cuerpo.dataset.cargado === "cargando") return;
+  cuerpo.dataset.cargado = "cargando";
+  cuerpo.textContent = "Cargando…";
   try {
-    const e = await api(`/api/expedientes/${encodeURIComponent(id)}`);
+    const e = await api(`/api/expedientes/${encodeURIComponent(p.expediente_id)}`);
+    const c = e.caso;
     cuerpo.replaceChildren();
     const fila = (titulo, valor, clase) => {
-      const p = document.createElement("p"); const b = document.createElement("b");
-      b.textContent = `${titulo}: `; p.append(b);
-      const s = document.createElement("span"); if (clase) s.className = clase; s.textContent = valor; p.append(s);
-      cuerpo.append(p);
+      const f = document.createElement("p"); const b = document.createElement("b");
+      b.textContent = `${titulo}: `; f.append(b);
+      const s = document.createElement("span"); if (clase) s.className = clase; s.textContent = valor; f.append(s);
+      cuerpo.append(f);
     };
     fila("Expediente", e.expediente_id);
-    fila("Huella del expediente (SHA-256)", e.hash, "hash");
-    for (const c of e.capturas) fila(`Captura ${c.deteccion_id}, minuto ${Math.floor(c.capturada_min)}`, c.sha256, "hash");
-    fila("Sitios en la misma IP", e.caso.dominios_en_ip.length ? e.caso.dominios_en_ip.join(", ") : "sin datos");
-    fila("Por qué IP o nombre", e.caso.motivo_tipo);
+    fila("Dominio", c.host);
+    if (c.pagina) fila("Página", c.pagina);
+    fila("IP", c.ip);
+    fila("Hosting", c.organizacion ? `${c.organizacion}${c.asn ? ` (ASN ${c.asn})` : ""}` : "sin datos del ASN");
+    fila("Marca de agua", `${c.marca || "sin marca"}${c.marca_origen ? `, ${c.marca_origen}` : ""}`, "marca");
+    fila("Por qué es el partido", c.motivo_clasificacion);
+    const lics = estado.licenciatarios.map((l) => `${l.nombre}: ${l.dominios_autorizados.join(", ")}`);
+    fila("Licenciatarios autorizados", lics.length ? `${lics.join("  |  ")}. ${c.host} no es ninguno de ellos.` : "el partido no declara licenciatarios");
+    fila("Sitios en la misma IP", c.dominios_en_ip.length ? c.dominios_en_ip.join(", ") : "sin datos");
+    fila("Por qué IP o nombre", c.motivo_tipo);
+    fila("Qué recibe cada proveedor", p.objetivos.map((o) => `${proveedor(o.proveedor_id)}: ${o.tipo === "ip" ? "IP" : "dominio"} ${o.objetivo}`).join("  |  "));
+    for (const k of e.capturas) fila(`Captura ${k.deteccion_id}, minuto ${Math.floor(k.capturada_min)}`, k.sha256, "hash");
     if (e.promocion && e.promocion.length) {
       fila("Dónde se promocionó", e.promocion.map((x) => `${x.red}: ${x.url}`).join("  |  "));
     }
+    fila("Huella del expediente (SHA-256)", e.hash, "hash");
+    cuerpo.dataset.cargado = "si";
   } catch (err) {
-    cuerpo.textContent = `No se pudo abrir el expediente: ${err.message}`;
+    cuerpo.dataset.cargado = "error";
+    cuerpo.textContent = `No se pudo abrir el expediente: ${err.message}. `;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "boton boton--suave"; b.textContent = "Reintentar";
+    b.addEventListener("click", () => cargarExpediente(p, cuerpo));
+    cuerpo.append(b);
   }
 }
 
@@ -292,10 +325,61 @@ async function rechazar(ids, motivo) {
 async function asumirTurno() {
   try {
     const r = await api("/api/turno/asumir", { juez_id: estado.juez });
-    quitarAviso("traspaso");
-    aviso(`Ratificaste ${r.ratificadas.length} órdenes vigentes. Desde ahora los reintentos salen con tu firma.`, "ok",
-      { duracion: 5000, titulo: `Turno asumido por ${nombreJuez(r.juez_id)}` });
+    if (r.pendiente) {
+      aviso("El motor todavía no confirmó el traspaso. Se actualiza solo.", "info", { duracion: 6000, titulo: "Turno en trámite" });
+    } else {
+      quitarAviso("traspaso");
+      aviso(`Ratificaste ${(r.ratificadas || []).length} órdenes vigentes. Desde ahora los reintentos salen con tu firma.`, "ok",
+        { duracion: 5000, titulo: `Turno asumido por ${nombreJuez(r.juez_id)}` });
+    }
   } catch (err) { if (err.message !== "401") aviso(err.message, "error", { duracion: 8000, titulo: "No se pudo asumir el turno" }); }
+  await refrescar();
+}
+
+// ---------------------------------------------------------------------- reclamos
+
+const ESTADOS_RECLAMO = { pendiente: "Espera tu decisión", levantado: "Levantado", descartado: "Descartado" };
+
+function renderReclamos(reclamos) {
+  const lista = $("reclamos");
+  lista.replaceChildren();
+  $("vacio-reclamos").hidden = reclamos.length > 0;
+  for (const r of reclamos.sort((a, b) => b.minuto - a.minuto)) {
+    const li = document.createElement("li");
+    li.className = `reclamo reclamo--${r.estado}`;
+    const titulo = document.createElement("p");
+    titulo.className = "reclamo__titulo";
+    titulo.textContent = `${min(r.minuto)} · ${r.dominio} · vía ${proveedor(r.proveedor_id)} · ${ESTADOS_RECLAMO[r.estado] || r.estado}`;
+    const msg = document.createElement("p");
+    msg.textContent = r.mensaje;
+    const ver = document.createElement("p");
+    ver.className = "reclamo__verificacion";
+    ver.textContent = r.verificacion;
+    li.append(titulo, msg, ver);
+    if (r.estado === "pendiente" && r.orden_ids && r.orden_ids.length) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "boton boton--firmar";
+      b.textContent = "Levantar el bloqueo y bloquear solo el dominio pirata";
+      b.addEventListener("click", () => levantarReclamo(r.reclamo_id, b));
+      li.append(b);
+    }
+    lista.append(li);
+  }
+}
+
+async function levantarReclamo(reclamoId, boton) {
+  boton.disabled = true;
+  try {
+    const r = await api("/api/reclamos/levantar",
+      { reclamo_id: reclamoId, juez_id: estado.juez, motivo: "Reclamo legítimo verificado", reemplazar: true });
+    if (r.pendiente) aviso("Los proveedores todavía no confirmaron el levantamiento. Se actualiza solo.", "info",
+      { duracion: 6000, titulo: "Levantamiento en curso" });
+    else aviso(`Se levantaron ${r.ordenes_levantadas.length} órdenes.`, "ok", { duracion: 5000, titulo: "Reclamo resuelto" });
+  } catch (err) {
+    boton.disabled = false;
+    if (err.message !== "401") aviso(err.message, "error", { duracion: 8000, titulo: "No se pudo levantar" });
+  }
   await refrescar();
 }
 
@@ -306,11 +390,13 @@ async function refrescar() {
   if (refrescando || !estado.pin) return;
   refrescando = true;
   try {
-    const [e, p, o] = await Promise.all([api("/api/estado"), api("/api/pedidos?estado=pendiente"), api("/api/ordenes")]);
+    const [e, p, o, rc] = await Promise.all([api("/api/estado"), api("/api/pedidos?estado=pendiente"), api("/api/ordenes"),
+      api("/api/reclamos")]);
     quitarAviso("sin-red");
     renderEstado(e);
     renderPedidos(p.pedidos.sort((a, b) => a.creado_min - b.creado_min));
     renderOrdenes(o.ordenes);
+    renderReclamos(rc.reclamos);
   } catch (err) {
     if (err.message !== "401") {
       aviso("Sin conexión con la plataforma. Se reintenta solo cada 2 segundos.", "error", { id: "sin-red", titulo: "Sin conexión" });

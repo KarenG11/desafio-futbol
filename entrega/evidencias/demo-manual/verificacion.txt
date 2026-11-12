@@ -1,0 +1,18 @@
+== Partido completo (demo-manual/) ==
+OK    el registro del simulador llega al minuto 110 (ventana cerrada)
+OK    plataforma: auditoría con 155 eventos, cadena de hashes íntegra
+OK    plataforma: la tabla auditoria de la base es idéntica a auditoria_interna.jsonl
+OK    plataforma: 7 expedientes con hash recalculado igual al guardado y al de la auditoría
+OK    33 órdenes: las mismas en la API, la auditoría y el registro del simulador
+OK    cada orden tiene el mismo objetivo, juez y estado final en la API y en el registro; todas con juez de turno
+OK    una sola orden no fallida por pedido y proveedor (28 combinaciones): los reintentos no duplicaron bloqueos
+OK    recorrido.log: la jueza saliente recibió 409, el juez entrante asumió desde la pantalla y todas las firmas fueron individuales
+OK    el verificador oficial, corrido de nuevo, da exactamente verificar.txt
+
+== Firma en lote (demo-manual/lote/) ==
+OK    lote: auditoría con 26 eventos, cadena de hashes íntegra
+OK    lote: la tabla auditoria de la base es idéntica a auditoria_interna.jsonl
+OK    lote: 3 expedientes con hash recalculado igual al guardado y al de la auditoría
+OK    lote/cruce.py da TODO OK y la misma salida que lote/cruce.txt
+
+TODO OK

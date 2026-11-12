@@ -1,8 +1,9 @@
 import base64
+import copy
 import json
 import os
 from datetime import datetime, timezone
-from typing import Dict, Any
+from typing import Any, Callable, Dict, Optional
 
 from plataforma.contratos import (
     Caso, Deteccion, Expediente, EventoAuditoria,
@@ -10,11 +11,16 @@ from plataforma.contratos import (
 )
 
 class GestorEvidencia:
-    def __init__(self, ruta_auditoria: str = "salida/auditoria_interna.jsonl"):
+    def __init__(self, ruta_auditoria: str = "salida/auditoria_interna.jsonl", reiniciar: bool = False,
+                 al_registrar: Optional[Callable[[Dict[str, Any]], None]] = None):
+        """reiniciar=True empieza una cadena nueva (una por corrida); al_registrar recibe cada evento (p. ej. la base)."""
         self.ruta_auditoria = ruta_auditoria
         self.contador_expedientes = 1
         self.ultimo_hash = HASH_INICIAL
         self.seq_actual = 0
+        self.al_registrar = al_registrar
+        if reiniciar and os.path.exists(self.ruta_auditoria):
+            os.remove(self.ruta_auditoria)
         self._cargar_estado_auditoria()
 
     def _cargar_estado_auditoria(self):
@@ -27,7 +33,8 @@ class GestorEvidencia:
                         self.ultimo_hash = evento["hash"]
                         self.seq_actual = evento["seq"]
 
-    def crear_expediente(self, caso: Caso, deteccion: Deteccion, partido_id: str, minuto_actual: float) -> Expediente:
+    def crear_expediente(self, caso: Caso, deteccion: Deteccion, partido_id: str, minuto_actual: float,
+                         vence_propuesto_min: int = 105) -> Expediente:
         """Arma el expediente legal con las capturas y calcula su hash de integridad."""
         
         # Procesamos la captura (base64 a binario y sacamos su hash)
@@ -47,10 +54,10 @@ class GestorEvidencia:
         exp = {
             "expediente_id": f"EXP-2026-{self.contador_expedientes:06d}",
             "partido_id": partido_id,
-            "caso": caso,
+            "caso": copy.deepcopy(caso),   # foto del caso al firmar: el cerebro lo sigue actualizando
             "capturas": [captura_exp],
             "promocion": deteccion.get("promocion", []),
-            "vence_propuesto_min": 105, # Según el MVP de Alejo
+            "vence_propuesto_min": int(vence_propuesto_min),
             "creado_min": minuto_actual,
             "creado_ts": datetime.now(timezone.utc).isoformat(),
         }
@@ -88,10 +95,12 @@ class GestorEvidencia:
         self.ultimo_hash = evento["hash"]
         
         # Guardamos en el archivo JSONL
-        os.makedirs(os.path.dirname(self.ruta_auditoria), exist_ok=True)
+        os.makedirs(os.path.dirname(self.ruta_auditoria) or ".", exist_ok=True)
         with open(self.ruta_auditoria, "a", encoding="utf-8") as f:
-            f.write(json.dumps(evento) + "\n")
-            
+            f.write(json.dumps(evento, ensure_ascii=False) + "\n")
+        if self.al_registrar is not None:
+            self.al_registrar(evento)
+
         return evento
 
     def verificar_integridad(self) -> bool:

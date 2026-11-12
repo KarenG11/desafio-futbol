@@ -1,0 +1,12 @@
+OK    API: 2 pedidos aprobados en el mismo minuto [('P-001', 'jueza-laura-ficticia', 6.22), ('P-002', 'jueza-laura-ficticia', 6.22)]
+OK    base: [('P-001', 'aprobado', 'jueza-laura-ficticia', 6.22), ('P-002', 'aprobado', 'jueza-laura-ficticia', 6.22)]
+OK    ord-7f81-P-001-andina-1: andina ip 203.0.113.10 | auditoría seq 10 | simulador: recibida min 6.302, aplicada min 8.676
+OK    ord-7f81-P-001-aurora-1: aurora ip 203.0.113.10 | auditoría seq 9 | simulador: recibida min 6.301, aplicada min 6.843
+OK    ord-7f81-P-001-cumbre-1: cumbre ip 203.0.113.10 | auditoría seq 12 | simulador: recibida min 6.303, aplicada min 8.487
+OK    ord-7f81-P-001-valle-1: valle dominio s1.pelotaya.test | auditoría seq 11 | simulador: recibida min 6.303, aplicada min None
+OK    ord-7f81-P-002-andina-1: andina dominio live.golazo-libre.test | auditoría seq 14 | simulador: recibida min 6.304, aplicada min 8.628
+OK    ord-7f81-P-002-aurora-1: aurora dominio live.golazo-libre.test | auditoría seq 13 | simulador: recibida min 6.304, aplicada min 6.889
+OK    ord-7f81-P-002-cumbre-1: cumbre dominio live.golazo-libre.test | auditoría seq 16 | simulador: recibida min 6.305, aplicada min 10.038
+OK    ord-7f81-P-002-valle-1: valle dominio live.golazo-libre.test | auditoría seq 15 | simulador: recibida min 6.305, aplicada min 10.562
+OK    simulador recibió 8, auditoría registra 8 envíos, API informó 8
+TODO OK
