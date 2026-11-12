@@ -40,7 +40,7 @@ def palabras_de(texto: str):
     return out
 
 
-def voz(guion: dict) -> list:
+def voz(guion: dict, nombre: str = "short") -> list:
     async def sintetizar(i, seg):
         limpio = seg["texto"].replace("*", "")
         com = edge_tts.Communicate(limpio, guion["voz"], rate=guion["velocidad"], boundary="WordBoundary")
@@ -50,9 +50,9 @@ def voz(guion: dict) -> list:
                 audio.extend(ch["data"])
             elif ch["type"] == "WordBoundary":
                 marcas.append(ch["offset"] / 1e7)
-        mp3 = D / f"short{i:02d}.mp3"
+        mp3 = D / f"{nombre}{i:02d}.mp3"
         mp3.write_bytes(bytes(audio))
-        wav = D / f"short{i:02d}.wav"
+        wav = D / f"{nombre}{i:02d}.wav"
         subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(mp3), "-ac", "1", "-ar", str(TASA), str(wav)], check=True)
         return wav, marcas
 
@@ -72,7 +72,7 @@ def voz(guion: dict) -> list:
                           "palabras": [{"t": round(t + m, 3), "texto": p, "clave": c} for (p, c), m in zip(ps, marcas)]})
         muestras.extend(datos); muestras.extend([0] * int(ENTRE * TASA)); t += dur + ENTRE
     muestras.extend([0] * int(2.2 * TASA))
-    with wave.open(str(D / "narracion_short.wav"), "wb") as w:
+    with wave.open(str(D / f"narracion_{nombre}.wav"), "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(TASA); w.writeframes(muestras.tobytes())
     paso = TASA // 30
     rms = [(sum(x * x for x in muestras[i:i + paso]) / paso) ** 0.5 for i in range(0, len(muestras) - paso, paso)]
@@ -233,10 +233,10 @@ def grabar(segmentos: list):
             pr.terminate()
 
 
-def montar(video: Path, desfase: float, duracion: float) -> Path:
-    salida = D / "tarjeta-roja-short.mp4"
-    subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(video), "-i", str(D / "narracion_short.wav"),
-                    "-filter_complex", f"[0:v]trim=start={desfase:.3f},setpts=PTS-STARTPTS,scale=1080:1920:flags=lanczos[v]",
+def montar(video: Path, desfase: float, duracion: float, nombre: str = "short", escala: str = "1080:1920") -> Path:
+    salida = D / f"tarjeta-roja-{nombre}.mp4"
+    subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", str(video), "-i", str(D / f"narracion_{nombre}.wav"),
+                    "-filter_complex", f"[0:v]trim=start={desfase:.3f},setpts=PTS-STARTPTS,scale={escala}:flags=lanczos[v]",
                     "-map", "[v]", "-map", "1:a", "-t", f"{duracion:.2f}", "-c:v", "libx264", "-preset", "medium", "-crf", "19",
                     "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", str(salida)], check=True)
     return salida

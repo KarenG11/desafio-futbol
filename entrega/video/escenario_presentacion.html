@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<title>Tarjeta Roja · short</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Public+Sans:wght@500;600;700;800&family=Barlow+Condensed:ital,wght@1,800;1,900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #F2EFE9; font-family: "Public Sans", sans-serif; color: #141414; }
+  body::before { content: ""; position: absolute; inset: 0; opacity: .5; pointer-events: none;
+    background-image: radial-gradient(rgba(0,0,0,.06) 1px, transparent 1px); background-size: 4px 4px; }
+  :root { --rojo: #FF3B30; --negro: #141414; }
+  #etq { position: absolute; left: 44px; top: 34px; font: 500 15px/1 ui-monospace, Consolas, monospace; color: #8A867E; letter-spacing: .02em; }
+  #cuenta { position: absolute; right: 44px; top: 34px; font: 500 15px/1 ui-monospace, Consolas, monospace; color: #8A867E; }
+  #titular { position: absolute; left: 44px; width: 430px; top: 70px; min-height: 150px; font: 600 38px/1.1 "Public Sans", sans-serif; letter-spacing: -.02em; }
+  #titular span { display: inline-block; opacity: 0; transform: translateY(14px); transition: opacity .18s, transform .22s cubic-bezier(.2,.9,.3,1.3); margin-right: .22em; }
+  #titular span.si { opacity: 1; transform: none; }
+  #titular.largo { font-size: 29px; } #titular.largo span.clave { font-size: 35px; }
+  #titular span.clave { font: italic 400 46px/1 "Instrument Serif", serif; color: var(--rojo); letter-spacing: 0; }
+  /* indicador de pasos */
+  #pasos { position: absolute; left: 540px; width: 560px; top: 606px; height: 50px; display: flex; justify-content: space-between; align-items: flex-start; opacity: 0; transition: opacity .4s; }
+  #pasos.si { opacity: 1; }
+  #pasos::before { content: ""; position: absolute; left: 14px; right: 14px; top: 13px; height: 2px; background: var(--negro); }
+  .paso { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; font: 700 10px/1 ui-monospace, Consolas, monospace; color: #5A5650; text-transform: uppercase; }
+  .paso i { width: 28px; height: 28px; border-radius: 50%; background: #F2EFE9; border: 2px solid var(--negro); display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 800; transition: all .3s; }
+  .paso.hecho i { background: var(--negro); color: #fff; }
+  .paso.actual i { background: var(--rojo); border-color: var(--rojo); color: #fff; transform: scale(1.25); box-shadow: 0 0 0 6px rgba(255,59,48,.18); }
+  .paso.actual { color: var(--rojo); }
+  /* ventana del navegador / celular */
+  #ventana { position: absolute; left: 500px; top: 70px; width: 740px; height: 500px; background: #fff; border: 2px solid var(--negro); border-radius: 12px; overflow: hidden;
+    box-shadow: 8px 10px 0 rgba(20,20,20,.9); transition: all .55s cubic-bezier(.2,.8,.2,1); }
+  #cromo { height: 30px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border-bottom: 2px solid var(--negro); background: #fff; font: 600 12px ui-monospace, Consolas, monospace; color: #555; }
+  #cromo b { width: 10px; height: 10px; border-radius: 50%; background: var(--rojo); } #cromo b:nth-child(2) { background: #F5B400; } #cromo b:nth-child(3) { background: #2BB24C; }
+  #cromo span { flex: 1; text-align: center; margin-right: 40px; }
+  #app { display: block; width: 736px; height: 466px; border: 0; background: #07080A; }
+  body.celular #ventana { left: 720px; top: 40px; width: 310px; height: 560px; border-radius: 34px; border-width: 8px; }
+  body.celular #cromo { display: none; }
+  body.celular #app { width: 294px; height: 544px; }
+  /* resaltados, píldoras, sellos */
+  .resalte { position: absolute; z-index: 5; border: 4px solid var(--rojo); border-radius: 8px; box-shadow: 0 0 0 4px rgba(255,59,48,.2); animation: aparece .35s cubic-bezier(.2,.9,.3,1.4); pointer-events: none; }
+  .pildora { position: absolute; z-index: 6; padding: 8px 16px; border-radius: 999px; background: var(--rojo); color: #fff; font: 800 19px/1 "Public Sans"; white-space: nowrap; box-shadow: 3px 4px 0 var(--negro); animation: aparece .35s cubic-bezier(.2,.9,.3,1.6); }
+  .pildora--blanca { background: #fff; color: var(--negro); border: 2px solid var(--negro); font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+  .sello { position: absolute; z-index: 7; left: 870px; top: 320px; padding: 6px 26px; border: 8px solid var(--rojo); border-radius: 14px; color: var(--rojo); font: italic 900 92px/1 "Barlow Condensed"; text-transform: uppercase;
+    transform: translate(-50%, -50%) rotate(-12deg); animation: sello .45s cubic-bezier(.2,.9,.3,1.5) both; background: rgba(242,239,233,.92); box-shadow: 6px 8px 0 rgba(20,20,20,.85); }
+  .sello::after { content: ""; position: absolute; inset: 6px; border: 3px solid var(--rojo); border-radius: 8px; }
+  @keyframes aparece { from { transform: scale(.6); opacity: 0; } }
+  @keyframes sello { from { transform: translate(-50%, -50%) rotate(-12deg) scale(2.6); opacity: 0; } }
+  /* stickers */
+  .sticker { position: absolute; z-index: 4; animation: aparece .4s cubic-bezier(.2,.9,.3,1.6) both; }
+  #tablilla { left: 330px; top: 470px; width: 150px; padding: 26px 12px 10px; background: #E9D3A8; border: 2px solid var(--negro); border-radius: 8px; box-shadow: 4px 5px 0 var(--negro); transform: rotate(-6deg); }
+  #tablilla::before { content: ""; position: absolute; left: 50%; top: -8px; width: 56px; height: 18px; transform: translateX(-50%); background: #9C9A96; border: 2px solid var(--negro); border-radius: 5px; }
+  #tablilla p { margin: 4px 0; padding: 4px 6px; background: #fff; border: 1.5px solid var(--negro); border-radius: 4px; font: 700 11px/1.1 ui-monospace, Consolas, monospace; display: flex; gap: 6px; align-items: center; animation: aparece .3s both; }
+  #tablilla p::before { content: "✓"; width: 14px; height: 14px; border-radius: 50%; background: var(--rojo); color: #fff; font-size: 9px; display: grid; place-items: center; }
+  #reloj { right: 30px; top: 590px; width: 112px; height: 112px; border-radius: 50%; background: #fff; border: 3px solid var(--negro); box-shadow: 4px 5px 0 var(--negro); display: grid; place-items: center; text-align: center; font: italic 900 38px/0.9 "Barlow Condensed"; color: var(--rojo); }
+  #reloj small { display: block; font: 700 10px ui-monospace, Consolas, monospace; color: var(--negro); }
+  #rojas { right: 40px; top: 600px; display: flex; gap: 6px; }
+  #rojas i { width: 34px; height: 48px; background: var(--rojo); border: 2px solid var(--negro); border-radius: 4px; box-shadow: 3px 4px 0 var(--negro); animation: aparece .3s cubic-bezier(.2,.9,.3,1.6) both; }
+  #rojas i:nth-child(odd) { transform: rotate(-8deg); } #rojas i:nth-child(even) { transform: rotate(7deg); }
+  .garabato { position: absolute; z-index: 1; font: 700 26px/1 sans-serif; color: var(--rojo); opacity: .8; }
+  /* personaje */
+  #avatar { position: absolute; left: -20px; bottom: 0; width: 520px; height: 480px; z-index: 3; pointer-events: none; }
+  #capa, .sticker, .garabato { pointer-events: none; }
+  /* transiciones */
+  #franjas { position: absolute; inset: 0; z-index: 20; pointer-events: none; display: grid; grid-template-rows: repeat(8, 1fr); }
+  #franjas i { background: var(--rojo); transform: translateX(-102%); } #franjas i:nth-child(even) { background: var(--negro); }
+  #franjas.va i { animation: franja .9s cubic-bezier(.7,0,.3,1) both; }
+  #franjas.va i:nth-child(2) { animation-delay: .04s; } #franjas.va i:nth-child(3) { animation-delay: .08s; } #franjas.va i:nth-child(4) { animation-delay: .12s; }
+  #franjas.va i:nth-child(5) { animation-delay: .16s; } #franjas.va i:nth-child(6) { animation-delay: .2s; } #franjas.va i:nth-child(7) { animation-delay: .24s; } #franjas.va i:nth-child(8) { animation-delay: .28s; }
+  @keyframes franja { 0% { transform: translateX(-102%); } 45%, 55% { transform: translateX(0); } 100% { transform: translateX(102%); } }
+  #puntos { position: absolute; inset: 0; z-index: 20; pointer-events: none; opacity: 0;
+    background-image: radial-gradient(circle, var(--negro) 45%, transparent 47%); background-size: 26px 26px; }
+  #puntos.va { animation: puntos .9s ease-in-out both; }
+  @keyframes puntos { 0% { opacity: 0; background-size: 26px 26px; } 20% { opacity: 1; } 50% { opacity: 1; background-size: 26px 26px; filter: none; } 100% { opacity: 0; background-size: 260px 260px; } }
+  #telon { position: absolute; inset: 0; z-index: 30; background: var(--negro); color: #fff; display: grid; place-items: center; text-align: center; transition: opacity .6s; }
+  #telon b { display: block; font: italic 900 74px/0.9 "Barlow Condensed"; text-transform: uppercase; }
+  #telon b em { font-style: italic; color: var(--rojo); }
+  #telon small { font: 500 16px ui-monospace, Consolas, monospace; color: #aaa; }
+  #telon.fuera { opacity: 0; pointer-events: none; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.5.5/lib/three-vrm.module.min.js"
+} }
+</script>
+</head>
+<body>
+  <div id="etq"></div><div id="cuenta"></div>
+  <div id="titular"></div>
+  <div id="pasos">
+    <div class="paso"><i>1</i>Detecta</div><div class="paso"><i>2</i>Expediente</div><div class="paso"><i>3</i>Firma</div>
+    <div class="paso"><i>4</i>Bloquea</div><div class="paso"><i>5</i>Vence</div>
+  </div>
+  <div id="ventana"><div id="cromo"><b></b><b></b><b></b><span id="url">tarjetaroja.ar</span></div><iframe id="app" src="about:blank"></iframe></div>
+  <div id="capa"></div>
+  <span class="garabato" style="left:470px;top:60px">+</span><span class="garabato" style="right:20px;top:560px">○</span><span class="garabato" style="left:1250px;top:60px">✕</span>
+  <canvas id="avatar" width="520" height="480"></canvas>
+  <div id="franjas"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div id="puntos"></div>
+  <div id="telon"><svg viewBox="0 0 480 250" width="760" role="img" aria-label="Tarjeta Roja">
+    <g transform="translate(56 58) scale(1.2)"><g fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 26V8h18"/><path d="M74 8h18v18"/><path d="M92 74v18H74"/><path d="M26 92H8V74"/></g>
+      <rect x="31" y="21" width="38" height="58" rx="4" fill="#E8262B" transform="rotate(12 50 50)"/></g>
+    <g font-family="'Public Sans', Arial, sans-serif" font-weight="800"><text x="200" y="110" font-size="56" fill="#fff">TARJETA</text>
+      <text x="200" y="166" font-size="56" fill="#E8262B">ROJA</text><text x="200" y="200" font-size="15" fill="#fff" letter-spacing="1.5">OBSERVA · ANALIZA · ACTÚA</text></g>
+  </svg></div>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+
+const $ = (id) => document.getElementById(id);
+const renderer = new THREE.WebGLRenderer({ canvas: $("avatar"), alpha: true, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(520, 480, false); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const escena = new THREE.Scene();
+const camara = new THREE.PerspectiveCamera(24, 520 / 480, 0.1, 20);
+camara.position.set(0, 1.12, 2.55); camara.lookAt(0, 1.18, 0);
+escena.add(new THREE.AmbientLight(0xffffff, 1.6));
+const luz = new THREE.DirectionalLight(0xffffff, 2.0); luz.position.set(1, 2, 3); escena.add(luz);
+
+const env = await (await fetch("envolvente.json")).json();
+const linea = await (await fetch("linea.json")).json();
+const gltf = await new GLTFLoader().register((p) => new VRMLoaderPlugin(p)).loadAsync("modelo.vrm");
+const vrm = gltf.userData.vrm;
+VRMUtils.removeUnnecessaryVertices(gltf.scene); VRMUtils.combineSkeletons(gltf.scene); VRMUtils.rotateVRM0(vrm);
+vrm.scene.position.y = 0.04;
+escena.add(vrm.scene);
+const mirada = new THREE.Object3D(); mirada.position.set(0, 1.2, 3); escena.add(mirada);
+if (vrm.lookAt) vrm.lookAt.target = mirada;
+const hueso = (n) => vrm.humanoid.getNormalizedBoneNode(n);
+
+/* Poses: rotaciones (z de brazo, z/y de antebrazo) por brazo. Se mezclan suave hacia la pose actual. */
+const POSES = {
+  reposo:  { lua: -1.2, lla: 0.15, rua: 1.2, rla: -0.15, rlay: 0 },
+  saluda:  { lua: -1.2, lla: 0.15, rua: 0.3, rla: -1.6, rlay: 0, onda: 1 },
+  senala:  { lua: -1.2, lla: 0.15, rua: -0.45, rla: -0.25, rlay: 0 },
+  abre:    { lua: -0.75, lla: 0.65, rua: 0.75, rla: -0.65, rlay: 0 },
+  arriba:  { lua: -1.2, lla: 0.15, rua: -1.05, rla: -0.1, rlay: 0 },
+  festeja: { lua: 0.85, lla: 0.35, rua: -0.85, rla: -0.35, rlay: 0, onda: 0.4 },
+};
+const actual = { ...POSES.reposo };
+let pose = "reposo", t0 = null, parpadeo = 0, prox = 1.2;
+const reloj = new THREE.Timer();
+function amp(t) { if (t == null || t < 0) return 0; const i = t * 30, a = Math.floor(i); return a + 1 < env.length ? env[a] + (env[a + 1] - env[a]) * (i - a) : 0; }
+
+function cuadro() {
+  reloj.update();
+  const dt = Math.min(0.1, reloj.getDelta()), s = reloj.getElapsed();
+  const t = t0 == null ? null : (performance.now() - t0) / 1000;
+  const voz = Math.min(1, amp(t) * 1.6), v = (Math.sin(s * 11) + 1) / 2, em = vrm.expressionManager;
+  em.setValue("aa", voz * (0.55 + 0.45 * v)); em.setValue("oh", voz * 0.35 * (1 - v));
+  em.setValue("happy", pose === "festeja" ? 0.8 : 0.3);
+  prox -= dt; if (prox <= 0) { parpadeo = 0.16; prox = 2 + Math.random() * 3; }
+  parpadeo = Math.max(0, parpadeo - dt); em.setValue("blink", parpadeo > 0 ? Math.sin(parpadeo / 0.16 * Math.PI) : 0);
+  const obj = POSES[pose] || POSES.reposo, k = 1 - Math.exp(-dt * 7);
+  for (const c of ["lua", "lla", "rua", "rla", "rlay"]) actual[c] += (obj[c] - actual[c]) * k;
+  const onda = (obj.onda || 0) * Math.sin(s * 9) * 0.35;
+  hueso("leftUpperArm").rotation.z = actual.lua + Math.sin(s * 0.9) * 0.03;
+  hueso("leftLowerArm").rotation.z = actual.lla;
+  hueso("rightUpperArm").rotation.z = actual.rua - Math.sin(s * 0.9 + 1) * 0.03;
+  hueso("rightLowerArm").rotation.z = actual.rla + onda;
+  hueso("rightLowerArm").rotation.y = actual.rlay;
+  hueso("spine").rotation.x = Math.sin(s * 1.6) * 0.012;
+  hueso("neck").rotation.y = Math.sin(s * 0.5) * 0.08 + Math.sin(s * 2.3) * 0.03 * (voz > 0.05 ? 1 : 0.3);
+  hueso("neck").rotation.z = Math.sin(s * 0.7) * 0.04;
+  hueso("hips").rotation.y = Math.sin(s * 0.4) * 0.05;
+  mirada.position.x = Math.sin(s * 0.3) * 0.3;
+  vrm.update(dt);
+  if (t != null) titular(t);
+  renderer.render(escena, camara);
+  requestAnimationFrame(cuadro);
+}
+
+let segActual = -1;
+function titular(t) {
+  const i = linea.segmentos.findIndex((s, n) => t >= s.inicio - 0.05 && (n === linea.segmentos.length - 1 || t < linea.segmentos[n + 1].inicio - 0.05));
+  if (i < 0) return;
+  const seg = linea.segmentos[i];
+  if (i !== segActual) {
+    segActual = i;
+    $("etq").textContent = seg.etiqueta;
+    $("cuenta").textContent = `${String(i + 1).padStart(2, "0")} / ${String(linea.segmentos.length).padStart(2, "0")}`;
+    $("titular").classList.toggle("largo", seg.palabras.length > 15);
+    $("titular").replaceChildren(...seg.palabras.map((p) => { const s = document.createElement("span"); s.textContent = p.texto; if (p.clave) s.className = "clave"; return s; }));
+  }
+  const spans = $("titular").children;
+  seg.palabras.forEach((p, n) => spans[n].classList.toggle("si", t >= p.t - 0.04));
+}
+
+window.listo = true;
+window.iniciar = () => { t0 = performance.now(); $("telon").classList.add("fuera"); return true; };
+window.pose = (p) => { pose = p; };
+window.app = (url, modo, etiquetaUrl) => {
+  const f = $("app"); if (f.dataset.url !== url) { f.dataset.url = url; f.src = url; }
+  document.body.classList.toggle("celular", modo === "celular"); $("url").textContent = etiquetaUrl || "tarjetaroja.ar";
+};
+window.paso = (n) => {
+  $("pasos").classList.toggle("si", n != null);
+  [...$("pasos").children].forEach((el, i) => { el.classList.toggle("hecho", n != null && i < n); el.classList.toggle("actual", i === n); });
+};
+window.limpiar = () => $("capa").replaceChildren();
+function poner(html, clase, estilo) { const d = document.createElement("div"); d.className = clase; d.style.cssText = estilo || ""; d.textContent = html; $("capa").append(d); return d; }
+window.resaltar = (x, y, w, h) => poner("", "resalte", `left:${x - 6}px;top:${y - 6}px;width:${w + 12}px;height:${h + 12}px`);
+window.pildora = (texto, x, y, blanca) => poner(texto, `pildora${blanca ? " pildora--blanca" : ""}`, `left:${x}px;top:${y}px`);
+window.sello = (texto) => poner(texto, "sello");
+window.tablilla = (items) => {
+  let t = $("tablilla"); if (!t) { t = document.createElement("div"); t.id = "tablilla"; t.className = "sticker"; document.body.append(t); }
+  while (t.children.length < items.length) { const p = document.createElement("p"); p.textContent = items[t.children.length]; t.append(p); }
+};
+window.relojito = (texto, sub) => { let r = $("reloj"); if (!r) { r = document.createElement("div"); r.id = "reloj"; r.className = "sticker"; document.body.append(r); }
+  r.replaceChildren(document.createTextNode(texto), Object.assign(document.createElement("small"), { textContent: sub })); };
+window.quitar = (id) => $(id)?.remove();
+window.rojas = (n) => { let r = $("rojas"); if (!r) { r = document.createElement("div"); r.id = "rojas"; r.className = "sticker"; document.body.append(r); }
+  while (r.children.length < n) r.append(document.createElement("i")); };
+window.transicion = (tipo) => { const el = $(tipo === "puntos" ? "puntos" : "franjas"); el.classList.remove("va"); void el.offsetWidth; el.classList.add("va"); };
+window.telon = () => $("telon").classList.remove("fuera");
+cuadro();
+</script>
+</body>
+</html>
