@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<title>Tarjeta Roja · miniatura</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800;1,900&family=Public+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #07080A; font-family: "Public Sans", sans-serif; color: #fff; }
+  #fondo { position: absolute; inset: 0; background:
+    radial-gradient(620px 520px at 78% 55%, rgba(204,255,0,.32), transparent 65%),
+    radial-gradient(520px 420px at 8% 100%, rgba(232,38,43,.35), transparent 65%),
+    repeating-linear-gradient(100deg, transparent 0 120px, rgba(204,255,0,.06) 120px 123px),
+    linear-gradient(180deg, #111418, #07080A); }
+  #rayas { position: absolute; right: 0; top: 0; width: 560px; height: 720px; background: repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 3px, transparent 3px 14px); }
+  #logo { position: absolute; left: 48px; top: 40px; display: flex; align-items: center; gap: 14px; font: 800 30px/1 "Public Sans"; letter-spacing: .03em; }
+  #logo b { color: #E8262B; }
+  #titular { position: absolute; left: 44px; top: 132px; width: 640px; font: italic 900 120px/.86 "Barlow Condensed"; isolation: isolate; z-index: 2; text-transform: uppercase; letter-spacing: -.01em;
+    text-shadow: 0 8px 0 rgba(0,0,0,.55); }
+  #titular .lima { display: inline-block; position: relative; color: #07080A; padding: 0 .1em; text-shadow: none; isolation: isolate; margin: 4px 0; }
+  #titular .lima::before { content: ""; position: absolute; inset: .05em -.04em .03em -.06em; background: #CCFF00; transform: skewX(-14deg); z-index: -1; box-shadow: 8px 8px 0 rgba(0,0,0,.5); }
+  #titular .rojo { color: #E8262B; }
+  #bajada { position: absolute; left: 50px; top: 560px; display: flex; gap: 14px; align-items: center; }
+  .chip { padding: 12px 20px; font: italic 900 34px/1 "Barlow Condensed"; text-transform: uppercase; letter-spacing: .03em; }
+  .chip--blanco { background: #fff; color: #07080A; }
+  .chip--rojo { background: #E8262B; color: #fff; }
+  #tarjeta { position: absolute; left: 700px; top: 150px; width: 150px; height: 214px; background: #E8262B; border-radius: 12px; transform: rotate(16deg);
+    box-shadow: 0 0 0 6px #07080A, 0 0 60px rgba(232,38,43,.75), 14px 18px 0 rgba(0,0,0,.6); }
+  #visor { position: absolute; left: 670px; top: 122px; width: 210px; height: 270px; }
+  #visor i { position: absolute; width: 44px; height: 44px; border: 7px solid #fff; }
+  #visor i:nth-child(1) { left: 0; top: 0; border-right: 0; border-bottom: 0; }
+  #visor i:nth-child(2) { right: 0; top: 0; border-left: 0; border-bottom: 0; }
+  #visor i:nth-child(3) { right: 0; bottom: 0; border-left: 0; border-top: 0; }
+  #visor i:nth-child(4) { left: 0; bottom: 0; border-right: 0; border-top: 0; }
+  #sello { position: absolute; right: 40px; bottom: 56px; z-index: 3; padding: 8px 22px; border: 7px solid #CCFF00; color: #CCFF00; font: italic 900 50px/1 "Barlow Condensed"; text-transform: uppercase;
+    transform: rotate(-6deg); background: rgba(7,8,10,.88); box-shadow: 8px 10px 0 rgba(0,0,0,.6); }
+  #avatar { position: absolute; right: -30px; bottom: 0; width: 560px; height: 700px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.5.5/lib/three-vrm.module.min.js"
+} }
+</script>
+</head>
+<body>
+  <div id="fondo"></div><div id="rayas"></div>
+  <div id="logo">
+    <svg viewBox="0 0 100 100" width="46" height="46" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 26V8h18"/><path d="M74 8h18v18"/><path d="M92 74v18H74"/><path d="M26 92H8V74"/></g>
+      <rect x="31" y="21" width="38" height="58" rx="4" fill="#E8262B" transform="rotate(12 50 50)"/></svg>
+    <span>TARJETA <b>ROJA</b></span>
+  </div>
+  <div id="titular">Piratas<br><span class="lima">expulsados</span><br>en <span class="rojo">&lt;1 min</span></div>
+  <div id="bajada"><span class="chip chip--blanco">Con orden judicial</span><span class="chip chip--rojo">En vivo</span></div>
+  <div id="visor"><i></i><i></i><i></i><i></i></div>
+  <div id="tarjeta"></div>
+  <div id="sello">7 de 7 bloqueados</div>
+  <canvas id="avatar" width="560" height="700"></canvas>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("avatar"), alpha: true, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(560, 700, false); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const escena = new THREE.Scene();
+const camara = new THREE.PerspectiveCamera(26, 560 / 700, 0.1, 20);
+camara.position.set(0, 1.1, 2.6); camara.lookAt(0, 1.08, 0);
+escena.add(new THREE.AmbientLight(0xffffff, 1.5));
+const luz = new THREE.DirectionalLight(0xffffff, 2.2); luz.position.set(1.5, 2, 3); escena.add(luz);
+const borde = new THREE.DirectionalLight(0xccff00, 2.4); borde.position.set(-2, 1.5, -1.5); escena.add(borde);
+
+const gltf = await new GLTFLoader().register((p) => new VRMLoaderPlugin(p)).loadAsync("modelo.vrm");
+const vrm = gltf.userData.vrm;
+VRMUtils.removeUnnecessaryVertices(gltf.scene); VRMUtils.combineSkeletons(gltf.scene); VRMUtils.rotateVRM0(vrm);
+vrm.scene.rotation.y = -0.25;
+escena.add(vrm.scene);
+const h = (n) => vrm.humanoid.getNormalizedBoneNode(n);
+/* Festejo: brazos arriba en V, sonrisa y ojos cerrados de alegría. */
+h("leftUpperArm").rotation.z = 0.95; h("leftLowerArm").rotation.z = 0.3;
+h("rightUpperArm").rotation.z = -0.95; h("rightLowerArm").rotation.z = -0.3;
+h("neck").rotation.z = 0.08; h("spine").rotation.z = -0.04;
+const em = vrm.expressionManager;
+em.setValue("happy", 1.0); em.setValue("aa", 0.35);
+vrm.update(0.016);
+renderer.render(escena, camara);
+window.listo = true;
+</script>
+</body>
+</html>
