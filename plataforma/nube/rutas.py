@@ -4,7 +4,6 @@ POST /api/demo/iniciar      (PIN de juez) prende un Vercel Sandbox con simulador
                             Fuera de Vercel (sin la variable VERCEL) los corre en esta misma máquina.
 GET  /api/demo/verificacion salida de evaluacion/verificar.py del último partido, cuando termina.
 """
-import hmac
 import os
 import subprocess
 from datetime import timedelta
@@ -13,7 +12,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel
 
-from plataforma import db
+from plataforma import claves, db
 
 REPO = os.environ.get("DEMO_REPO", "https://github.com/KarenG11/desafio-futbol.git")
 # GitSource clona en /vercel/<nombre del repo>: se busca la carpeta por su requirements.txt.
@@ -25,10 +24,10 @@ ACTIVO_S = 30   # si el motor escribió hace menos de esto y el partido no termi
 router = APIRouter()
 
 
-def _pin(x_juez_pin: Optional[str] = Header(default=None)) -> None:
-    esperado = os.environ.get("JUEZ_PIN", "")
-    if not esperado or not x_juez_pin or not hmac.compare_digest(x_juez_pin.encode(), esperado.encode()):
-        raise HTTPException(status_code=401, detail={"error": "PIN de juez inválido"})
+def _pin(x_juez_token: Optional[str] = Header(default=None)) -> None:
+    """Lanzar un partido exige la sesión de un juez (usuario y contraseña), igual que firmar."""
+    if not claves.leer_token(x_juez_token):
+        raise HTTPException(status_code=401, detail={"error": "Ingresá como juez para lanzar el partido"})
 
 
 class PedidoDemo(BaseModel):

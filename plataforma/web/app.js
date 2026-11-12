@@ -3,7 +3,7 @@
 
 const REFRESCO_MS = 2000;
 const TIEMPO_MAX_MS = 10000;
-const CLAVE_PIN = "juez-pin";
+const CLAVE_PIN = "juez-token";
 const PROVEEDORES = { aurora: "Aurora", andina: "Andina", valle: "FibraValle", cumbre: "Cumbre" };
 const ESTADOS_ORDEN = {
   enviando: "Enviando", recibida: "Recibida, aplicando", aplicada: "Bloqueado", fallida: "Falló, se reintenta",
@@ -11,7 +11,7 @@ const ESTADOS_ORDEN = {
 };
 
 const $ = (id) => document.getElementById(id);
-const estado = { pin: leerPin(), juez: null, minuto: 0, pendientes: [], vistos: new Set(), primeraCarga: true, licenciatarios: [], nombres: {} };
+const estado = { pin: leerPin(), yo: leerYo(), juez: null, deTurno: false, minuto: 0, pendientes: [], vistos: new Set(), primeraCarga: true, licenciatarios: [], nombres: {} };
 let audio = null;
 
 // ---------------------------------------------------------------------- utilidades
@@ -19,6 +19,8 @@ let audio = null;
 // sessionStorage: el PIN no sobrevive al cierre de la pestaña (localStorage lo dejaba guardado en la máquina).
 function leerPin() { try { return sessionStorage.getItem(CLAVE_PIN); } catch { return null; } }
 function guardarPin(pin) { try { pin ? sessionStorage.setItem(CLAVE_PIN, pin) : sessionStorage.removeItem(CLAVE_PIN); } catch { /* sin storage */ } }
+function leerYo() { try { return JSON.parse(sessionStorage.getItem("juez-yo") || "null"); } catch { return null; } }
+function guardarYo(yo) { try { yo ? sessionStorage.setItem("juez-yo", JSON.stringify(yo)) : sessionStorage.removeItem("juez-yo"); } catch { /* sin storage */ } }
 
 function nombreJuez(id) {
   if (!id) return "nadie";
@@ -36,7 +38,7 @@ function listaHumana(items) {
 
 async function api(ruta, cuerpo) {
   const opciones = { headers: { "Content-Type": "application/json" } };
-  if (estado.pin) opciones.headers["X-Juez-Pin"] = estado.pin;
+  if (estado.pin) opciones.headers["X-Juez-Token"] = estado.pin;
   if (cuerpo !== undefined) { opciones.method = "POST"; opciones.body = JSON.stringify(cuerpo); }
   const corte = new AbortController();
   const reloj = setTimeout(() => corte.abort(), TIEMPO_MAX_MS);
@@ -47,7 +49,7 @@ async function api(ruta, cuerpo) {
   finally { clearTimeout(reloj); }
   let datos = null;
   try { datos = await r.json(); } catch { /* sin cuerpo */ }
-  if (r.status === 401) { pedirPin("El PIN no es correcto. Volvé a ingresarlo."); throw new Error("401"); }
+  if (r.status === 401) { pedirPin((datos && datos.error) || "Volvé a ingresar."); throw new Error("401"); }
   if (!r.ok) throw new Error((datos && datos.error) || `La plataforma respondió ${r.status}`);
   if (r.status === 202) return { ...(datos || {}), pendiente: true };
   return datos;
@@ -126,12 +128,16 @@ function textoPorque(r) {
 
 function renderEstado(e) {
   estado.minuto = e.minuto_actual;
-  estado.juez = (e.jueces_de_turno || [])[0] || null;
+  const deTurno = e.jueces_de_turno || [];
+  estado.juez = estado.yo ? estado.yo.juez_id : null;      // firma quien ingresó, nunca "el que esté de turno"
+  estado.deTurno = !!estado.juez && deTurno.includes(estado.juez);
   if (e.licenciatarios) estado.licenciatarios = e.licenciatarios;
   for (const jz of (e.juzgados && e.juzgados.juzgados) || []) for (const j of jz.jueces) estado.nombres[j.id] = j.nombre;
   $("minuto").textContent = Math.floor(e.minuto_actual);
   $("partido").textContent = e.finalizado ? `Partido ${e.partido_id} terminado` : `Partido ${e.partido_id} en juego`;
-  $("juez").textContent = nombreJuez(estado.juez);
+  $("juez").textContent = deTurno.length ? deTurno.map(nombreJuez).join(", ") : "nadie";
+  $("rol").innerHTML = estado.deTurno ? "Estás<br>de turno" : "Fuera<br>de turno";
+  $("rol").classList.toggle("rol--fuera", !estado.deTurno);
   $("avance").style.width = `${Math.min(100, (100 * e.minuto_actual) / e.fin_min)}%`;
   const marca = $("marca-turno");
   if (e.proximo_cambio_turno_min != null && e.proximo_cambio_turno_min < e.fin_min) {
@@ -140,17 +146,22 @@ function renderEstado(e) {
     $("nota-turno").textContent = `Cambio de turno en el minuto ${Math.floor(e.proximo_cambio_turno_min)}`;
   } else { marca.hidden = true; $("nota-turno").textContent = ""; }
 
-  if (!estado.juez && !e.finalizado) {
+  if (!deTurno.length && !e.finalizado) {
     aviso("En este minuto no figura ningún juez de turno. Los pedidos quedan esperando hasta que entre uno.", "error",
       { id: "sin-juez", titulo: "Sin juez de turno" });
   } else quitarAviso("sin-juez");
+
+  if (estado.juez && !estado.deTurno && !e.finalizado) {
+    aviso(`Podés ver los pedidos, pero no firmarlos. Ahora firma ${deTurno.map(nombreJuez).join(", ") || "el juez entrante"}: lo pendiente pasó a su turno.`,
+      "error", { id: "fuera-turno", titulo: `${nombreJuez(estado.juez)}: no estás de turno` });
+  } else quitarAviso("fuera-turno");
 
   if (!e.simulador_ok) {
     aviso("La plataforma no recibe datos del partido hace unos segundos. Los pedidos nuevos pueden demorar.", "error",
       { id: "desconectado", titulo: "Motor desconectado" });
   } else quitarAviso("desconectado");
 
-  if (estado.juez && e.turno_ratificado === false) {
+  if (estado.deTurno && (e.turno_ratificado === false || (e.juez_ratificado && e.juez_ratificado !== estado.juez))) {
     if (!document.querySelector('[data-aviso="traspaso"]')) {
       aviso(`${nombreJuez(estado.juez)}: las órdenes que firmó el turno anterior siguen vigentes. Asumí el turno para ratificarlas; hasta entonces sus reintentos quedan en espera.`,
         "info", { id: "traspaso", titulo: "Cambió el turno", boton: { texto: "Asumir turno y ratificar órdenes", accion: asumirTurno } });
@@ -177,9 +188,9 @@ function renderPedidos(pedidos) {
   $("vacio").hidden = n > 0;
   document.title = n ? `(${n}) Juez de turno` : "Juez de turno";
   const boton = $("firmar-todos");
-  boton.disabled = n === 0 || !estado.juez;
+  boton.disabled = n === 0 || !estado.deTurno;
   const como = estado.juez ? ` como ${nombreJuez(estado.juez)}` : "";
-  boton.textContent = n === 0 ? "No hay pedidos para firmar" : n === 1 ? `Firmar el pedido${como}` : `Firmar los ${n} pedidos${como}`;
+  boton.textContent = !estado.deTurno && n ? "Fuera de turno: no podés firmar" : n === 0 ? "No hay pedidos para firmar" : n === 1 ? `Firmar el pedido${como}` : `Firmar los ${n} pedidos${como}`;
 }
 
 function crearTarjeta(p, esNuevo) {
@@ -305,7 +316,7 @@ function resultado(hechos, errores, verbo) {
 }
 
 async function firmar(ids) {
-  if (!estado.juez || !ids.length) return;
+  if (!estado.deTurno || !ids.length) return;
   const boton = $("firmar-todos"); boton.disabled = true;
   try {
     const r = await api("/api/pedidos/aprobar", { pedido_ids: ids, juez_id: estado.juez });
@@ -404,27 +415,45 @@ async function refrescar() {
   } finally { refrescando = false; }
 }
 
+async function cargarJueces() {
+  try {
+    const r = await fetch("/api/juez/jueces"); const d = await r.json();
+    const sel = $("usuario"), previo = sel.value;
+    sel.replaceChildren(...d.jueces.map((j) => { const o = document.createElement("option"); o.value = j.juez_id; o.textContent = `${j.nombre} (${j.juez_id})`; return o; }));
+    if (previo) sel.value = previo;
+  } catch { /* sin red: se reintenta al volver a la pantalla */ }
+}
+
 function pedirPin(error = "") {
-  estado.pin = null; guardarPin(null);
-  $("tablero").hidden = true; $("accion").hidden = true; $("ingreso").hidden = false;
+  estado.pin = null; estado.yo = null; guardarPin(null); guardarYo(null);
+  $("tablero").hidden = true; $("accion").hidden = true; $("ingreso").hidden = false; $("sesion").hidden = true;
   $("pin-error").textContent = error;
-  $("pin").focus();
+  cargarJueces();
+  $("pin").value = ""; $("pin").focus();
 }
 
 function entrar() {
   $("ingreso").hidden = true; $("tablero").hidden = false; $("accion").hidden = false;
+  $("sesion").hidden = false; $("sesion-nombre").textContent = estado.yo ? estado.yo.nombre : "";
   refrescar();
 }
 
-$("form-pin").addEventListener("submit", (ev) => {
+$("form-pin").addEventListener("submit", async (ev) => {
   ev.preventDefault();
-  estado.pin = $("pin").value.trim();
-  guardarPin(estado.pin);
   prepararAvisos();
-  entrar();
+  try {
+    const r = await fetch("/api/juez/ingresar", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ juez_id: $("usuario").value, clave: $("pin").value }) });
+    const d = await r.json();
+    if (!r.ok) { $("pin-error").textContent = d.error || "No se pudo ingresar"; return; }
+    estado.pin = d.token; estado.yo = { juez_id: d.juez_id, nombre: d.nombre };
+    guardarPin(estado.pin); guardarYo(estado.yo);
+    entrar();
+  } catch { $("pin-error").textContent = "Sin conexión con la plataforma"; }
 });
+$("salir").addEventListener("click", () => pedirPin("Sesión cerrada."));
 $("firmar-todos").addEventListener("click", () => firmar(estado.pendientes.map((p) => p.pedido_id)));
 document.addEventListener("click", prepararAvisos, { once: true });
 
-if (estado.pin) entrar(); else pedirPin();
+if (estado.pin && estado.yo) entrar(); else pedirPin();
 setInterval(refrescar, REFRESCO_MS);

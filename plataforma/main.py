@@ -48,7 +48,13 @@ def main() -> None:
     api = uvicorn.Server(uvicorn.Config("plataforma.api.app:app", host="0.0.0.0" if a.red else "127.0.0.1", port=a.puerto, log_level="warning"))
     if not a.sin_web:
         threading.Thread(target=api.run, daemon=True).start()
-        print(f"[main] web del juez: http://localhost:{a.puerto}/juez/  (PIN: variable JUEZ_PIN; con --local, 1234 si no está definida)")
+        print(f"[main] web del juez: http://localhost:{a.puerto}/juez/  (cada juez entra con su usuario y contraseña)")
+        if os.environ.get("JUEZ_PIN") == "1234":   # solo el secreto de demo local: en un deploy real no se imprimen
+            from plataforma.claves import clave_de
+            import json
+            for jz in json.loads((Path(__file__).resolve().parents[1] / "datos" / "juzgados.json").read_text(encoding="utf-8"))["juzgados"]:
+                for j in jz["jueces"]:
+                    print(f"[main]   {j.get('nombre', j['id'])}: usuario {j['id']}  contraseña {clave_de(j['id'])}")
     motor.correr()
     if a.exportar:
         from plataforma.motor.exportar import exportar

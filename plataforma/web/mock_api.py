@@ -19,7 +19,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from plataforma.analisis import Cerebro
-from plataforma.contratos import hash_expediente, sha256_captura, vence_min_para
+from plataforma.contratos import EJEMPLO_SIM_JUZGADOS, hash_expediente, sha256_captura, vence_min_para
 
 RAIZ = Path(__file__).resolve().parents[2]
 WEB = Path(__file__).resolve().parent
@@ -172,9 +172,22 @@ threading.Thread(target=_ciclo, daemon=True).start()
 app = FastAPI(title="Mock API del juez (solo desarrollo)")
 
 
-def exigir_pin(x_juez_pin: Optional[str] = Header(default=None)) -> None:
-    if x_juez_pin != PIN:
-        raise HTTPException(status_code=401, detail="PIN inválido o ausente")
+def exigir_pin(x_juez_token: Optional[str] = Header(default=None)) -> None:
+    if x_juez_token != PIN:
+        raise HTTPException(status_code=401, detail="Sesión inválida: volvé a ingresar")
+
+
+@app.get("/api/juez/jueces")
+def api_jueces():
+    return {"jueces": [{"juez_id": j["id"], "nombre": j["nombre"]} for jz in EJEMPLO_SIM_JUZGADOS["juzgados"] for j in jz["jueces"]]}
+
+
+@app.post("/api/juez/ingresar")
+def api_ingresar(cuerpo: dict):
+    """Mock: cualquier juez entra con el PIN de desarrollo como contraseña; el token es ese mismo PIN."""
+    if cuerpo.get("clave") != PIN:
+        raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
+    return {"token": PIN, "juez_id": cuerpo.get("juez_id"), "nombre": cuerpo.get("juez_id")}
 
 
 @app.exception_handler(HTTPException)

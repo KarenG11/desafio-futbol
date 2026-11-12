@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import threading
 import time
+import sys
 import urllib.request
 from pathlib import Path
 
@@ -24,11 +25,24 @@ PY = shutil.which("py") or "python"            # el Python del proyecto (con Fas
 APP = "http://127.0.0.1:8000"
 PIN = "1234"
 TASA = 24000
+os.environ.setdefault("JUEZ_PIN", PIN)          # el secreto de demo del que salen las contraseñas de los jueces
+sys.path.insert(0, str(RAIZ))
+from plataforma.claves import clave_de  # noqa: E402
+_tokens = {}
 
 
-def api(ruta: str, cuerpo=None):
-    req = urllib.request.Request(APP + ruta, data=json.dumps(cuerpo).encode() if cuerpo is not None else None,
-                                 headers={"Content-Type": "application/json", "X-Juez-Pin": PIN})
+def token(juez_id: str) -> str:
+    """Sesión del juez (ingresa con su usuario y su contraseña de demo, como en la pantalla)."""
+    if juez_id not in _tokens:
+        _tokens[juez_id] = api("/api/juez/ingresar", {"juez_id": juez_id, "clave": clave_de(juez_id)})["token"]
+    return _tokens[juez_id]
+
+
+def api(ruta: str, cuerpo=None, juez: str = None):
+    cab = {"Content-Type": "application/json"}
+    if juez:
+        cab["X-Juez-Token"] = token(juez)
+    req = urllib.request.Request(APP + ruta, data=json.dumps(cuerpo).encode() if cuerpo is not None else None, headers=cab)
     with urllib.request.urlopen(req, timeout=15) as r:
         return json.loads(r.read() or b"null")
 
@@ -51,7 +65,7 @@ class JuezDeFondo(threading.Thread):
                     continue
                 if not est.get("turno_ratificado") or est.get("juez_ratificado") != juez:
                     try:
-                        api("/api/turno/asumir", {"juez_id": juez})
+                        api("/api/turno/asumir", {}, juez)
                     except Exception:
                         pass
                     continue
@@ -62,7 +76,7 @@ class JuezDeFondo(threading.Thread):
                     if ahora - visto > 2.5:
                         listos.append(p["pedido_id"])
                 if listos:
-                    api("/api/pedidos/aprobar", {"pedido_ids": listos, "juez_id": juez})
+                    api("/api/pedidos/aprobar", {"pedido_ids": listos}, juez)
             except Exception as e:
                 if not self.fin:
                     print("[juez de fondo]", e)

@@ -104,7 +104,10 @@ def grabar(segmentos: list):
             def firmar():
                 try:
                     if app.locator("#pin").is_visible(timeout=100):
-                        app.locator("#pin").fill(PIN); app.locator("#form-pin button[type=submit]").click(timeout=800)
+                        juez = (hv.api("/api/estado").get("jueces_de_turno") or [None])[0]
+                        if juez and app.locator(f"#usuario option[value='{juez}']").count():
+                            app.locator("#usuario").select_option(juez); app.locator("#pin").fill(hv.clave_de(juez))
+                            app.locator("#form-pin button[type=submit]").click(timeout=800)
                     b = app.locator("#firmar-todos")
                     if not firmado["si"] and b.is_visible(timeout=100) and b.is_enabled(timeout=100):
                         resaltar(".pedido")

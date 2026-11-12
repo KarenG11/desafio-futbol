@@ -15,7 +15,8 @@
   <header class="marcador" aria-live="polite">
     <div class="marcador__barra">
       <a class="logo" href="/"><span class="logo__icono" aria-hidden="true"></span><span class="logo__texto">Tarjeta <b>Roja</b></span></a>
-      <span class="rol">Juez<br>de turno</span>
+      <span class="sesion" id="sesion" hidden><span id="sesion-nombre"></span><button type="button" id="salir">Salir</button></span>
+      <span class="rol" id="rol">Juez<br>de turno</span>
     </div>
     <div class="marcador__fila">
       <p class="minuto"><span id="minuto">0</span><span class="minuto__comilla">'</span></p>
@@ -35,9 +36,11 @@
     <form id="form-pin">
       <p class="etiqueta"><b>01</b><span>Acceso</span></p>
       <h1>Firma de <em>órdenes</em> de bloqueo</h1>
-      <p>Ingresá el PIN del juzgado para ver los pedidos y firmarlos.</p>
-      <label for="pin">PIN</label>
-      <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="one-time-code" required>
+      <p>Cada juez entra con su usuario. Solo podés firmar mientras estás de turno.</p>
+      <label for="usuario">Usuario</label>
+      <select id="usuario" name="usuario" required></select>
+      <label for="pin" style="margin-top:14px">Contraseña</label>
+      <input id="pin" name="pin" type="password" autocomplete="current-password" required>
       <p class="ingreso__error" id="pin-error" role="alert"></p>
       <button type="submit" class="boton boton--firmar boton--ancho">Entrar</button>
     </form>

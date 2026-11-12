@@ -69,7 +69,7 @@ Se graba con la grabadora de Windows (Win+Alt+R, o Win+Shift+R para elegir una z
    py -m uvicorn plataforma.api.app:app --port 8000
    ```
 2. En el navegador, dos ventanas lado a lado: a la izquierda `http://localhost:8000/monitoreo`; a la derecha `http://localhost:8000/juez/` en modo celular (F12 → ícono de dispositivo → 390 px de ancho).
-3. Desde `http://localhost:8000/juez/demo.html`: PIN `1234`, x6, juez automático **destildado**. A x6 el partido dura ~18 min reales: se graba en tramos y se edita (Clipchamp viene con Windows).
+3. Desde `http://localhost:8000/juez/demo.html`: ingresar con un juez y su contraseña (`py -m plataforma.claves`, con `JUEZ_PIN=1234`), x6, juez automático **destildado**. A x6 el partido dura ~18 min reales: se graba en tramos y se edita (Clipchamp viene con Windows).
 
 | Tiempo | Pantalla | Qué se dice |
 |---|---|---|

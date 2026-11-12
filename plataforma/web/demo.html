@@ -37,7 +37,10 @@
 
     <div class="demo">
       <form class="panel panel--rayas panel__cuerpo" id="form" style="padding:24px">
-        <label class="campo">PIN de juez
+        <label class="campo">Juez
+          <select id="usuario" required></select>
+        </label>
+        <label class="campo">Contraseña
           <input type="password" id="pin" autocomplete="current-password" required>
         </label>
         <label class="campo">Velocidad
@@ -71,7 +74,9 @@
   </footer>
 <script>
 const $ = (id) => document.getElementById(id);
-try { $("pin").value = sessionStorage.getItem("juez_pin") || ""; } catch (e) {}
+fetch("/api/juez/jueces").then((r) => r.json()).then((d) => {
+  $("usuario").replaceChildren(...d.jueces.map((j) => Object.assign(document.createElement("option"), { value: j.juez_id, textContent: `${j.nombre} (${j.juez_id})` })));
+}).catch(() => {});
 $("simulador").addEventListener("input", () => {
   const externo = $("simulador").value.trim() !== "";
   $("aviso-sim").hidden = !externo;
@@ -84,15 +89,18 @@ $("form").addEventListener("submit", async (ev) => {
   estado.className = ""; estado.textContent = "Prendiendo el partido…";
   $("iniciar").disabled = true;
   try {
+    const ing = await fetch("/api/juez/ingresar", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ juez_id: $("usuario").value, clave: $("pin").value }) });
+    const sesion = await ing.json();
+    if (!ing.ok) throw new Error(sesion.error || "No se pudo ingresar");
     const r = await fetch("/api/demo/iniciar", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Juez-Pin": $("pin").value },
+      headers: { "Content-Type": "application/json", "X-Juez-Token": sesion.token },
       body: JSON.stringify({ acelerar: Number($("acelerar").value), juez_automatico: $("auto").checked,
                              simulador: $("simulador").value.trim() || null }),
     });
     const datos = await r.json();
     if (!r.ok) throw new Error(datos.error || r.statusText);
-    try { sessionStorage.setItem("juez_pin", $("pin").value); } catch (e) {}
     estado.className = "ok";
     estado.textContent = datos.simulador && datos.simulador !== "práctica" ? datos.mensaje
       : `${datos.mensaje} Dura unos ${Math.round(datos.duracion_min)} minutos.`;

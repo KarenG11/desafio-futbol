@@ -3,17 +3,16 @@
 Se despliega en Vercel (entrypoint: plataforma.api.app:app) y también se usa en modo local.
 No guarda estado en memoria ni lee claves de firma: todo sale de `plataforma.db`.
 """
-import hmac
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from plataforma import db
+from plataforma import claves, db
 from plataforma.contratos import (
     EJEMPLO_SIM_JUZGADOS,
     ESTADOS_ORDEN_ACTIVA,
@@ -56,16 +55,60 @@ MAX_FALLOS_PIN = 5          # por cliente y por minuto
 ESPERA_SOLICITUD_SEG = float(os.environ.get("ESPERA_SOLICITUD_SEG", "8"))
 
 
-def pin_juez(x_juez_pin: Optional[str] = Header(default=None), request: Request = None) -> None:
+def _limitar_intentos(request: Optional[Request]) -> Tuple[str, List[float]]:
     cliente = request.client.host if request is not None and request.client else "?"
     ahora = time.monotonic()
     fallos = [t for t in _FALLOS_PIN.get(cliente, []) if ahora - t < 60]
     if len(fallos) >= MAX_FALLOS_PIN:
-        raise HTTPException(status_code=429, detail={"error": "Demasiados intentos de PIN; esperá un minuto"})
-    esperado = os.environ.get("JUEZ_PIN", "")
-    if not esperado or not x_juez_pin or not hmac.compare_digest(x_juez_pin.encode(), esperado.encode()):
-        _FALLOS_PIN[cliente] = fallos + [ahora]
-        raise HTTPException(status_code=401, detail={"error": "PIN de juez inválido"})
+        raise HTTPException(status_code=429, detail={"error": "Demasiados intentos; esperá un minuto"})
+    return cliente, fallos
+
+
+def juez_sesion(x_juez_token: Optional[str] = Header(default=None)) -> str:
+    """Quién decide: el juez de la sesión firmada (cada juez entra con su usuario y contraseña)."""
+    juez_id = claves.leer_token(x_juez_token)
+    if not juez_id:
+        raise HTTPException(status_code=401, detail={"error": "Sesión de juez inválida o vencida: volvé a ingresar"})
+    return juez_id
+
+
+def _juez_del_cuerpo(cuerpo: Dict[str, Any], juez: str) -> str:
+    """El juez es el de la sesión; si la pantalla manda otro, se rechaza (nadie firma por otro)."""
+    pedido = cuerpo.get("juez_id")
+    if pedido and pedido != juez:
+        raise HTTPException(status_code=403, detail={"error": f"La sesión es de {juez}: no puede firmar como {pedido}"})
+    return juez
+
+
+def _jueces_conocidos() -> Dict[str, str]:
+    est = db.estado_partido(db.partido_actual()) if db.partido_actual() else None
+    juzgados = (est or {}).get("juzgados") or EJEMPLO_SIM_JUZGADOS
+    return {j["id"]: j.get("nombre", j["id"]) for jz in juzgados["juzgados"] for j in jz["jueces"]}
+
+
+@app.post("/api/juez/ingresar")
+def api_juez_ingresar(cuerpo: Dict[str, Any], request: Request = None):
+    cliente, fallos = _limitar_intentos(request)
+    juez_id = (cuerpo.get("juez_id") or "").strip()
+    jueces = _jueces_conocidos()
+    if juez_id not in jueces or not claves.clave_valida(juez_id, cuerpo.get("clave") or ""):
+        _FALLOS_PIN[cliente] = fallos + [time.monotonic()]
+        raise HTTPException(status_code=401, detail={"error": "Usuario o contraseña incorrectos"})
+    return {"token": claves.emitir_token(juez_id), "juez_id": juez_id, "nombre": jueces[juez_id]}
+
+
+@app.get("/api/juez/jueces")
+def api_juez_jueces():
+    """Usuarios que pueden ingresar (los jueces del partido). Sin contraseñas."""
+    return {"jueces": [{"juez_id": k, "nombre": v} for k, v in _jueces_conocidos().items()]}
+
+
+@app.get("/api/juez/yo")
+def api_juez_yo(juez: str = Depends(juez_sesion)):
+    est = db.estado_partido(db.partido_actual()) if db.partido_actual() else None
+    de_turno = juez in (est or {}).get("jueces_de_turno", [])
+    return {"juez_id": juez, "nombre": _jueces_conocidos().get(juez, juez), "de_turno": de_turno,
+            "ratificado": bool(est and est.get("turno_ratificado") and est.get("juez_ratificado") == juez)}
 
 
 def _control_turno(pid: str, juez_id: str, exigir_ratificado: bool = True) -> Dict[str, Any]:
@@ -198,12 +241,12 @@ def api_expediente(expediente_id: str, partido_id: Optional[str] = None):
     return exp
 
 
-def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, partido_id: Optional[str] = None) -> Dict[str, Any]:
+def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, juez: str, partido_id: Optional[str] = None) -> Dict[str, Any]:
     pid = _partido_o_defecto(partido_id)
     pedido_ids = cuerpo.get("pedido_ids")
-    juez_id = cuerpo.get("juez_id")
-    if not isinstance(pedido_ids, list) or not juez_id:
-        raise HTTPException(status_code=400, detail="Faltan pedido_ids o juez_id")
+    juez_id = _juez_del_cuerpo(cuerpo, juez)
+    if not isinstance(pedido_ids, list):
+        raise HTTPException(status_code=400, detail="Faltan pedido_ids")
 
     motivo: Optional[str] = None
     if nuevo_estado == "rechazado":
@@ -244,14 +287,14 @@ def _procesar_decision_pedidos(cuerpo: Dict[str, Any], nuevo_estado: str, partid
     return {clave_lista: decididos, "errores": errores, "decidido_min": minuto_actual}
 
 
-@app.post("/api/pedidos/aprobar", dependencies=[Depends(pin_juez)])
-def api_aprobar(cuerpo: Dict[str, Any], partido_id: Optional[str] = None):
-    return _procesar_decision_pedidos(cuerpo, "aprobado", partido_id)
+@app.post("/api/pedidos/aprobar")
+def api_aprobar(cuerpo: Dict[str, Any], partido_id: Optional[str] = None, juez: str = Depends(juez_sesion)):
+    return _procesar_decision_pedidos(cuerpo, "aprobado", juez, partido_id)
 
 
-@app.post("/api/pedidos/rechazar", dependencies=[Depends(pin_juez)])
-def api_rechazar(cuerpo: Dict[str, Any], partido_id: Optional[str] = None):
-    return _procesar_decision_pedidos(cuerpo, "rechazado", partido_id)
+@app.post("/api/pedidos/rechazar")
+def api_rechazar(cuerpo: Dict[str, Any], partido_id: Optional[str] = None, juez: str = Depends(juez_sesion)):
+    return _procesar_decision_pedidos(cuerpo, "rechazado", juez, partido_id)
 
 
 @app.get("/api/ordenes")
@@ -284,12 +327,10 @@ def api_reclamos(partido_id: Optional[str] = None):
     return {"reclamos": db.listar("reclamos", pid)}
 
 
-@app.post("/api/turno/asumir", dependencies=[Depends(pin_juez)])
-def api_asumir_turno(cuerpo: Dict[str, Any], partido_id: Optional[str] = None):
+@app.post("/api/turno/asumir")
+def api_asumir_turno(cuerpo: Dict[str, Any], partido_id: Optional[str] = None, juez: str = Depends(juez_sesion)):
     pid = _partido_o_defecto(partido_id)
-    juez_id = cuerpo.get("juez_id")
-    if not juez_id:
-        raise HTTPException(status_code=400, detail="Falta juez_id")
+    juez_id = _juez_del_cuerpo(cuerpo, juez)
     est = _control_turno(pid, juez_id, exigir_ratificado=False)
     sid = db.crear_solicitud(pid, "asumir_turno", {"juez_id": juez_id, "decidido_min": est["minuto_actual"]})
     return _respuesta_solicitud(pid, sid)
@@ -315,15 +356,15 @@ def api_solicitud(solicitud_id: str, partido_id: Optional[str] = None):
     return s
 
 
-@app.post("/api/reclamos/levantar", dependencies=[Depends(pin_juez)])
-def api_levantar_reclamo(cuerpo: Dict[str, Any], partido_id: Optional[str] = None):
+@app.post("/api/reclamos/levantar")
+def api_levantar_reclamo(cuerpo: Dict[str, Any], partido_id: Optional[str] = None, juez: str = Depends(juez_sesion)):
     pid = _partido_o_defecto(partido_id)
     reclamo_id = cuerpo.get("reclamo_id")
-    juez_id = cuerpo.get("juez_id")
+    juez_id = _juez_del_cuerpo(cuerpo, juez)
     motivo = (cuerpo.get("motivo") or "").strip()
     reemplazar = bool(cuerpo.get("reemplazar", True))
-    if not reclamo_id or not juez_id or not motivo:
-        raise HTTPException(status_code=400, detail="Faltan reclamo_id, juez_id o motivo")
+    if not reclamo_id or not motivo:
+        raise HTTPException(status_code=400, detail="Faltan reclamo_id o motivo")
     reclamo = db.obtener("reclamos", pid, reclamo_id)
     if reclamo is None:
         raise HTTPException(status_code=404, detail=f"No existe el reclamo {reclamo_id}")

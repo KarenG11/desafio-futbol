@@ -34,6 +34,11 @@ button, input, textarea { font: inherit; color: inherit; }
 .logo { display: flex; align-items: center; gap: 9px; padding: 10px 14px 10px 0; text-decoration: none; font: 800 17px/1 var(--sans); text-transform: uppercase; letter-spacing: .03em; }
 .logo__icono { width: 26px; height: 26px; flex: none; background: url("/sitio/isotipo.svg") center / contain no-repeat; }
 .logo__texto b { color: #E8262B; font-weight: 800; }
+.sesion { display: flex; align-items: center; gap: 10px; margin-left: auto; padding-right: 10px; font: italic 800 13px/1.1 var(--numeros); text-transform: uppercase; letter-spacing: .04em; color: var(--tinta-suave); }
+.sesion button { background: none; border: 1px solid var(--linea); color: var(--tinta); padding: 5px 9px; cursor: pointer; font: inherit; }
+.sesion:not([hidden]) + .rol { margin-left: 0; }
+.rol--fuera { background: var(--superficie-3) !important; color: var(--tinta-suave) !important; }
+.ingreso select { width: 100%; padding: 12px 14px; font-size: 17px; border: 1px solid var(--linea); background: var(--negro); color: var(--tinta); }
 .rol { display: flex; align-items: center; margin-left: auto; padding: 6px 12px; background: var(--lima); color: var(--negro); font: italic 900 13px/1 var(--numeros); text-transform: uppercase; letter-spacing: .05em; }
 .marcador__fila { display: flex; align-items: center; gap: 14px; max-width: 1180px; margin: 12px auto 0; }
 .minuto { background: var(--lima); color: var(--negro); font: italic 900 50px/1 var(--numeros); padding: 4px 12px 2px; min-width: 2.4ch; text-align: center; font-variant-numeric: tabular-nums; }
@@ -66,7 +71,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .ingreso h1 em { font-style: italic; background: var(--lima); color: var(--negro); padding: 0 .1em; }
 .ingreso p { color: var(--tinta-suave); margin-bottom: 18px; }
 .ingreso label { display: block; font: italic 800 14px/1 var(--numeros); text-transform: uppercase; letter-spacing: .06em; color: var(--tinta-suave); margin-bottom: 8px; }
-.ingreso input { width: 100%; padding: 12px 14px; font-size: 26px; letter-spacing: .4em; border: 1px solid var(--linea); background: var(--negro); }
+.ingreso input { width: 100%; padding: 12px 14px; font-size: 22px; letter-spacing: .15em; border: 1px solid var(--linea); background: var(--negro); }
 .ingreso__error { color: var(--rechazo); min-height: 1.5em; margin: 8px 0 !important; }
 
 /* --- Tablero --- */

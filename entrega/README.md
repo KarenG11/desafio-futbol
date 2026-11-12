@@ -94,7 +94,7 @@ python -m plataforma.evidencia.test_evidencia
 ```bash
 uvicorn plataforma.web.mock_api:app --port 8000
 ```
-Abrir http://localhost:8000/juez/ con el PIN `1234`, idealmente en tamaño celular. El mock corre el partido de práctica a x10 con el cerebro real. Para ver el cambio de turno del minuto 50, arrancalo con `MOCK_INICIO_MIN=46`.
+Abrir http://localhost:8000/juez/ con cualquier juez y la contraseña `1234` (solo en el mock), idealmente en tamaño celular. El mock corre el partido de práctica a x10 con el cerebro real. Para ver el cambio de turno del minuto 50, arrancalo con `MOCK_INICIO_MIN=46`.
 
 **4. Todas las pruebas con asserts** (terminan con código 1 si algo falla):
 ```bash
@@ -107,7 +107,7 @@ Corre cerebro, evidencia, reclamos, registro público, base + API (incluye contr
 python simulador/servidor.py --acelerar 6
 python -m plataforma.main --sim http://localhost:8080 --local
 ```
-El segundo comando va en otra terminal. En http://localhost:8000/ está la portada, en http://localhost:8000/monitoreo el tablero en vivo y en http://localhost:8000/registro el registro público. Abrí http://localhost:8000/juez/ con el PIN de `JUEZ_PIN` (con `--local`, `1234` si no está definida). Firmás los pedidos, asumís el turno en el minuto 50 y resolvés los reclamos desde la pantalla. El registro público queda en http://localhost:8000/api/publico. Para la presentación usamos `--acelerar 3` (unos 35 minutos reales). Un recorrido completo así, firmado a mano, está en [`evidencias/demo-manual/`](evidencias/demo-manual/README.md). Por defecto la API escucha solo en esta máquina (`127.0.0.1`). Para entrar desde el celular por wifi agregá `--red` (escucha en `0.0.0.0`): exige `JUEZ_PIN` de al menos 8 caracteres y no acepta el `1234` de demo; usalo solo en una red confiable. Cuando el simulador pasa el minuto 110 (el verificador lo necesita para evaluar las IP activas después del partido):
+El segundo comando va en otra terminal. En http://localhost:8000/ está la portada, en http://localhost:8000/monitoreo el tablero en vivo y en http://localhost:8000/registro el registro público. Abrí http://localhost:8000/juez/ y **ingresá con tu usuario de juez y tu contraseña**: con `--local`, `main.py` imprime al arrancar las de cada juez (también `py -m plataforma.claves`). Solo podés firmar mientras estás de turno. Firmás los pedidos, asumís el turno en el minuto 50 y resolvés los reclamos desde la pantalla. El registro público queda en http://localhost:8000/api/publico. Para la presentación usamos `--acelerar 3` (unos 35 minutos reales). Un recorrido completo así, firmado a mano, está en [`evidencias/demo-manual/`](evidencias/demo-manual/README.md). Por defecto la API escucha solo en esta máquina (`127.0.0.1`). Para entrar desde el celular por wifi agregá `--red` (escucha en `0.0.0.0`): exige un secreto `JUEZ_PIN` de al menos 8 caracteres (de él salen las contraseñas de los jueces) y no acepta el `1234` de demo; usalo solo en una red confiable. Cuando el simulador pasa el minuto 110 (el verificador lo necesita para evaluar las IP activas después del partido):
 ```bash
 python evaluacion/verificar.py --log salida/registro.jsonl
 ```
@@ -134,14 +134,14 @@ DATABASE_URL=postgres://...  python -m plataforma.main --sim URL_DEL_SIMULADOR -
 ```
 Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/plataforma.db JUEZ_PIN=<pin> uvicorn plataforma.api.app:app --port 8020` en una terminal, el motor con `--base --sin-web` en otra, y la pantalla del juez en http://localhost:8020/juez/. Así se hizo la corrida `practica-juez-humano/`.
 
-**6. Partido de práctica online (T12), sin ninguna notebook.** En `/juez/demo.html` del deploy se pone el PIN y se aprieta "Correr partido de práctica". La web prende un Vercel Sandbox que clona el repo de `DEMO_REPO` (por defecto, este fork) y levanta el simulador de la organización y el motor apuntando a la base. El juez firma desde `/juez/` en el celular y, al terminar, la página muestra la salida de `evaluacion/verificar.py`. Hay un solo partido a la vez, con velocidad de x6 a x30.
+**6. Partido de práctica online (T12), sin ninguna notebook.** En `/juez/demo.html` del deploy se ingresa como juez (usuario y contraseña) y se aprieta "Correr partido de práctica". Opcional: la URL del simulador de la final. La web prende un Vercel Sandbox que clona el repo de `DEMO_REPO` (por defecto, este fork) y levanta el simulador de la organización y el motor apuntando a la base. El juez firma desde `/juez/` en el celular y, al terminar, la página muestra la salida de `evaluacion/verificar.py`. Hay un solo partido a la vez, con velocidad de x6 a x30.
 
 ### Deploy propio en Vercel
 1. `npx vercel login` y `npx vercel link` (proyecto nuevo). `.vercel/` está en el `.gitignore`.
 2. Base: Storage → Neon en el dashboard del proyecto, en São Paulo (`aws-sa-east-1`), que coincide con `gru1` de `vercel.json`. Vercel carga `DATABASE_URL` sola.
-3. `npx vercel env add JUEZ_PIN production` con un PIN propio. Nunca se sube al repo.
+3. `npx vercel env add JUEZ_PIN --environment production` con un secreto propio (tipo Secret). Nunca se sube al repo. Las contraseñas de los jueces se ven con `py -m plataforma.claves` (pide el secreto sin mostrarlo).
 4. `npx vercel deploy --prod`. La app crea el esquema de la base al arrancar.
-5. Probar: `/juez/` con el PIN y `/juez/demo.html` para el partido online.
+5. Probar: `/juez/` con el usuario y la contraseña de un juez y `/juez/demo.html` para el partido online.
 
 ## Estado (se actualiza durante el evento)
 | Tarea | Estado |
@@ -149,13 +149,13 @@ Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/platafor
 | T01 Cerebro | ✅ Hecho y probado (17 de 17, más 9 de 9 en vivo contra el simulador) |
 | T02 Despacho | ✅ Firma HMAC, IP o nombre según proveedor, seguimiento, reintentos con `orden_id` nuevo, levantamiento confirmado. Probado contra el simulador oficial |
 | T03 Evidencia y auditoría | ✅ Hecho y probado. El expediente guarda una foto del caso, así su hash no cambia |
-| T04 Pantalla del juez | ✅ Contra la API real, con reclamos. PIN en `sessionStorage`. Probada en navegador con un partido completo firmado a mano ([`evidencias/demo-manual/`](evidencias/demo-manual/README.md)). Falta probarla con la URL pública |
+| T04 Pantalla del juez | ✅ Contra la API real, con reclamos. **Ingreso con usuario y contraseña por juez**: cada uno firma solo en su turno; al cambio, el saliente queda bloqueado y el entrante ratifica lo pendiente (probado con clics en un partido real). Sesión firmada en `sessionStorage`. Probada desde el celular con la URL pública |
 | T05 Motor y API | ✅ Loop completo, turno *fail-closed*, solicitudes con resultado real. Probado con el verificador oficial |
 | T06 Reclamos | ✅ Correlación real con órdenes activas, levantamiento en todos los proveedores y reemplazo por dominio |
 | T07 Registro público | ✅ Desde la base: una entrada por objetivo, estado real por proveedor (`/api/publico`) |
 | T08 Propuesta normativa | ✅ [`propuesta_normativa.md`](propuesta_normativa.md), de una página, basada en la versión de Rocío |
 | T10 Validación | ✅ Partido completo y cambio de turno del equipo, en `validacion/` |
-| T11 Base y Vercel | ✅ Código de Selene (base y API). **Deploy propio en https://desafio-futbol-karen.vercel.app** con base Postgres en Neon (São Paulo) y PIN de juez como secreto de Vercel |
+| T11 Base y Vercel | ✅ Código de Selene (base y API). **Deploy propio en https://desafio-futbol-karen.vercel.app** con base Postgres en Neon (São Paulo) y el secreto de las contraseñas de los jueces como Secret de Vercel |
 | Video y pitch | Guion listo en [`pitch.md`](pitch.md). El video todavía no está grabado |
 | T12 Partido de demo online | ✅ Código de Alejo; el Sandbox clona este fork. **Partido 100 % online: 7 de 7, 3,8 % de visibilidad residual, todo en 0 y auditoría íntegra (162 eventos) sobre Neon** ([`evidencias/online/`](evidencias/RESULTADOS.md#corrida-100--online-deploy-propio-en-vercel--neon-12112026)) |
 | Integración (este fork) | ✅ Main después del merge: 6 de 6 pruebas unitarias y dos partidos completos de práctica a x30 con 7 de 7 (3,3 % y 3,5 % de visibilidad residual), todo en 0, 12 de 12 chequeos. En Windows con Python 3.15 |
@@ -187,7 +187,7 @@ Dos corridas del partido de práctica. Cada una tiene su evidencia (expediente c
   - el art. 288 del Código Civil y Comercial exige **firma digital** en documentos electrónicos.
 
   En producción, la plataforma arma cada orden como documento PDF con su expediente y sus hashes. **El juez la firma con su propio certificado** de firma digital (Ley 25.506), desde el celular, con la [Plataforma de Firma Digital Remota](https://www.argentina.gob.ar/jefatura/innovacion-ciencia-y-tecnologia/innovacion/firma-digital/pfdr), que funciona sin token y con un código de un solo uso. **La plataforma nunca tiene la clave del juez.** Cada proveedor verifica la firma con el certificado público antes de bloquear. "Firmar en lote" son varias firmas, una por orden y cada una con su fundamento; no una sola firma que cubra todo.
-- **El acceso del juez es un PIN de demo.** En producción, la identidad la da la propia firma digital.
+- **Cada juez entra con su usuario y una contraseña de demostración**, derivada con HMAC del secreto `JUEZ_PIN` y su usuario (así sirve también para los jueces de un escenario nuevo). La sesión es un token firmado que vence a las 12 h, y la API toma de ahí quién firma: nadie puede firmar por otro (403) ni fuera de su turno (409). En producción, la identidad la da la propia firma digital.
 - **Bloqueo por IP solo con evidencia de un único titular.** Tienen que cumplirse todas estas condiciones (`Cerebro._riesgo_colateral`); si una falla o falta el dato, se bloquea el nombre:
   - el DNS pasivo tiene datos de la IP;
   - todos sus dominios son del mismo sitio. "Sitio" es el dominio registrable: las dos últimas etiquetas más un subconjunto de la Public Suffix List;
@@ -203,7 +203,7 @@ Dos corridas del partido de práctica. Cada una tiene su evidencia (expediente c
 
 ## Seguridad (revisado)
 - **Sin claves ni secretos reales.** Las únicas claves son las `clave_firma_demo` de `datos/juzgados.json`, que son de la organización y están marcadas como ficticias en su campo `aviso`. La plataforma las lee del archivo y no las copia a la base, la auditoría, los expedientes, la API ni los logs (`test_despacho` comprueba que el `repr` del firmador no las expone). `.env` y `.vercel/` están en `.gitignore`.
-- **PIN del juez.** Sale de la variable `JUEZ_PIN`. Si no está definida, la API rechaza todo. `1234` existe solo con `--local`. La web lo guarda en `sessionStorage` y después de 5 intentos fallidos por minuto responde 429.
+- **Contraseñas de los jueces.** Salen del secreto `JUEZ_PIN`; si no está definido, nadie puede ingresar. `1234` existe solo con `--local`. No se guardan en ningún lado. La web guarda solo la sesión en `sessionStorage`, y después de 5 intentos fallidos por minuto la API responde 429.
 - **Solo entorno de prueba.** La plataforma habla únicamente con la URL de `--sim`, que es el simulador. No hay otra salida de red: los "proveedores" son endpoints del simulador y **no se bloquea nada real**. Todos los dominios son `.test`/`.example` y las IP, de documentación (RFC 5737). `simulador/servidor.py` (de la organización, sin cambios) escucha en `0.0.0.0`: corranlo en una máquina local o en una red de confianza.
 - **API pública** (`/api/publico`): objetivo, tipo, motivo, juez y juzgado (ficticios y públicos por diseño), minutos y estado por proveedor. No incluye firmas, claves, PIN, capturas ni datos de usuarios. El expediente guarda los hashes de las capturas, no el video.
 - **`--juez-automatico` y `--falla`** son solo para pruebas: el primero aprueba sin humano, el segundo inyecta un DNS falso. Ninguno se activa por defecto.
