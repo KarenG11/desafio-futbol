@@ -3,109 +3,94 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0A0E17">
+  <meta name="theme-color" content="#07080A">
   <title>En vivo · Tarjeta Roja</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800;1,900&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/sitio/sitio.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='2' width='8' height='12' rx='1.5' fill='%23F0384B' transform='rotate(-10 8 8)'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='2' width='8' height='12' rx='1.5' fill='%23FF3B4E' transform='rotate(-10 8 8)'/%3E%3C/svg%3E">
 </head>
 <body>
   <header class="barra">
     <div class="contenedor barra__fila">
-      <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja <small>Monitoreo</small></a>
+      <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja <small>Titular de<br>derechos</small></a>
       <nav class="nav" aria-label="Principal">
         <a href="/">Inicio</a>
         <a href="/monitoreo" aria-current="page">En vivo</a>
-        <a href="/registro">Registro público</a>
+        <a href="/registro">Registro</a>
         <a href="/juez/demo.html">Demo</a>
-        <a class="boton boton--chico boton--primario" href="/juez/">Acceso juez</a>
+        <a class="boton boton--cian boton--chico" href="/juez/">Acceso juez</a>
       </nav>
     </div>
   </header>
 
-  <main class="contenedor tablero">
-    <section class="panel cabecera" aria-live="polite">
-      <p class="cabecera__minuto"><span id="minuto">—</span></p>
-      <div>
-        <h1 class="cabecera__partido" id="partido">Conectando con la plataforma…</h1>
-        <p class="cabecera__sub" id="sub">—</p>
-        <div class="reloj" aria-hidden="true">
-          <div class="reloj__avance" id="avance"></div>
-          <div class="reloj__marca" id="marca-turno" hidden></div>
+  <main class="contenedor partido">
+    <p class="miga">Inicio / En vivo / <b>Partido</b></p>
+
+    <section class="panel panel--rayas marcador" aria-live="polite">
+      <div class="marcador__fila">
+        <div class="equipo">
+          <span class="escudo escudo--lima">TR</span>
+          <div><h1 id="partido">Conectando…</h1><p id="sub">—</p></div>
         </div>
-        <div class="reloj__leyenda"><span>0'</span><span id="leyenda-turno"></span><span id="leyenda-fin">105'</span></div>
+        <div class="centro">
+          <div class="centro__caja">
+            <span class="caja caja--lima" id="m-bloqueados" title="Streams con bloqueo aplicado">0</span>
+            <span class="centro__vs" id="minuto">—</span>
+            <span class="caja caja--gris" id="m-sueltos" title="Streams piratas todavía sin bloqueo">0</span>
+          </div>
+          <small>Bloqueados · minuto · sin bloquear</small>
+          <div class="marcador__chips" id="chips"></div>
+        </div>
+        <div class="equipo equipo--der">
+          <div><h2>Piratas</h2><p>Streams detectados en el partido</p></div>
+          <span class="escudo escudo--rojo">✕</span>
+        </div>
       </div>
-      <div class="cabecera__estado" id="chips"></div>
+      <div class="reloj" style="position:relative;z-index:1;margin-top:18px">
+        <div class="reloj__avance" id="avance"></div>
+        <div class="reloj__marca" id="marca-turno" hidden></div>
+      </div>
+      <div class="reloj__leyenda" style="position:relative;z-index:1"><span>0'</span><span id="leyenda-turno"></span><span id="leyenda-fin">105'</span></div>
+      <div class="marcador__datos kpis" aria-label="Indicadores">
+        <div class="dato"><b><i class="galon"></i><span id="k-piratas">0</span></b><small id="k-descartados">Streams piratas</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="k-pendientes">0</span></b><small id="k-firmados">Esperan firma</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="k-activas">0</span></b><small id="k-ordenes">Órdenes aplicadas</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="k-tiempo">—</span></b><small>Min. detección → bloqueo</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="k-reintentos">0</span></b><small id="k-fallidas">Reintentos</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="k-reclamos">0</span></b><small id="k-reclamos-nota">Reclamos</small></div>
+      </div>
     </section>
 
-    <section class="kpis" aria-label="Indicadores">
-      <div class="panel kpi kpi--rojo"><p class="kpi__nombre">Streams piratas</p><p class="kpi__valor" id="k-piratas">0</p><p class="kpi__nota" id="k-descartados">0 descartados (legales o ajenos)</p></div>
-      <div class="panel kpi kpi--ambar"><p class="kpi__nombre">Esperan firma del juez</p><p class="kpi__valor" id="k-pendientes">0</p><p class="kpi__nota" id="k-firmados">0 firmados</p></div>
-      <div class="panel kpi kpi--verde"><p class="kpi__nombre">Órdenes aplicadas ahora</p><p class="kpi__valor" id="k-activas">0</p><p class="kpi__nota" id="k-ordenes">0 órdenes en total</p></div>
-      <div class="panel kpi"><p class="kpi__nombre">Detección → primer bloqueo</p><p class="kpi__valor" id="k-tiempo">—</p><p class="kpi__nota">promedio, en minutos de partido</p></div>
-      <div class="panel kpi"><p class="kpi__nombre">Reintentos automáticos</p><p class="kpi__valor" id="k-reintentos">0</p><p class="kpi__nota" id="k-fallidas">órdenes que un proveedor hizo fallar</p></div>
-      <div class="panel kpi"><p class="kpi__nombre">Reclamos de terceros</p><p class="kpi__valor" id="k-reclamos">0</p><p class="kpi__nota" id="k-reclamos-nota">pendientes</p></div>
-    </section>
+    <div class="tres">
+      <section class="columna" aria-labelledby="t-streams">
+        <h2 class="columna__titulo" id="t-streams">Streams detectados · órdenes por proveedor</h2>
+        <div id="streams" class="columna" style="gap:8px"></div>
+        <p class="vacio" id="vacio-streams">Todavía no hay streams piratas en este partido. Cuando el radar detecte uno, aparece acá.</p>
+      </section>
 
-    <div class="columnas">
-      <div class="columna">
-        <section class="panel" aria-labelledby="t-streams">
-          <div class="panel__cabeza">
-            <h2 class="panel__titulo" id="t-streams">Streams detectados y órdenes por proveedor</h2>
-            <span class="panel__ayuda">se actualiza cada 2 s</span>
-          </div>
-          <div class="panel__cuerpo tabla-envoltorio">
-            <table>
-              <thead><tr><th>Sitio pirata</th><th>Qué se bloquea</th><th>Juez</th><th>Primer bloqueo</th><th>Proveedores</th></tr></thead>
-              <tbody id="streams"></tbody>
-            </table>
-            <p class="vacio" id="vacio-streams">Todavía no hay streams piratas en este partido. Cuando el radar detecte uno, aparece acá.</p>
-          </div>
-        </section>
-
-        <section class="panel" aria-labelledby="t-descartados">
-          <div class="panel__cabeza">
-            <h2 class="panel__titulo" id="t-descartados">Detecciones descartadas</h2>
-            <span class="panel__ayuda">no se pidió ningún bloqueo</span>
-          </div>
-          <div class="panel__cuerpo tabla-envoltorio">
-            <table>
-              <thead><tr><th>Sitio</th><th>Minuto</th><th>Por qué no se bloquea</th></tr></thead>
-              <tbody id="descartados"></tbody>
-            </table>
-            <p class="vacio" id="vacio-descartados">Ninguna detección descartada.</p>
-          </div>
-        </section>
-      </div>
+      <section class="columna" aria-labelledby="t-actividad">
+        <h2 class="columna__titulo" id="t-actividad">Línea de tiempo</h2>
+        <div class="panel"><div class="panel__cuerpo">
+          <ol class="linea-tiempo" id="actividad"></ol>
+          <p class="vacio" id="vacio-actividad">Sin actividad todavía.</p>
+        </div></div>
+      </section>
 
       <div class="columna">
-        <section class="panel" aria-labelledby="t-integridad">
-          <div class="panel__cabeza"><h2 class="panel__titulo" id="t-integridad">Auditoría</h2></div>
-          <div class="panel__cuerpo integridad" id="integridad">
-            <div class="integridad__sello" aria-hidden="true">…</div>
-            <div><p class="fuerte">Verificando la cadena…</p></div>
-          </div>
+        <h2 class="columna__titulo">Control</h2>
+        <section class="panel panel--rayas" aria-labelledby="t-integridad">
+          <div class="panel__cabeza"><h3 class="panel__titulo" id="t-integridad">Auditoría</h3></div>
+          <div class="panel__cuerpo integridad" id="integridad"><div class="integridad__sello" aria-hidden="true">…</div><p class="fuerte">Verificando la cadena…</p></div>
         </section>
-
         <section class="panel" aria-labelledby="t-reclamos">
-          <div class="panel__cabeza"><h2 class="panel__titulo" id="t-reclamos">Reclamos</h2></div>
-          <div class="panel__cuerpo">
-            <div id="reclamos"></div>
-            <p class="vacio" id="vacio-reclamos">Ningún sitio legítimo reclamó.</p>
-          </div>
+          <div class="panel__cabeza"><h3 class="panel__titulo" id="t-reclamos">Reclamos</h3></div>
+          <div class="panel__cuerpo"><div id="reclamos"></div><p class="vacio" id="vacio-reclamos">Ningún sitio legítimo reclamó.</p></div>
         </section>
-
-        <section class="panel" aria-labelledby="t-actividad">
-          <div class="panel__cabeza">
-            <h2 class="panel__titulo" id="t-actividad">Actividad</h2>
-            <span class="panel__ayuda">lo último primero</span>
-          </div>
-          <div class="panel__cuerpo">
-            <ol class="linea-tiempo" id="actividad"></ol>
-            <p class="vacio" id="vacio-actividad">Sin actividad todavía.</p>
-          </div>
+        <section class="panel" aria-labelledby="t-descartados">
+          <div class="panel__cabeza"><h3 class="panel__titulo" id="t-descartados">Descartados</h3><span class="panel__ayuda">sin bloqueo</span></div>
+          <div class="panel__cuerpo"><div id="descartados"></div><p class="vacio" id="vacio-descartados">Ninguna detección descartada.</p></div>
         </section>
       </div>
     </div>
@@ -113,7 +98,7 @@
 
   <footer class="pie">
     <div class="contenedor pie__fila">
-      <p>Vista de solo lectura para titulares de derechos y operadores. Las decisiones las toma el juez en <a href="/juez/">/juez</a>.</p>
+      <p>Vista de solo lectura. Las decisiones las toma el juez en <a href="/juez/">/juez</a>.</p>
       <p>Datos ficticios del simulador oficial.</p>
     </div>
   </footer>

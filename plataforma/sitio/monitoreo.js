@@ -54,11 +54,11 @@ function pintarCabecera(est) {
   const [texto, color] = estadoPartido(est);
   const fin = est.fin_min || 105;
   const sinPartido = est.minuto_actual === null || est.minuto_actual === undefined;
-  $("minuto").textContent = sinPartido ? "—" : minuto(Math.min(est.minuto_actual, fin));
-  $("partido").textContent = sinPartido ? "Esperando el próximo partido" : `Partido ${est.partido_id}`;
+  $("minuto").textContent = sinPartido ? "VS" : minuto(Math.min(est.minuto_actual, fin));
+  $("partido").textContent = sinPartido ? "Esperando partido" : `Partido ${est.partido_id}`;
   const deTurno = (est.jueces_de_turno || []).map((id) => nombreJuez(est, id)).join(", ") || "—";
   $("sub").textContent = `Juez de turno: ${deTurno}` +
-    (est.proximo_cambio_turno_min ? ` · cambio de turno en el ${minuto(est.proximo_cambio_turno_min)}` : "");
+    (est.proximo_cambio_turno_min ? ` · cambia en el ${minuto(est.proximo_cambio_turno_min)}` : "");
   $("avance").style.width = sinPartido ? "0" : `${Math.min(100, (est.minuto_actual / fin) * 100)}%`;
   $("leyenda-fin").textContent = minuto(fin);
 
@@ -68,27 +68,29 @@ function pintarCabecera(est) {
   $("leyenda-turno").textContent = cambio ? `turno ${minuto(cambio)}` : "";
 
   reemplazar($("chips"),
-    chip(texto, color, color === "rojo" && texto === "En vivo" ? "chip--vivo" : ""),
+    chip(texto, texto === "En vivo" ? "" : color, texto === "En vivo" ? "chip--vivo" : ""),
     sinPartido ? null : (est.turno_ratificado ? chip("Turno ratificado", "verde") : chip("Turno sin ratificar", "ambar")));
 }
 
 function pintarKpis(est, pedidos, ordenes, reclamos) {
   const c = est.contadores || {};
   $("k-piratas").textContent = c.casos_piratas ?? 0;
-  $("k-descartados").textContent = `${c.casos_descartados ?? 0} descartados (legales o ajenos)`;
+  $("k-descartados").textContent = `Streams piratas · ${c.casos_descartados ?? 0} descartados`;
   $("k-pendientes").textContent = c.pedidos_pendientes ?? 0;
-  $("k-firmados").textContent = `${c.pedidos_aprobados ?? 0} firmados · ${c.pedidos_rechazados ?? 0} rechazados`;
+  $("k-firmados").textContent = `Esperan firma · ${c.pedidos_aprobados ?? 0} firmados`;
   $("k-activas").textContent = ordenes.filter((o) => o.estado === "aplicada").length;
-  $("k-ordenes").textContent = `${ordenes.length} órdenes en total`;
+  $("k-ordenes").textContent = `Aplicadas ahora · ${ordenes.length} en total`;
   const tiempos = pedidos.map(tiempoPrimerBloqueo).filter((t) => t !== null);
   $("k-tiempo").textContent = tiempos.length ? numero(tiempos.reduce((a, b) => a + b, 0) / tiempos.length, 2) : "—";
-  const reintentos = ordenes.filter((o) => o.reemplaza_a).length;
-  $("k-reintentos").textContent = reintentos;
+  $("k-reintentos").textContent = ordenes.filter((o) => o.reemplaza_a).length;
   const fallidas = ordenes.filter((o) => o.estado === "fallida").length;
-  $("k-fallidas").textContent = fallidas ? `${fallidas} órdenes fallaron en un proveedor y se reenviaron solas` : "ninguna orden falló";
+  $("k-fallidas").textContent = fallidas ? `Reintentos solos · ${fallidas} fallas` : "Reintentos · sin fallas";
   const pendientes = reclamos.filter((r) => r.estado === "pendiente").length;
   $("k-reclamos").textContent = reclamos.length;
-  $("k-reclamos-nota").textContent = `${pendientes} pendientes de decisión del juez`;
+  $("k-reclamos-nota").textContent = `Reclamos · ${pendientes} pendientes`;
+  const bloqueados = pedidos.filter((p) => (ordenesPorPedido[p.pedido_id] || []).some((o) => o.aplicada_min != null)).length;
+  $("m-bloqueados").textContent = bloqueados;
+  $("m-sueltos").textContent = Math.max(0, (c.casos_piratas ?? 0) - bloqueados);
 }
 
 let ordenesPorPedido = {};
@@ -99,37 +101,39 @@ function tiempoPrimerBloqueo(p) {
 }
 
 function pintarStreams(est, pedidos) {
-  const filas = pedidos.slice().sort((a, b) => (b.creado_min || 0) - (a.creado_min || 0)).map((p) => {
+  const orden = pedidos.slice().sort((a, b) => (a.creado_min || 0) - (b.creado_min || 0));
+  const filas = orden.map((p, i) => {
     const r = p.resumen || {};
     const tipos = [...new Set((p.objetivos || []).map((o) => o.tipo))];
-    const bloqueo = tipos.length > 1 ? `IP ${r.ip} y nombre (según proveedor)` : tipos[0] === "ip" ? `IP ${r.ip}` : `Nombre ${r.host}`;
+    const medalla = tipos.includes("ip")
+      ? h("span", { class: "medalla medalla--lima", title: "Bloqueo por IP de un solo titular" }, "IP")
+      : h("span", { class: "medalla medalla--cian", title: "IP compartida o dudosa: solo el nombre" }, "Nombre");
     const t = tiempoPrimerBloqueo(p);
     const ultimas = ultimasPorProveedor(ordenesPorPedido[p.pedido_id] || []);
-    return h("tr", {},
-      h("td", {}, h("div", { class: "fuerte mono" }, r.host || p.pedido_id),
-        h("div", { class: "tenue" }, `detectado ${minuto(r.primer_minuto ?? p.creado_min, 1)} · ${r.organizacion || ""}`)),
-      h("td", {}, h("div", {}, bloqueo), h("div", { class: "tenue" }, r.ip_compartida ? "IP compartida: solo nombre" : "IP de un solo titular")),
-      h("td", {}, chipDe(ESTADO_PEDIDO, p.estado), h("div", { class: "tenue", style: "margin-top:4px" },
-        p.juez_id ? `${nombreJuez(est, p.juez_id)} · ${minuto(p.decidido_min, 1)}` : "")),
-      h("td", { class: "fuerte" }, t === null ? "—" : `${numero(t, 2)} min`),
-      h("td", {}, ultimas.length
-        ? h("div", { class: "proveedores" }, ultimas.map((o) => {
+    return h("article", { class: "stream" },
+      h("span", { class: "stream__num" }, i + 1),
+      h("div", {},
+        h("p", { class: "stream__host" }, r.host || p.pedido_id, medalla, chipDe(ESTADO_PEDIDO, p.estado)),
+        h("p", { class: "stream__sub" }, `${minuto(r.primer_minuto ?? p.creado_min, 1)} · ${r.ip || ""} · ${r.organizacion || ""}` +
+          (p.juez_id ? ` · firmó ${nombreJuez(est, p.juez_id)}` : ""))),
+      h("div", { class: "stream__tiempo" }, h("b", {}, t === null ? "—" : `${numero(t, 2)}'`), h("small", {}, "al 1.er bloqueo")),
+      h("div", { class: "proveedores" }, ultimas.length
+        ? ultimas.map((o) => {
             const [txt, color] = ESTADO_ORDEN[o.estado] || [o.estado, ""];
             return h("span", { class: `chip${color ? " chip--" + color : ""}`, title: `${o.tipo} ${o.objetivo} · intento ${o.intentos}` },
-              `${proveedor(o.proveedor_id)}: ${txt}`);
-          }))
-        : h("span", { class: "tenue" }, p.estado === "pendiente" ? "esperando firma" : "—")));
+              `${proveedor(o.proveedor_id)} · ${txt}`);
+          })
+        : h("span", { class: "tenue" }, p.estado === "pendiente" ? "Esperando la firma del juez" : "—")));
   });
-  reemplazar($("streams"), filas);
+  reemplazar($("streams"), filas.reverse());
   $("vacio-streams").hidden = filas.length > 0;
 }
 
 function pintarDescartados(eventos) {
-  const filas = eventos.filter((e) => e.accion === "caso_descartado").map((e) => h("tr", {},
-    h("td", { class: "mono" }, e.datos.host),
-    h("td", {}, minuto(e.min, 1)),
-    h("td", {}, h("div", {}, CLASIFICACION[e.datos.clasificacion] || e.datos.clasificacion),
-      h("div", { class: "tenue" }, e.datos.motivo))));
+  const filas = eventos.filter((e) => e.accion === "caso_descartado").map((e) => h("div", { class: "descartado" },
+    h("div", { class: "descartado__cabeza" }, h("span", { class: "fuerte mono" }, e.datos.host), h("span", { class: "tenue" }, minuto(e.min, 1))),
+    h("p", {}, CLASIFICACION[e.datos.clasificacion] || e.datos.clasificacion),
+    h("p", { class: "tenue" }, e.datos.motivo)));
   reemplazar($("descartados"), filas);
   $("vacio-descartados").hidden = filas.length > 0;
 }
