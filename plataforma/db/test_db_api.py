@@ -30,6 +30,8 @@ def correr_pruebas() -> None:
             api_reclamos,
             api_rechazar,
             monitoreo,
+            partido,
+            partidos,
             pin_juez,
             raiz,
             registro,
@@ -131,7 +133,7 @@ def correr_pruebas() -> None:
         assert integ["integra"] is False and integ["falla_en_seq"] == 2, integ
 
         # Portada, monitoreo y registro público
-        for pagina in (raiz(), monitoreo(), registro()):
+        for pagina in (raiz(), monitoreo(), registro(), partidos(), partido()):
             assert Path(pagina.path).is_file(), pagina.path
 
     print("test_db_api: OK")

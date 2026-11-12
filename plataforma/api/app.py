@@ -355,6 +355,16 @@ def registro():
     return FileResponse(SITIO_DIR / "registro.html")
 
 
+@app.get("/partidos")
+def partidos():
+    return FileResponse(SITIO_DIR / "partidos.html")
+
+
+@app.get("/partido")
+def partido():
+    return FileResponse(SITIO_DIR / "partido.html")
+
+
 app.mount("/sitio", StaticFiles(directory=str(SITIO_DIR)), name="sitio")
 if WEB_DIR.exists():
     app.mount("/juez", StaticFiles(directory=str(WEB_DIR), html=True), name="juez")

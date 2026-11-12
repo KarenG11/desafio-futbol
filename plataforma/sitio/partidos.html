@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080A">
+  <title>Partidos en vivo · Tarjeta Roja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800;1,900&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/sitio/sitio.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='2' width='8' height='12' rx='1.5' fill='%23FF3B4E' transform='rotate(-10 8 8)'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="barra">
+    <div class="contenedor barra__fila">
+      <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja</a>
+      <nav class="nav" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/partidos" aria-current="page">Partidos</a>
+        <a href="/monitoreo">En vivo</a>
+        <a href="/registro">Registro</a>
+        <a href="/juez/demo.html">Demo</a>
+        <a class="boton boton--cian boton--chico" href="/juez/">Acceso juez</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <section class="cabecera-pagina">
+      <p class="miga">Inicio / <b>Partidos</b></p>
+      <p class="etiqueta" style="margin-top:22px"><b>08</b><span><i>Centro de partidos</i></span></p>
+      <h1 class="titular titular--m">Partidos <span class="resalte">protegidos</span></h1>
+      <p class="bajada">Cada partido de la cartelera se protege desde el pitazo inicial. En los que están en vivo, cada <span class="roja" style="vertical-align:-3px"></span> es un stream pirata expulsado con orden judicial.</p>
+
+      <div class="pestanas" role="group" aria-label="Filtrar partidos" id="f-partidos">
+        <button type="button" data-v="" aria-pressed="true">Todos</button>
+        <button type="button" data-v="vivo" aria-pressed="false">En vivo</button>
+        <button type="button" data-v="proximo" aria-pressed="false">Próximos</button>
+      </div>
+      <div class="cartelera" id="cartelera"></div>
+      <p class="aviso-demo">Selecciones, jugadores y horarios de <b>demostración</b> (nombres inventados). La protección del partido en vivo —minuto, streams piratas, firmas del juez y órdenes— es real: sale del simulador oficial del desafío.</p>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie__fila">
+      <p>Tarjeta Roja · centro de partidos</p>
+      <p>Datos ficticios. No se bloquea nada real.</p>
+    </div>
+  </footer>
+
+  <script src="/sitio/comun.js"></script>
+  <script src="/sitio/partidos.js"></script>
+  <script>
+    "use strict";
+    const $ = (id) => document.getElementById(id);
+    let filtro = "", datos = null;
+
+    function pintar() {
+      const tarjetas = [datos ? tarjetaVivo(datos) : null, ...PROXIMOS.map(tarjetaProximo)]
+        .filter((t) => t && (!filtro || t.dataset.tipo === filtro));
+      reemplazar($("cartelera"), tarjetas);
+    }
+
+    $("f-partidos").addEventListener("click", (ev) => {
+      const b = ev.target.closest("button"); if (!b) return;
+      for (const o of $("f-partidos").querySelectorAll("button")) o.setAttribute("aria-pressed", String(o === b));
+      filtro = b.dataset.v; pintar();
+    });
+    cadaTanto(async () => { datos = await proteccionEnVivo(); pintar(); }, 3000);
+  </script>
+</body>
+</html>

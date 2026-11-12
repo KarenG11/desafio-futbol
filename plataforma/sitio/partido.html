@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080A">
+  <title>Argentina vs. Brasil · Tarjeta Roja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800;1,900&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/sitio/sitio.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='2' width='8' height='12' rx='1.5' fill='%23FF3B4E' transform='rotate(-10 8 8)'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="barra">
+    <div class="contenedor barra__fila">
+      <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja</a>
+      <nav class="nav" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/partidos" aria-current="page">Partidos</a>
+        <a href="/monitoreo">En vivo</a>
+        <a href="/registro">Registro</a>
+        <a href="/juez/demo.html">Demo</a>
+        <a class="boton boton--cian boton--chico" href="/juez/">Acceso juez</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor partido">
+    <p class="miga">Inicio / <a href="/partidos">Partidos</a> / <b id="miga">Partido</b></p>
+
+    <section class="panel panel--rayas marcador encabezado-partido cancha" aria-live="polite">
+      <div class="marcador__fila">
+        <div class="seleccion" id="local"></div>
+        <div class="centro">
+          <p class="encuentro__torneo" id="torneo" style="margin-bottom:10px"></p>
+          <div class="centro__caja"><span class="caja caja--lima" id="minuto">VS</span></div>
+          <div class="marcador__chips" id="chips"></div>
+          <p class="expulsados" id="rojas" style="justify-content:center;margin-top:12px"></p>
+        </div>
+        <div class="seleccion seleccion--der" id="visitante"></div>
+      </div>
+      <div class="reloj" style="position:relative;z-index:1;margin-top:20px"><div class="reloj__avance" id="avance"></div><div class="reloj__marca" id="marca-turno" hidden></div></div>
+      <div class="reloj__leyenda" style="position:relative;z-index:1"><span>0'</span><span id="leyenda-turno"></span><span>105'</span></div>
+      <div class="marcador__datos">
+        <div class="dato"><b><i class="galon"></i><span id="d-piratas">0</span></b><small>Streams piratas detectados</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="d-expulsados">0</span></b><small>Piratas expulsados</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="d-activas">0</span></b><small>Órdenes aplicadas ahora</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="d-tiempo">—</span></b><small>Min. detección → bloqueo</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="d-proveedores">4</span></b><small>Proveedores notificados</small></div>
+        <div class="dato"><b><i class="galon"></i><span id="d-reclamos">0</span></b><small>Reclamos de terceros</small></div>
+      </div>
+    </section>
+
+    <div class="partido-tres">
+      <section class="columna" aria-labelledby="t-local">
+        <h2 class="columna__titulo" id="t-local">Titulares</h2>
+        <div class="alineacion" id="once-local"></div>
+      </section>
+      <section class="columna" aria-labelledby="t-tarjetas">
+        <h2 class="columna__titulo" id="t-tarjetas" style="text-align:center">Tarjetas al pirata</h2>
+        <div class="panel"><div class="panel__cuerpo">
+          <ol class="linea-tiempo" id="tarjetas"></ol>
+          <p class="vacio" id="vacio-tarjetas">El partido todavía no empezó. Cuando el radar detecte un stream pirata, aparece acá.</p>
+        </div></div>
+        <div class="heroe__acciones" style="margin-top:4px">
+          <a class="boton boton--primario boton--chico" href="/monitoreo">Tablero completo</a>
+          <a class="boton boton--chico" href="/registro">Registro público</a>
+        </div>
+      </section>
+      <section class="columna" aria-labelledby="t-visitante">
+        <h2 class="columna__titulo" id="t-visitante" style="text-align:right">Titulares</h2>
+        <div class="alineacion" id="once-visitante"></div>
+      </section>
+    </div>
+    <p class="aviso-demo">Selecciones y jugadores de <b>demostración</b> (nombres inventados). Minuto, streams, firmas, órdenes y tiempos son reales: salen del simulador oficial a través de la plataforma.</p>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie__fila">
+      <p>Tarjeta Roja · cada <span class="roja" style="vertical-align:-3px"></span> es un stream pirata bloqueado con orden judicial</p>
+      <p>Datos ficticios. No se bloquea nada real.</p>
+    </div>
+  </footer>
+
+  <script src="/sitio/comun.js"></script>
+  <script src="/sitio/partidos.js"></script>
+  <script>
+    "use strict";
+    const $ = (id) => document.getElementById(id);
+    const { local: L, visitante: V } = PARTIDO_EN_VIVO;
+
+    function seleccion(cod, der) {
+      const e = EQUIPOS[cod];
+      return [bandera(cod, "bandera bandera--xl"), h("div", {}, h(der ? "h2" : "h1", {}, e.nombre), h("p", {}, `Selección ${e.corto} · demo`))];
+    }
+    function once(cod, der) {
+      return EQUIPOS[cod].once.map(([n, pos, nombre]) => h("div", { class: `jugador${der ? " jugador--der" : ""}` },
+        ...(der ? [h("span", { class: `jugador__pos jugador__pos--${pos}` }, pos), h("span", { class: "jugador__nombre" }, nombre), h("span", { class: "jugador__num" }, n)]
+                : [h("span", { class: "jugador__num" }, n), h("span", { class: "jugador__nombre" }, nombre), h("span", { class: `jugador__pos jugador__pos--${pos}` }, pos)])));
+    }
+    reemplazar($("local"), seleccion(L, false));
+    reemplazar($("visitante"), seleccion(V, true).reverse());
+    reemplazar($("once-local"), once(L, false));
+    reemplazar($("once-visitante"), once(V, true));
+    $("torneo").textContent = `${PARTIDO_EN_VIVO.torneo} · ${PARTIDO_EN_VIVO.sede}`;
+    $("miga").textContent = `${equipoNombre(L)} vs. ${equipoNombre(V)}`;
+
+    function tarjetas(eventos, pedidos, est) {
+      const host = {};
+      for (const p of pedidos) host[p.pedido_id] = p.resumen?.host || p.pedido_id;
+      const ordenPedido = {};
+      const yaExpulsado = new Set();
+      const items = [];
+      for (const e of eventos) {
+        const d = e.datos || {};
+        if (e.accion === "orden_enviada") ordenPedido[d.orden_id] = (d.orden_id.match(/-(P-\d+)-/) || [])[1];
+        let fila = null;
+        if (e.accion === "caso_creado") fila = ["amarilla", [h("b", {}, "Stream pirata detectado"), ` · ${d.host}`], "evidencia y expediente en camino"];
+        else if (e.accion === "pedido_aprobado") fila = ["", [h("b", {}, `${nombreJuez(est, e.actor.replace("juez:", ""))} firmó`), ` · ${host[d.pedido_id] || d.pedido_id}`], "orden judicial a todos los proveedores"];
+        else if (e.accion === "orden_aplicada") {
+          const pid = ordenPedido[d.orden_id];
+          if (pid && !yaExpulsado.has(pid)) {
+            yaExpulsado.add(pid);
+            fila = ["roja", [h("b", {}, "¡Pirata expulsado!"), ` · ${host[pid] || d.objetivo}`], `primer bloqueo en ${proveedor(e.actor.replace("proveedor:", ""))}`];
+          }
+        } else if (e.accion === "cambio_de_turno") fila = ["", [h("b", {}, "Cambio de turno"), ` · entra ${(d.entrantes || []).map((j) => nombreJuez(est, j)).join(", ")}`], "el juez entrante ratifica las órdenes"];
+        else if (e.accion === "partido_finalizado") fila = ["", [h("b", {}, "Final del partido")], "todas las órdenes vencen solas"];
+        if (fila) items.push([e.min, ...fila]);
+      }
+      return items.reverse().map(([min, icono, texto, nota]) => h("li", { class: `evento${icono === "roja" ? " evento--rojo" : icono === "amarilla" ? " evento--ambar" : " evento--verde"}` },
+        h("span", { class: "evento__min" }, minuto(min)),
+        h("div", { style: "display:flex;gap:10px;align-items:flex-start" }, icono ? h("span", { class: icono, style: "margin-top:2px" }) : null,
+          h("div", {}, h("div", { class: "evento__texto" }, texto), h("div", { class: "evento__actor" }, nota)))));
+    }
+
+    cadaTanto(async () => {
+      const [d, aud, rec] = await Promise.all([proteccionEnVivo(), api("/api/auditoria"), api("/api/reclamos")]);
+      $("d-reclamos").textContent = rec.reclamos.length;
+      const est = d.est, fin = est.fin_min || 105, sin = est.minuto_actual == null;
+      const [texto] = estadoPartido(est);
+      $("minuto").textContent = sin ? "VS" : minuto(Math.min(est.minuto_actual, fin));
+      reemplazar($("chips"), texto === "En vivo" ? chip("En vivo", "", "chip--vivo") : chip(sin ? "Esperando" : texto, ""),
+        sin ? null : chip(`Juez: ${nombreJuez(est, (est.jueces_de_turno || [])[0])}`, "verde"));
+      reemplazar($("rojas"), ...Array.from({ length: Math.min(d.expulsados, 12) }, () => h("span", { class: "roja" })),
+        d.expulsados ? `${d.expulsados} expulsados` : "Sin piratas expulsados");
+      $("avance").style.width = sin ? "0" : `${Math.min(100, Math.max(0, est.minuto_actual / fin) * 100)}%`;
+      const cambio = (est.juzgados?.turnos || []).map((t) => t.desde_min).find((m) => m > 0 && m < fin);
+      $("marca-turno").hidden = !cambio;
+      if (cambio) { $("marca-turno").style.left = `${(cambio / fin) * 100}%`; $("leyenda-turno").textContent = `turno ${minuto(cambio)}`; }
+      $("d-piratas").textContent = d.piratas;
+      $("d-expulsados").textContent = d.expulsados;
+      $("d-activas").textContent = d.activas;
+      const porPedido = {};
+      for (const o of d.ordenes) if (o.aplicada_min != null) porPedido[o.pedido_id] = Math.min(porPedido[o.pedido_id] ?? Infinity, o.aplicada_min);
+      const t = d.pedidos.filter((p) => porPedido[p.pedido_id] != null).map((p) => Math.max(0, porPedido[p.pedido_id] - (p.resumen?.primer_minuto ?? p.creado_min)));
+      $("d-tiempo").textContent = t.length ? numero(t.reduce((a, b) => a + b, 0) / t.length, 2) : "—";
+      const filas = tarjetas(aud.eventos, d.pedidos, est);
+      reemplazar($("tarjetas"), filas);
+      $("vacio-tarjetas").hidden = filas.length > 0;
+    }, 2000);
+  </script>
+</body>
+</html>

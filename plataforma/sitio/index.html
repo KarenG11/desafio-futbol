@@ -18,6 +18,7 @@
       <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja</a>
       <nav class="nav" aria-label="Principal">
         <a href="/" aria-current="page">Inicio</a>
+        <a href="/partidos">Partidos</a>
         <a href="/monitoreo">En vivo</a>
         <a href="/registro">Registro</a>
         <a href="/juez/demo.html">Demo</a>
@@ -93,6 +94,17 @@
         <div class="numero"><b>&lt;1'</b><span>De la detección al bloqueo</span></div>
         <div class="numero numero--lima"><b>0</b><span>Sitios legítimos afectados</span></div>
       </div>
+    </section>
+
+    <section class="contenedor seccion" aria-labelledby="t-cancha">
+      <div class="seccion__cabeza">
+        <div>
+          <p class="etiqueta"><b>LIVE</b><span><i>Centro de partidos</i></span></p>
+          <h2 class="titular titular--m" id="t-cancha">En cancha <span class="resalte">ahora</span></h2>
+        </div>
+        <p class="bajada">Cada <span class="roja" style="vertical-align:-3px"></span> es un stream pirata expulsado con orden judicial. <a href="/partidos">Ver toda la cartelera →</a></p>
+      </div>
+      <div class="cartelera cartelera--portada" id="cartelera-portada"></div>
     </section>
 
     <section class="contenedor seccion" aria-labelledby="t-problema">
@@ -219,9 +231,13 @@
   </footer>
 
   <script src="/sitio/comun.js"></script>
+  <script src="/sitio/partidos.js"></script>
   <script>
     "use strict";
     const $ = (id) => document.getElementById(id);
+    cadaTanto(async () => {
+      reemplazar($("cartelera-portada"), tarjetaVivo(await proteccionEnVivo()), tarjetaProximo(PROXIMOS[0]));
+    }, 4000);
     cadaTanto(async () => {
       const est = await api("/api/estado");
       const [texto, color] = estadoPartido(est);
