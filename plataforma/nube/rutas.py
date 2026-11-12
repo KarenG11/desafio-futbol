@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from plataforma import db
 
-REPO = "https://github.com/alejogomezmdz14-hash/desafio-futbol.git"
+REPO = os.environ.get("DEMO_REPO", "https://github.com/KarenG11/desafio-futbol.git")
 # GitSource clona en /vercel/<nombre del repo>: se busca la carpeta por su requirements.txt.
 COMANDO = ('cd "$(dirname "$(find /vercel -maxdepth 2 -name requirements.txt | head -1)")" '
            "&& python3 -m venv /tmp/venv && /tmp/venv/bin/pip install -q -r requirements.txt "

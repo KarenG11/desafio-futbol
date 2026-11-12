@@ -1,10 +1,10 @@
 # Plataforma federal de órdenes de bloqueo en vivo
 
-**Equipo Desafío Fútbol, Hackatón Argentina Space 2026 (track Datos y Streaming, QualyData).**
+**Entrega individual de Karen Gutierrez ([KarenG11](https://github.com/KarenG11)), Hackatón Argentina Space 2026 (track Datos y Streaming, QualyData).** Parte del trabajo del equipo Desafío Fútbol; qué hice yo y qué es del equipo está en [Autoría](#autoría).
 
 Mientras se juega el partido, la plataforma detecta un stream pirata y arma el expediente con evidencia verificable. Después se lo muestra al **juez de turno en el celular**, que firma con un toque, y manda la orden a **todos los proveedores de internet**, cada uno en el tipo de bloqueo que acepta. Sigue cada orden hasta que confirma, reintenta las que fallan, levanta sola los bloqueos por IP al terminar el partido y deja todo en una auditoría que no se puede alterar sin que se note.
 
-**En línea:** https://desafio-futbol-iota.vercel.app (pantalla del juez en `/juez/`, partido de práctica en vivo en `/juez/demo.html`, registro público en `/api/publico`).
+**En línea:** deploy propio de este fork en preparación (ver [Deploy propio](#deploy-propio-en-vercel)). La URL del equipo, https://desafio-futbol-iota.vercel.app, corre la versión del repo del equipo con el motor anterior, no la de este fork. La forma de verificar esta entrega es correrla en local: está probada de punta a punta contra el simulador y el verificador oficiales.
 
 > Todo es ficticio: proveedores, juzgados, dominios `.test` e IPs de documentación. Solo trabajamos contra el simulador de la organización. No se bloquea nada real.
 
@@ -133,9 +133,14 @@ DATABASE_URL=postgres://...  python -m plataforma.main --sim URL_DEL_SIMULADOR -
 ```
 Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/plataforma.db JUEZ_PIN=<pin> uvicorn plataforma.api.app:app --port 8020` en una terminal, el motor con `--base --sin-web` en otra, y la pantalla del juez en http://localhost:8020/juez/. Así se hizo la corrida `practica-juez-humano/`.
 
-**En línea:** https://desafio-futbol-iota.vercel.app. La web y la API corren en Vercel sobre una base Postgres en Neon (São Paulo).
+**6. Partido de práctica online (T12), sin ninguna notebook.** En `/juez/demo.html` del deploy se pone el PIN y se aprieta "Correr partido de práctica". La web prende un Vercel Sandbox que clona el repo de `DEMO_REPO` (por defecto, este fork) y levanta el simulador de la organización y el motor apuntando a la base. El juez firma desde `/juez/` en el celular y, al terminar, la página muestra la salida de `evaluacion/verificar.py`. Hay un solo partido a la vez, con velocidad de x6 a x30.
 
-**6. Partido de práctica online (T12), sin ninguna notebook.** En https://desafio-futbol-iota.vercel.app/juez/demo.html se pone el PIN y se aprieta "Correr partido de práctica". La web prende un Vercel Sandbox que clona este repo y levanta el simulador de la organización y nuestro motor apuntando a la base. El juez firma desde `/juez/` en el celular y, al terminar, la página muestra la salida de `evaluacion/verificar.py`. Hay un solo partido a la vez, con velocidad de x6 a x30.
+### Deploy propio en Vercel
+1. `npx vercel login` y `npx vercel link` (proyecto nuevo). `.vercel/` está en el `.gitignore`.
+2. Base: Storage → Neon en el dashboard del proyecto, en São Paulo (`aws-sa-east-1`), que coincide con `gru1` de `vercel.json`. Vercel carga `DATABASE_URL` sola.
+3. `npx vercel env add JUEZ_PIN production` con un PIN propio. Nunca se sube al repo.
+4. `npx vercel deploy --prod`. La app crea el esquema de la base al arrancar.
+5. Probar: `/juez/` con el PIN y `/juez/demo.html` para el partido online.
 
 ## Estado (se actualiza durante el evento)
 | Tarea | Estado |
@@ -149,9 +154,10 @@ Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/platafor
 | T07 Registro público | ✅ Desde la base: una entrada por objetivo, estado real por proveedor (`/api/publico`) |
 | T08 Propuesta normativa | ✅ [`propuesta_normativa.md`](propuesta_normativa.md), de una página, basada en la versión de Rocío |
 | T10 Validación | ✅ Partido completo y cambio de turno del equipo, en `validacion/` |
-| T11 Base y Vercel | ✅ En línea en Vercel + Neon (Selene escribió la base y la API; Alejo publicó el deploy). **No re-verificado después de integrar este motor** |
+| T11 Base y Vercel | Código de Selene (base y API). El deploy del equipo (Alejo) corre el motor anterior; **el deploy propio de este fork está pendiente** |
 | Video y pitch | Guion listo en [`pitch.md`](pitch.md). El video todavía no está grabado |
-| T12 Partido de demo online | ✅ Vercel Sandbox con simulador + motor, lanzado desde la web (Alejo). **No re-verificado después de integrar este motor** |
+| T12 Partido de demo online | Código de Alejo. En este fork el Sandbox clona `DEMO_REPO` (este fork por defecto) para correr el motor actual; **falta probarlo en el deploy propio** |
+| Integración (este fork) | ✅ Main después del merge: 6 de 6 pruebas unitarias y dos partidos completos de práctica a x30 con 7 de 7 (3,3 % y 3,5 % de visibilidad residual), todo en 0, 12 de 12 chequeos. En Windows con Python 3.15 |
 
 ## Corridas del equipo en `main` antes de la integración
 Las hizo el motor anterior (en memoria, sincronizado con la base por `sincro_db.py`), que en esta integración se reemplazó por el motor de `plataforma/motor/motor.py`. Se conservan como evidencia de esa etapa; las corridas del motor actual están en [`evidencias/RESULTADOS.md`](evidencias/RESULTADOS.md).
@@ -222,5 +228,6 @@ Dos corridas del partido de práctica. Cada una tiene su evidencia (expediente c
 - [`evidencias/verificacion/`](evidencias/verificacion/practica.txt): verificación cruzada orden por orden de la práctica (registro, auditoría, base y verificador) y el script que la genera.
 - [`evidencias/demo-manual/`](evidencias/demo-manual/README.md): partido completo firmado a mano desde la pantalla del juez (sin juez automático), con registro, base, auditoría, verificador, capturas y scripts. Incluye la prueba de firma en lote con su cruce contra el registro del simulador.
 
-## Equipo
-Alejo, Selene, Luciano, Rocío y Nahuel. Quién hizo qué está en [`coordinacion/equipo.md`](../coordinacion/equipo.md) y en el historial de `coordinacion/tareas/`.
+## Autoría
+- **Karen Gutierrez (esta entrega):** el motor actual y su CLI (`plataforma/motor/motor.py`, `__main__.py`, `simulador.py`, `exportar.py`, `plataforma/main.py`), el despacho firmado (`plataforma/despacho/`), los ajustes de integración en cerebro, evidencia, reclamos, registro público, base, API y web, las pruebas de punta a punta (`plataforma/pruebas/`, con el escenario de reclamos y la falla inyectada), las evidencias de `entrega/evidencias/` y la integración con el `main` del equipo (PR #1 de este fork).
+- **Equipo Desafío Fútbol (Alejo, Selene, Rocío y el resto del equipo):** diseño y contratos (`coordinacion/`), cerebro (Alejo), pantalla del juez y partido de demo online en Vercel Sandbox (Alejo), base y API (Selene), registro público, reclamos y la propuesta normativa original (Rocío), pitch y escenarios. Quién hizo qué está en [`coordinacion/equipo.md`](../coordinacion/equipo.md), en `coordinacion/tareas/` y en el historial de git.
