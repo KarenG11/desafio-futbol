@@ -2,6 +2,7 @@
 import json
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any, Optional, Tuple
 
@@ -12,7 +13,11 @@ class ErrorRed(Exception):
 
 class ClienteSimulador:
     def __init__(self, base: str, timeout: float = 5.0, reintentos: int = 3, espera: float = 0.3):
-        self.base = base.rstrip("/")
+        url = urllib.parse.urlsplit(base.rstrip("/"))
+        if url.hostname == "localhost":
+            # En Windows "localhost" prueba primero ::1 y el simulador escucha solo en IPv4: ~2 s perdidos por pedido.
+            url = url._replace(netloc="127.0.0.1" + (f":{url.port}" if url.port else ""))
+        self.base = urllib.parse.urlunsplit(url)
         self.timeout = timeout
         self.reintentos = reintentos
         self.espera = espera

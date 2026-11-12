@@ -47,6 +47,9 @@ def probar_unidad():
                    {"proveedor_id": "valle", "tipo": "dominio", "objetivo": "live.x.test"}]
     assert all(o["tipo"] == "dominio" for o in objetivos_por_proveedor("dominio", "1.2.3.4", "h.test", provs))
     assert vence_para(105, 10) == 105 and vence_para(105, 105) is None and vence_para(105, 104.99) == 105
+    # "localhost" va a IPv4 directo: en Windows probar ::1 primero cuesta ~2 s por pedido al simulador
+    assert ClienteSimulador("http://localhost:8080/").base == "http://127.0.0.1:8080"
+    assert ClienteSimulador("https://sim.example.test").base == "https://sim.example.test"
     f = Firmador()
     assert "clave" not in repr(f) and "demo-clave" not in repr(f), "el repr no expone claves"
 

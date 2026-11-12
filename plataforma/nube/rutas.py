@@ -1,6 +1,7 @@
 """Rutas del partido de demo online (T12). Las monta plataforma/api/app.py.
 
 POST /api/demo/iniciar      (PIN de juez) prende un Vercel Sandbox con simulador + motor y vuelve enseguida.
+                            Fuera de Vercel (sin la variable VERCEL) los corre en esta misma máquina.
 GET  /api/demo/verificacion salida de evaluacion/verificar.py del último partido, cuando termina.
 """
 import hmac
@@ -95,6 +96,9 @@ async def iniciar_demo(pedido: PedidoDemo):
     if corriendo or not _reservar():
         raise HTTPException(status_code=409, detail={"error": "Ya hay un partido de demo en marcha"})
 
+    if not os.environ.get("VERCEL"):
+        return _iniciar_local(pedido, minutos)
+
     from vercel import sandbox
     from vercel.sandbox import GitSource
 
@@ -122,6 +126,34 @@ async def iniciar_demo(pedido: PedidoDemo):
         "juez_automatico": pedido.juez_automatico,
         "duracion_min": round(minutos, 1),
         "mensaje": "Partido en marcha: en ~30 s aparece en la pantalla del juez.",
+    }
+
+
+def _iniciar_local(pedido: PedidoDemo, minutos: float) -> dict:
+    """Fuera de Vercel no hay Sandbox: el simulador y el motor corren en esta máquina, contra la misma base."""
+    import socket
+    import sys
+    from pathlib import Path
+    raiz = Path(__file__).resolve().parents[2]
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        puerto = s.getsockname()[1]
+    env = dict(os.environ, PYTHONUTF8="1", DEMO_ACELERAR=str(pedido.acelerar), DEMO_PUERTO_SIM=str(puerto),
+               DEMO_JUEZ_AUTOMATICO="1" if pedido.juez_automatico else "0")
+    log = raiz / "salida" / "partido_demo.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        subprocess.Popen([sys.executable, "-m", "plataforma.nube.partido_demo"], cwd=raiz, env=env,
+                         stdout=open(log, "w", encoding="utf-8"), stderr=subprocess.STDOUT)
+    except Exception:
+        _liberar()
+        raise
+    return {
+        "sandbox": "local",
+        "acelerar": pedido.acelerar,
+        "juez_automatico": pedido.juez_automatico,
+        "duracion_min": round(minutos - 3, 1),
+        "mensaje": "Partido en marcha en esta máquina: en unos segundos aparece en la pantalla del juez y en /monitoreo.",
     }
 
 

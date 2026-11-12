@@ -23,8 +23,9 @@
 <body>
 <main class="demo">
   <h1>Partido de práctica en vivo</h1>
-  <p>Prende el simulador de la organización y nuestro motor en un Vercel Sandbox. El juez firma desde la
-     <a href="./">pantalla del juez</a>. Al terminar se muestra la salida del verificador oficial.</p>
+  <p>Prende el simulador de la organización y nuestro motor (en un Vercel Sandbox, o en esta máquina si corre en local).
+     El juez firma desde la <a href="./">pantalla del juez</a> y el partido se sigue en <a href="/monitoreo">el tablero en vivo</a>.
+     Al terminar se muestra la salida del verificador oficial.</p>
 
   <form class="tarjeta" id="form">
     <label class="campo">PIN de juez
@@ -54,7 +55,7 @@ try { $("pin").value = sessionStorage.getItem("juez_pin") || ""; } catch (e) {}
 $("form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const estado = $("estado");
-  estado.className = ""; estado.textContent = "Prendiendo el Sandbox…";
+  estado.className = ""; estado.textContent = "Prendiendo el partido…";
   $("iniciar").disabled = true;
   try {
     const r = await fetch("/api/demo/iniciar", {
