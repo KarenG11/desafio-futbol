@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<title>Tarjeta Roja · video</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #0A0E17; font-family: "Public Sans", system-ui, sans-serif; color: #E8EDF5; }
+  body::before { content: ""; position: absolute; inset: 0; background:
+    radial-gradient(700px 420px at 88% 30%, rgba(240,56,75,.28), transparent 65%),
+    radial-gradient(600px 400px at 10% 100%, rgba(91,157,255,.12), transparent 60%); }
+  #pantalla { position: absolute; left: 36px; top: 64px; width: 860px; height: 538px; border-radius: 16px; overflow: hidden;
+    border: 1px solid #243049; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 6px rgba(255,255,255,.02); transition: all .6s cubic-bezier(.2,.8,.2,1); background: #0A0E17; }
+  #pantalla iframe { width: 1376px; height: 861px; border: 0; transform: scale(.625); transform-origin: 0 0; }
+  body.celular #pantalla { left: 250px; top: 40px; width: 312px; height: 600px; border-radius: 36px; border: 10px solid #1B2539; }
+  body.celular #pantalla iframe { width: 390px; height: 750px; transform: scale(.749); }
+  #avatar { position: absolute; right: -10px; bottom: 0; width: 470px; height: 720px; }
+  #marca { position: absolute; left: 36px; top: 18px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+  #marca i { width: 14px; height: 20px; border-radius: 3px; background: #F0384B; transform: rotate(-10deg); box-shadow: 0 0 18px rgba(240,56,75,.6); }
+  #escena { position: absolute; left: 230px; top: 18px; padding: 4px 12px; border-radius: 999px; background: rgba(240,56,75,.16); color: #F0384B; font-weight: 600; font-size: 14px; transition: opacity .3s; }
+  #subtitulo { position: absolute; left: 36px; right: 36px; bottom: 26px; min-height: 64px; display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 23px; line-height: 1.3; font-weight: 600; text-shadow: 0 2px 8px #000; }
+  #subtitulo span { background: rgba(10,14,23,.78); padding: 8px 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,.06); }
+  #nombre { position: absolute; right: 36px; bottom: 112px; text-align: right; padding: 8px 14px; border-radius: 12px; background: rgba(10,14,23,.7); border-left: 3px solid #F0384B; }
+  #nombre b { display: block; font: 700 30px/1 "Barlow Condensed", sans-serif; letter-spacing: .02em; }
+  #nombre small { color: #9AA7BD; font-size: 13px; }
+  #telon { position: absolute; inset: 0; background: #0A0E17; z-index: 9; transition: opacity .8s; display: grid; place-items: center; font: 700 44px "Barlow Condensed", sans-serif; }
+  #telon.fuera { opacity: 0; pointer-events: none; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.5.5/lib/three-vrm.module.min.js"
+} }
+</script>
+</head>
+<body>
+  <div id="marca"><i></i>Tarjeta Roja</div>
+  <div id="escena"></div>
+  <div id="pantalla"><iframe id="app" src="about:blank"></iframe></div>
+  <canvas id="avatar" width="940" height="1440"></canvas>
+  <div id="nombre"><b>ROJA</b><small>asistente virtual de Tarjeta Roja</small></div>
+  <div id="subtitulo"></div>
+  <div id="telon">Tarjeta Roja</div>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+
+const canvas = document.getElementById("avatar");
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(940, 1440, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const escena = new THREE.Scene();
+const camara = new THREE.PerspectiveCamera(24, 940 / 1440, 0.1, 20);
+camara.position.set(0, 1.3, 2.35);
+camara.lookAt(0, 1.17, 0);
+escena.add(new THREE.AmbientLight(0xffffff, 1.4));
+const luz = new THREE.DirectionalLight(0xffffff, 2.2); luz.position.set(1, 2, 3); escena.add(luz);
+const contraluz = new THREE.DirectionalLight(0xff5566, 1.6); contraluz.position.set(-2, 2, -2); escena.add(contraluz);
+
+const env = await (await fetch("envolvente.json")).json();   // amplitud de la voz, 30 por segundo
+const linea = await (await fetch("linea.json")).json();      // segmentos: {inicio, fin, texto, frases}
+let vrm = null, t0 = null;
+
+const loader = new GLTFLoader();
+loader.register((p) => new VRMLoaderPlugin(p));
+const gltf = await loader.loadAsync("modelo.vrm");
+vrm = gltf.userData.vrm;
+VRMUtils.removeUnnecessaryVertices(gltf.scene);
+VRMUtils.combineSkeletons(gltf.scene);
+VRMUtils.rotateVRM0(vrm);
+gltf.scene.rotation.y = 0;
+escena.add(vrm.scene);
+const mirada = new THREE.Object3D(); mirada.position.set(0, 1.3, 3); escena.add(mirada);
+if (vrm.lookAt) vrm.lookAt.target = mirada;
+
+const hueso = (n) => vrm.humanoid.getNormalizedBoneNode(n);
+let proximoParpadeo = 1.5, parpadeo = 0;
+const reloj = new THREE.Timer();
+
+function amplitud(t) {
+  if (t === null || t < 0) return 0;
+  const i = t * 30, a = Math.floor(i);
+  if (a + 1 >= env.length) return 0;
+  return env[a] + (env[a + 1] - env[a]) * (i - a);
+}
+
+function animar() {
+  reloj.update();
+  const dt = Math.min(0.1, reloj.getDelta()), s = reloj.getElapsed();
+  const t = t0 === null ? null : (performance.now() - t0) / 1000;
+  if (vrm) {
+    const voz = Math.min(1, amplitud(t) * 1.6);
+    const em = vrm.expressionManager;
+    const vocal = (Math.sin(s * 11) + 1) / 2;
+    em.setValue("aa", voz * (0.55 + 0.45 * vocal));
+    em.setValue("oh", voz * 0.35 * (1 - vocal));
+    em.setValue("happy", 0.25 + (voz > 0.05 ? 0.1 : 0.2));
+    proximoParpadeo -= dt;
+    if (proximoParpadeo <= 0) { parpadeo = 0.16; proximoParpadeo = 2 + Math.random() * 3; }
+    parpadeo = Math.max(0, parpadeo - dt);
+    em.setValue("blink", parpadeo > 0 ? Math.sin((parpadeo / 0.16) * Math.PI) : 0);
+
+    const hablando = voz > 0.05 ? 1 : 0.35;
+    hueso("leftUpperArm").rotation.z = -1.22 + Math.sin(s * 0.9) * 0.03;
+    hueso("rightUpperArm").rotation.z = 1.22 - Math.sin(s * 0.9 + 1) * 0.03;
+    hueso("leftLowerArm").rotation.z = -0.25;
+    hueso("rightLowerArm").rotation.z = 0.35 + hablando * 0.25 * (0.5 + 0.5 * Math.sin(s * 1.7));
+    hueso("rightLowerArm").rotation.y = -0.9 * hablando * (0.6 + 0.4 * Math.sin(s * 1.3));
+    hueso("spine").rotation.x = Math.sin(s * 1.6) * 0.012;
+    hueso("chest").rotation.z = Math.sin(s * 0.7) * 0.02;
+    hueso("neck").rotation.y = Math.sin(s * 0.5) * 0.08 + Math.sin(s * 2.3) * 0.03 * hablando;
+    hueso("neck").rotation.x = Math.sin(s * 1.9) * 0.03 * hablando;
+    hueso("hips").rotation.y = Math.sin(s * 0.4) * 0.04;
+    mirada.position.x = Math.sin(s * 0.3) * 0.4;
+    vrm.update(dt);
+  }
+  if (t !== null) subtitulo(t);
+  renderer.render(escena, camara);
+  requestAnimationFrame(animar);
+}
+
+let ultimo = "";
+function subtitulo(t) {
+  let texto = "";
+  for (const seg of linea.segmentos) {
+    if (t >= seg.inicio && t < seg.fin + 0.3) {
+      const total = seg.frases.reduce((a, f) => a + f.length, 0);
+      let acum = seg.inicio;
+      for (const f of seg.frases) {
+        const d = (seg.fin - seg.inicio) * f.length / total;
+        if (t < acum + d) { texto = f; break; }
+        acum += d;
+      }
+      texto ||= seg.frases.at(-1);
+    }
+  }
+  if (texto !== ultimo) {
+    ultimo = texto;
+    const el = document.getElementById("subtitulo");
+    el.replaceChildren();
+    if (texto) { const sp = document.createElement("span"); sp.textContent = texto; el.append(sp); }
+  }
+}
+
+window.listo = true;
+window.iniciar = () => { t0 = performance.now(); document.getElementById("telon").classList.add("fuera"); return Date.now(); };
+window.escena = (url, modo, etiqueta) => {
+  const app = document.getElementById("app");
+  if (url && app.dataset.url !== url) { app.dataset.url = url; app.src = url; }
+  document.body.classList.toggle("celular", modo === "celular");
+  document.getElementById("escena").textContent = etiqueta || "";
+};
+window.telon = (texto) => { const el = document.getElementById("telon"); el.textContent = texto; el.classList.remove("fuera"); };
+animar();
+</script>
+</body>
+</html>

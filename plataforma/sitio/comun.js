@@ -61,7 +61,7 @@ function proveedor(id) {
 
 function minuto(m, decimales = 0) {
   if (m === null || m === undefined || Number.isNaN(Number(m))) return "—";
-  return `${Number(m).toFixed(decimales).replace(".", ",")}'`;
+  return `${Math.max(0, Number(m)).toFixed(decimales).replace(".", ",")}'`;
 }
 
 function numero(n, decimales = 1) {
