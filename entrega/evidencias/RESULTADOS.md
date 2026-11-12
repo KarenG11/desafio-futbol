@@ -45,6 +45,24 @@ Los cinco: 7 de 7 fases, y 0 en daño colateral, falsos positivos, órdenes fuer
 
 **Pruebas con asserts:** [`unitarias.txt`](unitarias.txt) da 6 de 6 módulos OK. El cerebro pasa 17 de 17 pruebas.
 
+## Corrida 100 % online (deploy propio en Vercel + Neon, 12/11/2026)
+Partido de práctica lanzado desde https://desafio-futbol-karen.vercel.app/juez/demo.html a x30 con juez automático. El simulador oficial y el motor corrieron en un Vercel Sandbox (que clona este fork), escribiendo en la base Postgres de Neon (São Paulo); la web y la API corrieron en Vercel. Evidencia en [`online/`](online/):
+
+| Métrica del verificador | Resultado |
+|---|---|
+| Fases piratas bloqueadas | **7 de 7** |
+| Visibilidad residual promedio | **3,8 %** |
+| Órdenes recibidas / aplicadas / fallidas / rechazadas | 33 / 28 / 5 / 0 (las 5 fallidas se reenviaron solas) |
+| Daño colateral / dominios legítimos afectados / falsos positivos | **0 / 0 / 0** |
+| IP activas después del partido / órdenes fuera de turno | **0 / 0** |
+| Auditoría (cadena recalculada por la API sobre Postgres) | íntegra, 162 eventos |
+
+- [`online/verificar.txt`](online/verificar.txt): salida completa de `evaluacion/verificar.py`, guardada por el Sandbox.
+- [`online/integridad.json`](online/integridad.json): respuesta de `/api/auditoria/integridad`; [`online/auditoria.json`](online/auditoria.json): los eventos.
+- [`online/publico.json`](online/publico.json) y [`online/estado.json`](online/estado.json): registro público y estado final.
+
+Antes de esta corrida se lanzó una sin juez automático y sin nadie firmando desde `/juez/`: la plataforma detectó los 7 streams y armó los 7 pedidos, pero sin firma no mandó ninguna orden (0 de 7). Es el comportamiento esperado: nada se bloquea sin juez.
+
 ## Entregables de esta corrida (práctica)
 | Archivo | Verificación | SHA-256 del archivo |
 |---|---|---|

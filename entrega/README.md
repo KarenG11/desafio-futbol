@@ -4,7 +4,7 @@
 
 Mientras se juega el partido, la plataforma detecta un stream pirata y arma el expediente con evidencia verificable. Después se lo muestra al **juez de turno en el celular**, que firma con un toque, y manda la orden a **todos los proveedores de internet**, cada uno en el tipo de bloqueo que acepta. Sigue cada orden hasta que confirma, reintenta las que fallan, levanta sola los bloqueos por IP al terminar el partido y deja todo en una auditoría que no se puede alterar sin que se note.
 
-**En línea:** https://desafio-futbol-karen.vercel.app (portada, `/partidos`, `/monitoreo`, `/registro` y la pantalla del juez en `/juez/`). Mientras no esté conectada la base Neon, los datos no persisten entre visitas. La URL del equipo, https://desafio-futbol-iota.vercel.app, corre la versión del repo del equipo con el motor anterior, no la de este fork. La forma de verificar esta entrega es correrla en local: está probada de punta a punta contra el simulador y el verificador oficiales.
+**En línea:** https://desafio-futbol-karen.vercel.app (portada, `/partidos`, `/monitoreo`, `/registro` y la pantalla del juez en `/juez/`). Corre sobre una base Postgres en Neon; un partido 100 % online dio 7 de 7 con el verificador oficial ([evidencias](evidencias/RESULTADOS.md)). La URL del equipo, https://desafio-futbol-iota.vercel.app, corre la versión del repo del equipo con el motor anterior, no la de este fork. La forma de verificar esta entrega es correrla en local: está probada de punta a punta contra el simulador y el verificador oficiales.
 
 > Todo es ficticio: proveedores, juzgados, dominios `.test` e IPs de documentación. Solo trabajamos contra el simulador de la organización. No se bloquea nada real.
 
@@ -155,9 +155,9 @@ Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/platafor
 | T07 Registro público | ✅ Desde la base: una entrada por objetivo, estado real por proveedor (`/api/publico`) |
 | T08 Propuesta normativa | ✅ [`propuesta_normativa.md`](propuesta_normativa.md), de una página, basada en la versión de Rocío |
 | T10 Validación | ✅ Partido completo y cambio de turno del equipo, en `validacion/` |
-| T11 Base y Vercel | Código de Selene (base y API). El deploy del equipo (Alejo) corre el motor anterior; **el deploy propio de este fork está pendiente** |
+| T11 Base y Vercel | ✅ Código de Selene (base y API). **Deploy propio en https://desafio-futbol-karen.vercel.app** con base Postgres en Neon (São Paulo) y PIN de juez como secreto de Vercel |
 | Video y pitch | Guion listo en [`pitch.md`](pitch.md). El video todavía no está grabado |
-| T12 Partido de demo online | Código de Alejo. En este fork el Sandbox clona `DEMO_REPO` (este fork por defecto) para correr el motor actual; **falta probarlo en el deploy propio** |
+| T12 Partido de demo online | ✅ Código de Alejo; el Sandbox clona este fork. **Partido 100 % online: 7 de 7, 3,8 % de visibilidad residual, todo en 0 y auditoría íntegra (162 eventos) sobre Neon** ([`evidencias/online/`](evidencias/RESULTADOS.md#corrida-100--online-deploy-propio-en-vercel--neon-12112026)) |
 | Integración (este fork) | ✅ Main después del merge: 6 de 6 pruebas unitarias y dos partidos completos de práctica a x30 con 7 de 7 (3,3 % y 3,5 % de visibilidad residual), todo en 0, 12 de 12 chequeos. En Windows con Python 3.15 |
 
 ## Corridas del equipo en `main` antes de la integración
