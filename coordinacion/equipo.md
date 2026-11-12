@@ -9,4 +9,3 @@ Cada uno edita solo su fila. El `nombre` es el que se usa en `--yo`, `--de` y `-
 | rocio | Rocío | kroocioc-code | (completar) | (elegir en tareas/) |
 | selene | Selene Mailen | SeleneMailen55 | Python, DB, FastAPI, Vercel | T11 (plataforma/db/, plataforma/api/), T05 (plataforma/motor/) |
 | (5º) | (pendiente) | (pendiente) | | |
-| karen | Karen Gutierrez | KarenG11 | Integración, pruebas de punta a punta | Integración del motor y la entrega (PR #1); re-verificación post-merge |
