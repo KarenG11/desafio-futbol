@@ -4,7 +4,7 @@
 
 Mientras se juega el partido, la plataforma detecta un stream pirata y arma el expediente con evidencia verificable. Después se lo muestra al **juez de turno en el celular**, que firma con un toque, y manda la orden a **todos los proveedores de internet**, cada uno en el tipo de bloqueo que acepta. Sigue cada orden hasta que confirma, reintenta las que fallan, levanta sola los bloqueos por IP al terminar el partido y deja todo en una auditoría que no se puede alterar sin que se note.
 
-**En línea:** deploy propio de este fork en preparación (ver [Deploy propio](#deploy-propio-en-vercel)). La URL del equipo, https://desafio-futbol-iota.vercel.app, corre la versión del repo del equipo con el motor anterior, no la de este fork. La forma de verificar esta entrega es correrla en local: está probada de punta a punta contra el simulador y el verificador oficiales.
+**En línea:** https://desafio-futbol-karen.vercel.app (portada, `/partidos`, `/monitoreo`, `/registro` y la pantalla del juez en `/juez/`). Mientras no esté conectada la base Neon, los datos no persisten entre visitas. La URL del equipo, https://desafio-futbol-iota.vercel.app, corre la versión del repo del equipo con el motor anterior, no la de este fork. La forma de verificar esta entrega es correrla en local: está probada de punta a punta contra el simulador y el verificador oficiales.
 
 > Todo es ficticio: proveedores, juzgados, dominios `.test` e IPs de documentación. Solo trabajamos contra el simulador de la organización. No se bloquea nada real.
 
