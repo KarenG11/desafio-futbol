@@ -1,0 +1,112 @@
+{
+  "entradas": [
+    {
+      "entrada_id": "P-001/dominio/s1.pelotaya.test",
+      "pedido_id": "P-001",
+      "expediente_id": "EXP-2026-000001",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "s1.pelotaya.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 6.22,
+      "vence_min": 105,
+      "estado": "en_curso",
+      "finalizado_min": null,
+      "motivo_fin": null,
+      "proveedores": [
+        {
+          "proveedor_id": "valle",
+          "estado": "recibida",
+          "aplicada_min": null,
+          "finalizada_min": null
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-001/ip/203.0.113.10",
+      "pedido_id": "P-001",
+      "expediente_id": "EXP-2026-000001",
+      "partido_id": "practica-01",
+      "tipo": "ip",
+      "objetivo": "203.0.113.10",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 6.22,
+      "vence_min": 105,
+      "estado": "vigente",
+      "finalizado_min": null,
+      "motivo_fin": null,
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "aplicada",
+          "aplicada_min": 8.676,
+          "finalizada_min": null
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "aplicada",
+          "aplicada_min": 6.843,
+          "finalizada_min": null
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "aplicada",
+          "aplicada_min": 8.487,
+          "finalizada_min": null
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-002/dominio/live.golazo-libre.test",
+      "pedido_id": "P-002",
+      "expediente_id": "EXP-2026-000002",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "live.golazo-libre.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 6.22,
+      "vence_min": 105,
+      "estado": "vigente",
+      "finalizado_min": null,
+      "motivo_fin": null,
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "aplicada",
+          "aplicada_min": 8.628,
+          "finalizada_min": null
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "aplicada",
+          "aplicada_min": 6.889,
+          "finalizada_min": null
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "aplicada",
+          "aplicada_min": 10.038,
+          "finalizada_min": null
+        },
+        {
+          "proveedor_id": "valle",
+          "estado": "aplicada",
+          "aplicada_min": 10.562,
+          "finalizada_min": null
+        }
+      ]
+    }
+  ]
+}

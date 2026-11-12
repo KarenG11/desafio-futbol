@@ -1,5 +1,7 @@
 # Propuesta Normativa: Bloqueo en Vivo de Transmisiones Ilegales
 
+> Versión de entrega, de una página: [`propuesta_normativa.md`](propuesta_normativa.md).
+
 **Objetivo:** Establecer un marco legal ágil y seguro que permita combatir la piratería de eventos deportivos en vivo sin afectar el acceso a internet de la ciudadanía ni perjudicar a sitios legítimos.
 
 ## 1. Anclaje en la Ley Actual

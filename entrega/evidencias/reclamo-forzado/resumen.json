@@ -1,0 +1,35 @@
+{
+  "escenario": "reclamos",
+  "falla_inyectada": "dns-desactualizado",
+  "inicio_min": 0.0,
+  "fases": "7 de 7",
+  "resumen_verificador": {
+    "fases_piratas_bloqueadas": "7 de 7",
+    "visibilidad_residual_promedio_pct": 3.1,
+    "ordenes_recibidas": 35,
+    "ordenes_aplicadas": 31,
+    "ordenes_fallidas": 4,
+    "ordenes_rechazadas": 0,
+    "bloqueos_con_dano_colateral": 3,
+    "dominios_legitimos_afectados": 2,
+    "bloqueos_falsos_positivos": 0,
+    "bloqueos_ip_activos_post_partido": 0,
+    "reclamos": 1,
+    "reclamos_resueltos_por_levantamiento": 1,
+    "ordenes_firmadas_fuera_de_turno": 0
+  },
+  "chequeos": {
+    "registro_completo_hasta_110": true,
+    "todas_las_fases_en_juego_bloqueadas": true,
+    "sin_ordenes_fuera_de_turno": true,
+    "sin_bloqueos_ip_post_partido": true,
+    "sin_falsos_positivos": true,
+    "sin_ordenes_rechazadas": true,
+    "reclamos_resueltos": true,
+    "hubo_reclamos": true,
+    "colateral_levantado": true,
+    "fallidas_reintentadas": true,
+    "cambio_de_turno_ratificado": true,
+    "auditoria_interna_integra": true
+  }
+}

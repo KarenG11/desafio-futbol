@@ -1,221 +1,173 @@
-"""T02 — Despacho: firma las órdenes aprobadas, las manda a cada proveedor, sigue su estado y reintenta.
+"""T02 — Despacho: firma, envía, sigue y reintenta las órdenes de cada pedido aprobado.
 
-Reglas (contratos.md §6, diseno.md §4, decisiones 9 y 12):
-- A cada proveedor, el tipo que acepta (`objetivos` del pedido ya viene armado así).
-- Cada envío, incluido cada reintento, se firma con el juez DE TURNO en el minuto del envío.
-- Si cambió el turno y el entrante todavía no ratificó, los reintentos quedan en espera.
-- `fallida` -> se reenvía con orden_id nuevo (intento + 1). Un 4xx al enviar es un error nuestro: se registra, no se repite.
-- La clave del juez solo vive acá (datos/juzgados.json del simulador). Nunca sale por la API ni va a la base.
+Reglas (coordinacion/diseno.md §4):
+- Objetivo por proveedor según `capacidades`: si el pedido es por IP, los que aceptan IP reciben la IP y los
+  que solo aceptan dominio reciben el host del stream. Si es por dominio, todos reciben el host.
+- Firma con el juez de turno en el minuto del envío (HMAC demo). Si el turno cambió y el entrante no
+  ratificó, el envío queda en espera.
+- Seguimiento con GET /proveedores/<id>/ordenes. `fallida` -> reenvío inmediato con orden_id nuevo.
+- POST rechazado: 409 se resuelve adoptando la orden o con orden_id nuevo; 422 por vencimiento se abandona;
+  403 (turno/firma) queda en espera; errores de red se reintentan con el mismo orden_id (idempotente).
 """
-import hashlib
-import hmac
-import json
-import threading
-import urllib.error
-import urllib.request
-from pathlib import Path
-from typing import Callable, Dict, List, Optional
+import math
+from typing import Any, Callable, Dict, List, Optional
 
-from plataforma.contratos import mensaje_firma_levantar, mensaje_firma_orden
+from plataforma.contratos import ORDEN_ID_FORMATO
+from plataforma.motor.simulador import ClienteSimulador, ErrorRed
 
-RAIZ = Path(__file__).resolve().parents[2]
-Auditar = Callable[[str, str, dict, float], None]
+MAX_INTENTOS = 8
+Auditar = Callable[[str, str, Dict[str, Any]], None]
 
 
-def normalizar_sim(url: str) -> str:
-    """En Windows 'localhost' prueba primero IPv6 (::1) y el simulador escucha solo en IPv4: cada consulta
-    esperaba el timeout antes de caer a 127.0.0.1 (segundos por llamada). Se usa la IPv4 directo."""
-    return url.rstrip("/").replace("://localhost", "://127.0.0.1")
+def vence_para(fin_min: float, ahora: float) -> Optional[int]:
+    """Vencimiento entero > ahora y <= fin del partido. None si el partido ya terminó."""
+    if ahora >= fin_min:
+        return None
+    vence = int(fin_min)
+    if vence <= ahora:
+        vence = math.floor(ahora) + 1
+    return vence if vence <= math.ceil(fin_min) else None
 
 
-def _http(base: str, ruta: str, cuerpo: Optional[dict] = None, timeout: float = 5.0):
-    """(status, json). No levanta excepción por 4xx/5xx."""
-    datos = json.dumps(cuerpo).encode("utf-8") if cuerpo is not None else None
-    req = urllib.request.Request(base + ruta, data=datos, headers={"Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.status, json.loads(r.read() or b"null")
-    except urllib.error.HTTPError as e:
-        try:
-            return e.code, json.loads(e.read() or b"null")
-        except ValueError:
-            return e.code, {"error": str(e)}
+def objetivos_por_proveedor(tipo_caso: str, ip: str, host: str, proveedores: List[dict]) -> List[dict]:
+    objetivos = []
+    for p in proveedores:
+        usa_ip = tipo_caso == "ip" and "ip" in p["capacidades"]
+        if not usa_ip and "dominio" not in p["capacidades"]:
+            continue
+        objetivos.append({"proveedor_id": p["id"], "tipo": "ip" if usa_ip else "dominio",
+                          "objetivo": ip if usa_ip else host})
+    return objetivos
 
 
 class Despacho:
-    def __init__(self, sim: str, corrida: str, auditar: Auditar,
-                 ruta_juzgados: Path = RAIZ / "datos" / "juzgados.json"):
-        self.sim = normalizar_sim(sim)
+    def __init__(self, sim: ClienteSimulador, firmador, corrida: str, auditar: Auditar,
+                 guardar_orden: Callable[[dict], None]):
+        self.sim = sim
+        self.firmador = firmador
         self.corrida = corrida
         self.auditar = auditar
-        datos = json.loads(Path(ruta_juzgados).read_text(encoding="utf-8"))
-        self._claves: Dict[str, str] = {}
-        self._juzgado_de: Dict[str, str] = {}
-        for jz in datos["juzgados"]:
-            for j in jz["jueces"]:
-                self._claves[j["id"]] = j["clave_firma_demo"]
-                self._juzgado_de[j["id"]] = jz["id"]
-        self.lock = threading.RLock()
-        self.ordenes: List[dict] = []          # historial completo (los reintentos se agregan)
-        self.juez_ratificado: Optional[str] = None
-        self.minuto = 0.0
-        self.de_turno: List[str] = []
+        self.guardar_orden = guardar_orden
+        self.ordenes: Dict[str, dict] = {}          # orden_id -> Orden (contratos §6)
+        self.en_espera: List[dict] = []             # envíos esperando juez de turno ratificado
 
-    # --- estado del turno (lo actualiza el motor en cada vuelta) ------------------------------
+    # --- envío -----------------------------------------------------------------------------
+    def despachar_pedido(self, pedido: dict, firmante: Optional[str], ahora: float, fin_min: float) -> None:
+        for ob in pedido["objetivos"]:
+            self._enviar(pedido, ob, 1, None, firmante, ahora, fin_min)
 
-    def actualizar_turno(self, minuto: float, jueces_de_turno: List[str]) -> None:
-        with self.lock:
-            self.minuto = minuto
-            self.de_turno = list(jueces_de_turno)
-            if self.juez_ratificado is None and self.de_turno:
-                self.juez_ratificado = self.de_turno[0]   # el primer turno del partido no necesita ratificar
-
-    def turno_ratificado(self) -> bool:
-        with self.lock:
-            return bool(self.de_turno) and self.juez_ratificado == self.de_turno[0]
-
-    def ratificar(self, juez_id: str) -> List[str]:
-        """El juez entrante asume el turno: devuelve las órdenes vigentes que ratifica y libera los reintentos."""
-        with self.lock:
-            if juez_id not in self.de_turno:
-                raise PermissionError(f"{juez_id} no está de turno en el minuto {self.minuto:.1f}")
-            self.juez_ratificado = juez_id
-            vigentes = [o["orden_id"] for o in self.ordenes if o["estado"] in ("recibida", "aplicada")]
-            self.auditar(f"juez:{juez_id}", "turno_asumido", {"ratificadas": vigentes}, self.minuto)
-            return vigentes
-
-    # --- envío ------------------------------------------------------------------------------
-
-    def juzgado_de(self, juez_id: str) -> str:
-        return self._juzgado_de[juez_id]
-
-    def _firmar(self, payload: dict) -> str:
-        clave = self._claves[payload["juez_id"]]
-        return hmac.new(clave.encode(), mensaje_firma_orden(payload).encode(), hashlib.sha256).hexdigest()
-
-    def _refrescar_turno(self) -> None:
-        """El simulador valida el turno cuando RECIBE la orden: se consulta justo antes de firmar."""
-        try:
-            estado, e = _http(self.sim, "/estado", timeout=3)
-            if estado == 200:
-                self.actualizar_turno(e["minuto_actual"], e["jueces_de_turno"])
-        except OSError:
-            pass
-
-    def despachar(self, pedido: dict) -> List[dict]:
-        """Manda una orden por objetivo del pedido, firmada por el juez de turno ahora."""
-        self._refrescar_turno()
-        with self.lock:
-            juez = self.de_turno[0] if self.de_turno else None
-            enviadas = []
-            if self.minuto >= int(pedido["vence_min"]):
-                # El proveedor la rechazaría (vence_min tiene que ser futuro) y cada rechazo cuenta en contra.
-                self.auditar("despacho", "pedido_vencido_sin_enviar",
-                             {"pedido_id": pedido["pedido_id"], "vence_min": int(pedido["vence_min"])})
-                return enviadas
-            for ob in pedido["objetivos"]:
-                if juez is None:
-                    break
-                enviadas.append(self._enviar(pedido, ob, juez, intento=1, reemplaza=None))
-            return enviadas
-
-    def _enviar(self, pedido: dict, ob: dict, juez: str, intento: int, reemplaza: Optional[str]) -> dict:
-        orden_id = f"ord-{self.corrida}-{pedido['pedido_id']}-{ob['proveedor_id']}-{intento}"
+    def _enviar(self, pedido: dict, ob: dict, intento: int, reemplaza: Optional[str],
+                firmante: Optional[str], ahora: float, fin_min: float) -> None:
+        tarea = {"pedido": pedido, "ob": ob, "intento": intento, "reemplaza": reemplaza}
+        if firmante is None:
+            self.en_espera.append(tarea)
+            self.auditar("despacho", "orden_en_espera", {"pedido_id": pedido["pedido_id"],
+                         "proveedor_id": ob["proveedor_id"], "motivo": "sin juez de turno ratificado"})
+            return
+        vence = vence_para(fin_min, ahora)
+        if vence is None:
+            self.auditar("despacho", "orden_no_enviada", {"pedido_id": pedido["pedido_id"],
+                         "proveedor_id": ob["proveedor_id"], "motivo": "el partido terminó"})
+            return
+        if intento > MAX_INTENTOS:
+            self.auditar("despacho", "orden_abandonada", {"pedido_id": pedido["pedido_id"],
+                         "proveedor_id": ob["proveedor_id"], "motivo": f"más de {MAX_INTENTOS} intentos"})
+            return
+        orden_id = ORDEN_ID_FORMATO.format(corrida=self.corrida, pedido_id=pedido["pedido_id"],
+                                           proveedor_id=ob["proveedor_id"], intento=intento)
         payload = {"orden_id": orden_id, "expediente_id": pedido["expediente_id"], "tipo": ob["tipo"],
-                   "objetivo": ob["objetivo"], "vence_min": int(pedido["vence_min"]),
-                   "juzgado_id": self._juzgado_de[juez], "juez_id": juez}
-        payload["firma"] = self._firmar(payload)
-        orden = {"orden_id": orden_id, "pedido_id": pedido["pedido_id"], "expediente_id": pedido["expediente_id"],
-                 "proveedor_id": ob["proveedor_id"], "tipo": ob["tipo"], "objetivo": ob["objetivo"],
-                 "vence_min": payload["vence_min"], "juzgado_id": payload["juzgado_id"], "juez_id": juez,
-                 "estado": "enviando", "intentos": intento, "reemplaza_a": reemplaza, "enviada_min": round(self.minuto, 3),
-                 "recibida_min": None, "aplicada_min": None, "finalizada_min": None, "motivo": None, "consultar": None}
-        self.ordenes.append(orden)
+                   "objetivo": ob["objetivo"], "vence_min": vence,
+                   "juzgado_id": self.firmador.juzgado_de[firmante], "juez_id": firmante}
+        payload["firma"] = self.firmador.firmar_orden(payload)
+        orden = {k: payload[k] for k in payload if k != "firma"}
+        orden.update({"pedido_id": pedido["pedido_id"], "proveedor_id": ob["proveedor_id"], "estado": "enviando",
+                      "intentos": intento, "reemplaza_a": reemplaza, "enviada_min": round(ahora, 3),
+                      "recibida_min": None, "aplicada_min": None, "finalizada_min": None, "motivo": None,
+                      "consultar": None})
         try:
-            estado, resp = _http(self.sim, f"/proveedores/{ob['proveedor_id']}/ordenes", payload)
-        except OSError as e:     # red caída: queda como fallida y se reintenta en la próxima vuelta
-            estado, resp = 0, {"error": f"Sin conexión con el proveedor: {e}"}
+            estado, resp = self.sim.post(f"/proveedores/{ob['proveedor_id']}/ordenes", payload)
+        except ErrorRed as e:
+            self.auditar("despacho", "orden_error_red", {"orden_id": orden_id, "error": str(e)})
+            self.en_espera.append(tarea)   # se reintenta con el mismo orden_id en el próximo ciclo
+            return
+        accion = "orden_reenviada" if intento > 1 else "orden_enviada"
         if estado == 202:
-            orden.update(estado="recibida", recibida_min=round(self.minuto, 3), consultar=resp.get("consultar"))
-            self.auditar("despacho", "orden_enviada" if intento == 1 else "orden_reintentada",
-                         {k: orden[k] for k in ("orden_id", "proveedor_id", "tipo", "objetivo", "vence_min", "juez_id")},
-                         self.minuto)
-        elif estado == 0:
-            orden.update(estado="fallida", motivo=resp["error"])
-            self.auditar("despacho", "orden_fallida", {"orden_id": orden_id, "motivo": resp["error"]}, self.minuto)
-        else:
-            orden.update(estado="rechazada", motivo=(resp or {}).get("error", f"HTTP {estado}"))
-            self.auditar("despacho", "orden_rechazada", {"orden_id": orden_id, "motivo": orden["motivo"]}, self.minuto)
-        return orden
+            orden.update(estado="recibida", recibida_min=round(ahora, 3), consultar=resp.get("consultar"))
+            self._registrar(orden)
+            self.auditar("despacho", accion, {"orden_id": orden_id, "proveedor_id": ob["proveedor_id"],
+                         "tipo": ob["tipo"], "objetivo": ob["objetivo"], "vence_min": vence, "juez_id": firmante,
+                         "reemplaza_a": reemplaza})
+            return
+        motivo = (resp or {}).get("error", f"HTTP {estado}")
+        if estado == 409:
+            ok, vista = self.sim.get(f"/proveedores/{ob['proveedor_id']}/ordenes/{orden_id}")
+            if ok == 200 and vista.get("objetivo") == ob["objetivo"]:
+                orden.update(estado=vista["estado"], recibida_min=vista.get("recibida_min"))
+                self._registrar(orden)
+                return
+            self._enviar(pedido, ob, intento + 1, orden_id, firmante, ahora, fin_min)
+            return
+        orden.update(estado="rechazada", motivo=motivo)
+        self._registrar(orden)
+        self.auditar("despacho", "orden_rechazada", {"orden_id": orden_id, "proveedor_id": ob["proveedor_id"],
+                     "http": estado, "motivo": motivo})
+        if estado == 403:
+            self.en_espera.append({"pedido": pedido, "ob": ob, "intento": intento + 1, "reemplaza": orden_id})
 
-    # --- seguimiento ------------------------------------------------------------------------
+    def _registrar(self, orden: dict) -> None:
+        self.ordenes[orden["orden_id"]] = orden
+        self.guardar_orden(orden)
 
-    def seguir(self, pedidos: Dict[str, dict]) -> None:
-        """Consulta las órdenes activas, registra cambios y reintenta las fallidas (si el turno está ratificado)."""
-        with self.lock:
-            activas = [o for o in self.ordenes if o["estado"] == "recibida" or
-                       (o["estado"] == "aplicada" and self.minuto >= o["vence_min"])]
-        for o in activas:
+    # --- seguimiento -----------------------------------------------------------------------
+    def seguir(self, proveedores: List[str], firmante: Optional[str], ahora: float, fin_min: float) -> None:
+        activos = {o["proveedor_id"] for o in self.ordenes.values() if o["estado"] in ("recibida", "aplicada")}
+        for pid in proveedores:
+            if pid not in activos:
+                continue
             try:
-                estado, vista = _http(self.sim, f"/proveedores/{o['proveedor_id']}/ordenes/{o['orden_id']}")
-            except OSError:
+                estado, vistas = self.sim.get(f"/proveedores/{pid}/ordenes")
+            except ErrorRed:
                 continue
             if estado != 200:
                 continue
-            with self.lock:
-                nuevo = vista.get("estado")
-                if nuevo == o["estado"]:
+            for v in vistas:
+                o = self.ordenes.get(v["orden_id"])
+                if o is None or o["estado"] == v["estado"]:
                     continue
-                if nuevo == "aplicada":
-                    o.update(estado="aplicada", aplicada_min=vista.get("aplicada_min"))
-                    self.auditar(f"proveedor:{o['proveedor_id']}", "orden_aplicada", {"orden_id": o["orden_id"]},
-                                 vista.get("aplicada_min") or self.minuto)
-                elif nuevo in ("vencida", "levantada"):
-                    o.update(estado=nuevo, finalizada_min=vista.get("finalizada_min"))
-                    self.auditar(f"proveedor:{o['proveedor_id']}", f"orden_{nuevo}", {"orden_id": o["orden_id"]},
-                                 vista.get("finalizada_min") or self.minuto)
-                elif nuevo == "fallida":
-                    o.update(estado="fallida", motivo=vista.get("motivo"))
-                    self.auditar(f"proveedor:{o['proveedor_id']}", "orden_fallida",
-                                 {"orden_id": o["orden_id"], "motivo": o["motivo"]}, self.minuto)
-        self._reintentar(pedidos)
+                o["estado"] = v["estado"]
+                for campo in ("aplicada_min", "finalizada_min", "motivo"):
+                    if v.get(campo) is not None:
+                        o[campo] = v[campo]
+                self.guardar_orden(o)
+                self.auditar(f"proveedor:{pid}", f"orden_{v['estado']}", {"orden_id": o["orden_id"],
+                             "tipo": o["tipo"], "objetivo": o["objetivo"], "aplicada_min": o.get("aplicada_min"),
+                             "finalizada_min": o.get("finalizada_min"), "motivo": o.get("motivo")})
+                if v["estado"] == "fallida":
+                    pedido = {"pedido_id": o["pedido_id"], "expediente_id": o["expediente_id"]}
+                    ob = {"proveedor_id": pid, "tipo": o["tipo"], "objetivo": o["objetivo"]}
+                    self._enviar(pedido, ob, o["intentos"] + 1, o["orden_id"], firmante, ahora, fin_min)
+        self.reintentar_espera(firmante, ahora, fin_min)
 
-    def _reintentar(self, pedidos: Dict[str, dict]) -> None:
-        with self.lock:
-            hay_fallidas = any(o["estado"] == "fallida" for o in self.ordenes)
-        if not hay_fallidas:
+    def reintentar_espera(self, firmante: Optional[str], ahora: float, fin_min: float) -> None:
+        if firmante is None or not self.en_espera:
             return
-        self._refrescar_turno()
-        with self.lock:
-            if not self.de_turno or not self.turno_ratificado():
-                return                      # traspaso de turno pendiente: los reintentos esperan la ratificación
-            juez = self.de_turno[0]
-            ultimos: Dict[tuple, dict] = {}
-            for o in self.ordenes:
-                k = (o["pedido_id"], o["proveedor_id"])
-                if k not in ultimos or o["intentos"] > ultimos[k]["intentos"]:
-                    ultimos[k] = o
-            for o in ultimos.values():
-                if o["estado"] != "fallida" or self.minuto >= o["vence_min"] - 0.5:
-                    continue
-                pedido = pedidos[o["pedido_id"]]
-                ob = {"proveedor_id": o["proveedor_id"], "tipo": o["tipo"], "objetivo": o["objetivo"]}
-                self._enviar(pedido, ob, juez, intento=o["intentos"] + 1, reemplaza=o["orden_id"])
+        pendientes, self.en_espera = self.en_espera, []
+        for t in pendientes:
+            self._enviar(t["pedido"], t["ob"], t["intento"], t["reemplaza"], firmante, ahora, fin_min)
 
-    def levantar(self, orden_id: str, juez_id: str, motivo: str) -> dict:
-        """Levanta una orden activa con firma judicial (para reclamos, T06)."""
-        with self.lock:
-            o = next(x for x in self.ordenes if x["orden_id"] == orden_id)
-            firma = hmac.new(self._claves[juez_id].encode(), mensaje_firma_levantar(orden_id, juez_id).encode(),
-                             hashlib.sha256).hexdigest()
-        estado, resp = _http(self.sim, f"/proveedores/{o['proveedor_id']}/ordenes/{orden_id}/levantar",
-                             {"juez_id": juez_id, "firma": firma, "motivo": motivo})
-        with self.lock:
-            if estado == 200:
-                o.update(estado="levantada", finalizada_min=resp.get("finalizada_min"), motivo=motivo)
-                self.auditar(f"juez:{juez_id}", "orden_levantada", {"orden_id": orden_id, "motivo": motivo}, self.minuto)
-            return {"ok": estado == 200, "respuesta": resp}
-
-    def vista(self) -> List[dict]:
-        with self.lock:
-            return [dict(o) for o in self.ordenes]
+    # --- levantar --------------------------------------------------------------------------
+    def levantar(self, orden_id: str, juez_id: str, motivo: str, ahora: float) -> Optional[str]:
+        """Devuelve None si se levantó, o el error."""
+        o = self.ordenes[orden_id]
+        cuerpo = {"juez_id": juez_id, "firma": self.firmador.firmar_levantar(orden_id, juez_id), "motivo": motivo}
+        try:
+            estado, resp = self.sim.post(f"/proveedores/{o['proveedor_id']}/ordenes/{orden_id}/levantar", cuerpo)
+        except ErrorRed as e:
+            return str(e)
+        if estado != 200:
+            return (resp or {}).get("error", f"HTTP {estado}")
+        o.update(estado="levantada", finalizada_min=resp.get("finalizada_min", round(ahora, 3)), motivo=motivo)
+        self.guardar_orden(o)
+        self.auditar(f"juez:{juez_id}", "orden_levantada", {"orden_id": orden_id, "proveedor_id": o["proveedor_id"],
+                     "tipo": o["tipo"], "objetivo": o["objetivo"], "motivo": motivo})
+        return None

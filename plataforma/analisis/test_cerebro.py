@@ -68,6 +68,59 @@ def prueba_partido_de_practica():
     assert casos[("vod.resumenes-deportivos.test", "198.51.100.90")]["clasificacion"] == "otra_senal"
 
 
+def prueba_escenario_de_reclamos_no_bloquea_ip_compartida():
+    """Hosting compartido donde el pirata y dos sitios legítimos comparten sufijo (hostcomun.test)."""
+    escenario = cargar("plataforma/pruebas/escenarios/escenario_reclamos.json")
+    verdad = cargar("plataforma/pruebas/escenarios/verdad_reclamos.json")
+    cerebro = Cerebro(escenario["partido"], dns_desde_escenario(escenario))
+    for d in sorted(escenario["detecciones"], key=lambda x: x["minuto"]):
+        cerebro.procesar(d)
+    casos = {(c["host"], c["ip"]): c for c in cerebro.casos()}
+    for s in verdad["streams"]:
+        for f in s["fases"]:
+            caso = casos[(f["host"], f["ip"])]
+            if s["clase"] == "pirata":
+                assert (caso["clasificacion"], caso["tipo_recomendado"]) == ("pirata", f["bloqueo_recomendado"]), \
+                    f"{f['host']}: {caso['tipo_recomendado']} ({caso['motivo_tipo']})"
+    vp = casos[("tv.verpartido.hostcomun.test", "192.0.2.50")]
+    assert vp["ip_compartida"] and "compartida" in vp["motivo_tipo"], vp["motivo_tipo"]
+
+
+def _caso_con_dns(dns: dict, host: str, asn=64600):
+    escenario = cargar("datos/escenario_practica.json")
+    d = det("D-1", host, dns["ip"], "LP26-PRA-OFI-S9")
+    d["asn"] = asn
+    return Cerebro(escenario["partido"], lambda ip: dns).procesar(d)[0]
+
+
+def prueba_mismo_sufijo_no_alcanza_para_bloquear_ip():
+    base = {"ip": "200.1.1.9", "asn": 64600, "dominios": ["vivo.pirata.test", "espejo.pirata.test"]}
+    assert _caso_con_dns({**base, "organizacion": "Servidores Dedicados SA"}, "vivo.pirata.test")["tipo_recomendado"] == "ip"
+    for org in ("Hosting Compartido SA", "NubeRápida CDN", "Shared Web Ltd", "", None):
+        caso = _caso_con_dns({**base, "organizacion": org}, "vivo.pirata.test")
+        assert caso["tipo_recomendado"] == "dominio" and caso["ip_compartida"], f"{org!r}: {caso['motivo_tipo']}"
+    otro_asn = _caso_con_dns({**base, "organizacion": "Servidores Dedicados SA"}, "vivo.pirata.test", asn=64999)
+    assert otro_asn["tipo_recomendado"] == "dominio", "ASN de la detección distinto del DNS: datos inconsistentes"
+
+
+def prueba_ip_con_dominio_del_licenciatario_va_por_dominio():
+    dns = {"ip": "200.1.1.8", "asn": 64600, "organizacion": "Servidores Dedicados SA",
+           "dominios": ["copia.canalnorte.test", "canalnorte.test"]}
+    caso = _caso_con_dns(dns, "copia.canalnorte.test")
+    assert caso["tipo_recomendado"] == "dominio" or caso["clasificacion"] != "pirata", caso
+
+
+def prueba_ip_con_reclamo_verificado_no_vuelve_a_bloquearse():
+    escenario = cargar("datos/escenario_practica.json")
+    cerebro = Cerebro(escenario["partido"], dns_desde_escenario(escenario))
+    a, _ = cerebro.procesar(det("D-1", "s1.pelotaya.test", "203.0.113.10", "LP26-PRA-OFI-S1", 2))
+    assert a["tipo_recomendado"] == "ip"
+    cerebro.marcar_ip_compartida("203.0.113.10", "reclamo R-9")
+    assert a["tipo_recomendado"] == "dominio" and a["ip_compartida"]
+    b, _ = cerebro.procesar(det("D-2", "s1-respaldo.pelotaya.test", "203.0.113.10", "LP26-PRA-OFI-S1", 3))
+    assert b["tipo_recomendado"] == "dominio" and b["motivo_tipo"] == "reclamo R-9"
+
+
 def prueba_campos_del_contrato():
     escenario = cargar("datos/escenario_practica.json")
     cerebro = Cerebro(escenario["partido"], dns_desde_escenario(escenario))
@@ -198,7 +251,7 @@ def prueba_escenario_final_simulado():
         "198.51.100.4": ["vivo.canalsur.test", "canalsur.test"],                             # licenciatario
         "198.51.100.5": ["espejo.gris.test", "gris.test", "radio.example"],                  # compartida
     }
-    consultar = lambda ip: ({"ip": ip, "asn": 1, "organizacion": "x", "dominios": dns[ip]} if ip in dns else None)
+    consultar = lambda ip: ({"ip": ip, "asn": 64600, "organizacion": "x", "dominios": dns[ip]} if ip in dns else None)
     detecciones = [
         det("F1", "live.rojo.test", "198.51.100.1", "LF26-FIN-OFI-A1", 1),
         det("F2", "cdn.verde.test", "198.51.100.2", "LF26-FIN-OFI-A2", 2),

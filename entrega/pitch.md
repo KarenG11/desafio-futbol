@@ -2,41 +2,57 @@
 
 **La idea en una frase:** un juez de turno firma desde el celular en segundos, y la orden de bloqueo llega a todos los proveedores de internet del país, no solo a los grandes, con evidencia que nadie puede trucar.
 
-Los números salen solo del verificador oficial. Hoy son los del partido de práctica; el viernes se reemplazan por los del final si cambian.
+Los números de la sección 4 son reales: salen del verificador oficial sobre la corrida definitiva del partido de práctica (simulador x20), en [`evidencias/RESULTADOS.md`](evidencias/RESULTADOS.md). Si se corre el partido final, se reemplazan por los de esa corrida. No inventar ninguno.
 
 ---
 
 ## Pitch (3 minutos)
+Ritmo de referencia: unas 140 palabras por minuto. Lo que se dice suma unas 350 palabras; el resto del tiempo es demo.
 
-### 1. El problema (0:00–0:30)
-> "El 1 de noviembre, antes del Superclásico, la Justicia tuvo que pedir el bloqueo de 182 sitios piratas. Un partido dura dos horas; un sitio pirata cambia de servidor en minutos.
-> Hoy en Argentina eso depende de una sola fiscalía y un solo juzgado. La orden sale por oficio, ENACOM o las cámaras se la reenvían a más de mil proveedores de internet, y **nadie publicó cuántos cumplieron ni cuándo**. Los chicos no llegan a tiempo, y si bloqueás una IP compartida tirás abajo la panadería y el diario del barrio."
+### 1. El problema (0:00–0:25)
+> "El 1 de noviembre, antes del Superclásico, la Justicia pidió bloquear 182 sitios piratas. Un partido dura dos horas; un sitio pirata cambia de servidor en minutos. Hoy la orden sale por oficio, ENACOM o las cámaras la reenvían a más de mil proveedores, y nadie publica quién cumplió ni cuándo. Y si bloqueás una IP compartida, tirás abajo la panadería del barrio."
 
-### 2. Por qué no copiamos a Europa (0:30–0:50)
-> "Europa tuvo que elegir entre rápido y con garantías. Italia bloquea en 30 minutos sin juez, y dejó a Google Drive bloqueado durante horas. Francia acaba de sacar la revisión humana. España tiene juez, pero la lista la maneja LaLiga: miles de IP por fin de semana con una sentencia que nombra unas 120. Y desde septiembre LaLiga tiene autorización para hacer lo mismo acá.
-> Acá sacar al juez ni siquiera es legal: la Ley 27.078 dice que un proveedor solo puede bloquear con orden judicial. Así que no sacamos al juez: lo pusimos en el centro, de turno, en el celular."
+### 2. Nuestra respuesta (0:25–0:40)
+> "Italia bloquea sin juez, y dejó a Google Drive bloqueado durante horas. Acá no se puede: la Ley 27.078 exige orden judicial. Así que pusimos al juez en el centro: de turno, en el celular, firmando en segundos."
 
-### 3. Demo en vivo (0:50–2:10)
-Una persona maneja el celular del juez, proyectado. Otra muestra el registro y el verificador.
-1. **El pedido llega solo.** El celular vibra: "s1.pelotaya.test". Leer en voz alta las cuatro líneas: por qué es el partido (la marca de agua coincide), de dónde sale el video, qué se bloquea y hasta cuándo.
-2. **La trampa de la CDN.** Mostrar el pedido de `live.golazo-libre.test`: "Esta IP la comparten 11 sitios legítimos. La plataforma no la bloquea: bloquea solo el nombre."
-3. **Lo que no se bloquea.** "Canal Norte pasa el partido legalmente en su dominio, y los resúmenes son de otro partido: la plataforma los descarta sola."
-4. **Firmar los N pedidos**, con un toque. Las casillas de los proveedores pasan a verde. Cumbre falla y se reintenta sola. FibraValle recibe el nombre porque no sabe bloquear por IP.
-5. **Cambio de turno, minuto 50.** "Entra el juez Martín: ratifica con un toque y desde ahí todo sale con su firma."
-6. **Evidencia que no se puede trucar.** Abrir el expediente y mostrar la huella SHA-256. Alterar una línea de la auditoría y correr la verificación: "Salta la alerta en la línea exacta."
+### 3. Demo en vivo (0:40–2:05)
+Una persona maneja el celular del juez, proyectado. Otra muestra el registro público y el verificador.
+1. **Llega el pedido** (`s1.pelotaya.test`). "La marca de agua es la del partido. Se ve de dónde sale el video, qué se bloquea y hasta cuándo."
+2. **La trampa de la CDN** (`live.golazo-libre.test`). "Esta IP la comparten 11 sitios legítimos: bloqueamos solo el nombre."
+3. **Lo que no se bloquea.** "Canal Norte es licenciatario y los resúmenes son de otro partido: se descartan solos."
+4. **Firma en lote**, con un toque. Las casillas de los proveedores pasan a verde. "Si Cumbre falla, se reenvía sola con otro número de orden. FibraValle recibe el nombre porque no bloquea por IP."
+5. **Cambio de turno, minuto 50.** "Entra el juez Martín, ratifica con un toque y desde ahí todo sale con su firma."
+6. **Evidencia.** Se muestra la huella SHA-256 del expediente. Se altera una línea de la auditoría y `python -m plataforma.motor.exportar` responde `cadena de auditoría rota en seq 41`.
+7. **Vencimiento.** "Al minuto 105 todo vence solo y el registro público lo muestra."
 
-### 4. Resultado (2:10–2:35)
-> "Corrimos el verificador oficial del desafío. El cliente de ejemplo bloqueó 1 de 7 streams y dejó ver el partido pirata al 92 % de la gente. Nosotros: 7 de 7 streams bloqueados, en todos los proveedores, a menos de un minuto de cada detección. El partido pirata lo pudo ver el 3 % de la gente, contra el 92 % de antes. Cero sitios legítimos afectados, cero bloqueos al licenciatario, cero firmas fuera de turno y cero IPs bloqueadas después del partido."
+Si en vivo aparece un reclamo, se resuelve desde la misma pantalla: levantamiento firmado en todos los proveedores y reemplazo por el nombre. En el partido de práctica no hubo ninguno, porque no bloqueamos IPs compartidas.
 
-*(Partido de práctica a x30 con juez automático: 3,1 %. Con un juez firmando desde la web y la base, a x10: 7 de 7 y 6,3 %, porque a x10 los 10 segundos del juez son casi 2 minutos de partido. Evidencia en `entrega/practica-juez-automatico/` y `entrega/practica-juez-humano/`. Si la corrida del final da otros números, reemplazarlos.)*
+### 4. Resultado (2:05–2:30)
+> "Corrimos el verificador oficial del desafío sobre el partido de práctica. El cliente de ejemplo bloqueó 1 de 7 streams y dejó 86,5 % de visibilidad residual. Nosotros: 7 de 7, cada uno en menos de un minuto de partido, con 3,1 % de visibilidad residual. Cero sitios legítimos afectados, cero falsos positivos, cero órdenes fuera de turno y cero IPs bloqueadas después del partido."
 
-### 5. Quién paga y qué hace falta (2:35–2:50)
-> "Lo paga quien pierde la plata: los titulares de derechos, que según la industria pierden cientos de millones de dólares por año solo en Argentina. El mismo problema está en Perú, México y Colombia. El juez y los proveedores lo usan sin costo. El software nunca fue lo caro: en Italia los proveedores reclaman unos 10 millones de euros por año de trabajo manual. A nosotros vigilar un partido nos cuesta centavos de dólar de nube, según nuestra estimación. Para arrancar alcanza con un piloto en un partido de la liga y una resolución del ENACOM que obligue a cada proveedor a tener un canal electrónico de órdenes. Está en nuestra propuesta normativa y en `escenarios-y-modelo.md`."
+Si preguntan por los reclamos: "Para probarlos le hicimos creer a la plataforma que una IP compartida era exclusiva. El reclamo de la panadería se resolvió en 0,13 minutos de partido, pero las órdenes por IP alcanzaron a estar activas entre 1 y 4 minutos. Por eso no bloqueamos IPs compartidas." Es una prueba con **falla inyectada**, no un resultado normal.
+
+### 5. Quién paga y qué hace falta (2:30–2:50)
+> "Paga el titular de derechos; al juez y a los proveedores no les cuesta nada. Para arrancar alcanza con un piloto en un partido de la liga, una acordada de turno y una resolución del ENACOM que obligue a cada proveedor a tener un canal electrónico de órdenes. Está en nuestra propuesta normativa."
 
 ### 6. Cierre (2:50–3:00)
 > "Un juez, en segundos, con evidencia, y llegando a todos. Somos Alejo, Selene, Luciano, Rocío y Nahuel."
 
 ---
+
+## Arquitectura (para mostrar si piden detalle)
+`simulador → cerebro (clasifica y decide IP o nombre) → evidencia (expediente con hashes) → juez de turno en el celular → despacho (firma HMAC, un envío por proveedor, reintentos) → confirmación → vencimiento o levantamiento`, todo con auditoría encadenada y registro público. El motor es el único que habla con el simulador. La web solo crea pedidos de decisión, y si el motor no reporta estado no se firma nada. Diagrama y piezas: [`README.md`](README.md#cómo-funciona).
+
+## Métricas reales (corrida definitiva v2, simulador x20, verificador oficial)
+| Corrida | Tipo | Fases | Residual | Colateral | Falsos positivos | Fuera de turno | IP post partido |
+|---|---|---|---|---|---|---|---|
+| Cliente de ejemplo de la organización | referencia | 1 de 7 | 86,5 % | 0 | 0 | 0 | 0 |
+| Partido de práctica | normal | 7 de 7 | 3,1 % | 0 | 0 | 0 | 0 |
+| Hosting compartido con sufijo común | normal | 7 de 7 | 3,1 % | 0 | 0 | 0 | 0 |
+| Arranque en el minuto 40 (cambio de turno) | normal | 6 de 7* | 27,6 % | 0 | 0 | 0 | 0 |
+| DNS desactualizado | **falla inyectada** | 7 de 7 | 3,1 % | 3 órdenes, 2 dominios (levantadas por reclamo) | 0 | 0 | 0 |
+
+\* La fase 1 terminó antes de que arrancara la corrida. Las cifras definitivas y las salidas del verificador están en [`evidencias/RESULTADOS.md`](evidencias/RESULTADOS.md); si la corrida definitiva cambia algún número, manda esa.
 
 ## Video de respaldo (hasta 3 minutos)
 Se graba sobre un partido de práctica con `--acelerar 6` (con OBS o Win+Alt+R) y se sube a Hacki. **Es también el plan B si falla el Wi-Fi en el pitch.**
@@ -48,7 +64,7 @@ Se graba sobre un partido de práctica con `--acelerar 6` (con OBS o Win+Alt+R) 
 | 0:40–1:20 | Pantalla del juez: tarjeta de pelotaya, después la de golazo (IP compartida → nombre) | Evidencia y control de daño colateral |
 | 1:20–1:50 | Firmar en lote; las casillas de órdenes pasan a verde; el reintento de Cumbre | Proveedores, confirmación, reintento |
 | 1:50–2:15 | Minuto 50: cambio de turno y ratificación | Juez de turno real, firma válida |
-| 2:15–2:35 | Expediente con hashes; auditoría alterada → alerta | Integridad de la evidencia |
+| 2:15–2:35 | Expediente con hashes; auditoría alterada → alerta. Si apareció, un reclamo levantado | Integridad de la evidencia y reclamos |
 | 2:35–2:55 | Fin del partido: las IP vencen solas. Salida de `evaluacion/verificar.py` | Vencimiento + números finales |
 | 2:55–3:00 | Repo y nombres | — |
 
@@ -79,8 +95,8 @@ Se contradicen entre fuentes o los publica solo la industria:
 
 ## Antes de subir
 - [ ] Cronómetro en pantalla durante la demo: desde la detección hasta la confirmación del último proveedor
-- [x] Números reales del verificador en la sección 4 (práctica; actualizar con el final si cambian)
+- [x] Números reales del verificador en la sección 4 (partido de práctica; reemplazar si se corre el final)
 - [ ] Video grabado y subido a Hacki
 - [ ] URL pública de Vercel funcionando desde un celular
-- [ ] `entrega/` con el expediente y la auditoría del partido final, y la propuesta normativa
+- [x] `entrega/` con expediente, auditoría (del partido de práctica) y [propuesta normativa](propuesta_normativa.md). Regenerar con el partido final si se corre
 - [ ] Ensayado con cronómetro, dos veces

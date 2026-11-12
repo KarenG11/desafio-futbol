@@ -1,0 +1,253 @@
+[min 2.42] PEDIDO P-001 s1.pelotaya.test
+  Qué se bloquea: La IP 203.0.113.10 en Aurora, Andina y Cumbre. En FibraValle, el nombre s1.pelotaya.test, porque solo bloquea por nombre.
+  Expediente: EXP-2026-000001
+  Dominio: s1.pelotaya.test
+  Página: https://pelotaya.test/en-vivo
+  IP: 203.0.113.10
+  Hosting: Bruma Hosting Dedicado (ficticio) (ASN 64600)
+  Marca de agua: LP26-PRA-OFI-S048211, Señal oficial del titular (plataforma propia)
+  Por qué es el partido: Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla
+  Licenciatarios autorizados: Canal Norte TV (ficticio): canalnorte.test, envivo.canalnorte.test. s1.pelotaya.test no es ninguno de ellos.
+  Sitios en la misma IP: s1.pelotaya.test, s1-respaldo.pelotaya.test
+  Por qué IP o nombre: Todos los dominios de la IP 203.0.113.10 son de pelotaya.test y el ASN es de Bruma Hosting Dedicado (ficticio) (hosting no compartido): se bloquea la IP
+  Qué recibe cada proveedor: Aurora: IP 203.0.113.10 | Andina: IP 203.0.113.10 | FibraValle: dominio s1.pelotaya.test | Cumbre: IP 203.0.113.10
+  Captura D-0001, minuto 2: 77b14ea8874ef8bbbf99cc292fd820a9e8df09fa4d4c00ebaeb9003e6b9bfbe1
+  Dónde se promocionó: x: https://x.example/futbolya_ok/status/1001
+  Huella del expediente (SHA-256): a3f9674a588b352882a855ebd6675b4a22944cfc1f26e7bbf57d14db5437126a
+[min 2.51] FIRMA INDIVIDUAL P-001 por ['jueza-laura-ficticia']
+[min 3.01] ORDEN ord-1a67-P-001-andina-1 andina ip 203.0.113.10 -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 3.01] ORDEN ord-1a67-P-001-aurora-1 aurora ip 203.0.113.10 -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 3.01] ORDEN ord-1a67-P-001-cumbre-1 cumbre ip 203.0.113.10 -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 3.01] ORDEN ord-1a67-P-001-valle-1 valle dominio s1.pelotaya.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 3.01] PUBLICO 2 entradas; última: {"entrada_id": "P-001/ip/203.0.113.10", "pedido_id": "P-001", "expediente_id": "EXP-2026-000001", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.10", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 3.18] ORDEN ord-1a67-P-001-aurora-1 aurora ip 203.0.113.10 -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 3.18] PUBLICO 2 entradas; última: {"entrada_id": "P-001/ip/203.0.113.10", "pedido_id": "P-001", "expediente_id": "EXP-2026-000001", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.10", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 4.18] ORDEN ord-1a67-P-001-andina-1 andina ip 203.0.113.10 -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 4.18] PUBLICO 2 entradas; última: {"entrada_id": "P-001/ip/203.0.113.10", "pedido_id": "P-001", "expediente_id": "EXP-2026-000001", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.10", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 5.02] ORDEN ord-1a67-P-001-cumbre-1 cumbre ip 203.0.113.10 -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 5.02] PUBLICO 2 entradas; última: {"entrada_id": "P-001/ip/203.0.113.10", "pedido_id": "P-001", "expediente_id": "EXP-2026-000001", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.10", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+CONSOLE Failed to load resource: the server responded with a status of 404 (Not Found)
+[min 6.19] PEDIDO P-002 live.golazo-libre.test
+  Qué se bloquea: Solo el nombre live.golazo-libre.test, en los 4 proveedores. La IP 198.51.100.20 aloja 11 sitio(s) de terceros (academia-de-ingles.test, biblioteca-popular-norte.test, clinica-veterinaria-sol.test y 8 más): se bloquea solo live.golazo-libre.test.
+  Expediente: EXP-2026-000002
+  Dominio: live.golazo-libre.test
+  Página: https://golazo-libre.test/partido
+  IP: 198.51.100.20
+  Hosting: NubeRápida CDN (ficticia) (ASN 64610)
+  Marca de agua: LP26-PRA-OFI-S077310, Señal oficial del titular (plataforma propia)
+  Por qué es el partido: Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla
+  Licenciatarios autorizados: Canal Norte TV (ficticio): canalnorte.test, envivo.canalnorte.test. live.golazo-libre.test no es ninguno de ellos.
+  Sitios en la misma IP: live.golazo-libre.test, tienda-mate-y-yerba.test, noticias-del-valle.test, turismo-cafayate.example, radio-comunitaria-fm.test, municipio-ejemplo.example, biblioteca-popular-norte.test, delivery-salta-ejemplo.test, clinica-veterinaria-sol.test, inmobiliaria-ejemplo.test, academia-de-ingles.test, feria-artesanal.example
+  Por qué IP o nombre: La IP 198.51.100.20 aloja 11 sitio(s) de terceros (academia-de-ingles.test, biblioteca-popular-norte.test, clinica-veterinaria-sol.test y 8 más): se bloquea solo live.golazo-libre.test
+  Qué recibe cada proveedor: Aurora: dominio live.golazo-libre.test | Andina: dominio live.golazo-libre.test | FibraValle: dominio live.golazo-libre.test | Cumbre: dominio live.golazo-libre.test
+  Captura D-0003, minuto 6: 485b937379e696ae00920a738d03b3062ef615309dda5a10b2eb90a001f6665e
+  Dónde se promocionó: x: https://x.example/golazolibre/status/2207 | discord: https://discord.example/invite/golazo-hoy
+  Huella del expediente (SHA-256): 0f3be67d9b6316a3488cd7be6dc018259d8889cd2b29a02c4fe2ae86221e3177
+[min 6.27] FIRMA INDIVIDUAL P-002 por ['jueza-laura-ficticia']
+[min 6.69] ORDEN ord-1a67-P-002-andina-1 andina dominio live.golazo-libre.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 6.69] ORDEN ord-1a67-P-002-aurora-1 aurora dominio live.golazo-libre.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 6.69] ORDEN ord-1a67-P-002-cumbre-1 cumbre dominio live.golazo-libre.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 6.69] ORDEN ord-1a67-P-002-valle-1 valle dominio live.golazo-libre.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 6.69] PUBLICO 3 entradas; última: {"entrada_id": "P-002/dominio/live.golazo-libre.test", "pedido_id": "P-002", "expediente_id": "EXP-2026-000002", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "live.golazo-libre.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-c
+[min 6.86] ORDEN ord-1a67-P-002-aurora-1 aurora dominio live.golazo-libre.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 6.86] PUBLICO 3 entradas; última: {"entrada_id": "P-002/dominio/live.golazo-libre.test", "pedido_id": "P-002", "expediente_id": "EXP-2026-000002", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "live.golazo-libre.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-c
+[min 7.2] ORDEN ord-1a67-P-001-valle-1 valle dominio s1.pelotaya.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 7.2] PUBLICO 3 entradas; última: {"entrada_id": "P-002/dominio/live.golazo-libre.test", "pedido_id": "P-002", "expediente_id": "EXP-2026-000002", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "live.golazo-libre.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-c
+[min 8.7] ORDEN ord-1a67-P-002-andina-1 andina dominio live.golazo-libre.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 8.7] PUBLICO 3 entradas; última: {"entrada_id": "P-002/dominio/live.golazo-libre.test", "pedido_id": "P-002", "expediente_id": "EXP-2026-000002", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "live.golazo-libre.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-c
+[min 9.29] PEDIDO P-003 tv.verpartido-hd.test
+  Qué se bloquea: Solo el nombre tv.verpartido-hd.test, en los 4 proveedores. La IP 192.0.2.50 aloja 4 sitio(s) de terceros (club-atletico-barrio-norte.test, escuela-tecnica-12.test, estudio-contable-ruiz.test y 1 más): se bloquea solo tv.verpartido-hd.test.
+  Expediente: EXP-2026-000003
+  Dominio: tv.verpartido-hd.test
+  Página: https://verpartido-hd.test/vivo
+  IP: 192.0.2.50
+  Hosting: Pampa Web Hosting Compartido (ficticio) (ASN 64620)
+  Marca de agua: LP26-PRA-OFI-S010457, Señal oficial del titular (plataforma propia)
+  Por qué es el partido: Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla
+  Licenciatarios autorizados: Canal Norte TV (ficticio): canalnorte.test, envivo.canalnorte.test. tv.verpartido-hd.test no es ninguno de ellos.
+  Sitios en la misma IP: tv.verpartido-hd.test, verpartido-hd.test, panaderia-la-espiga.test, club-atletico-barrio-norte.test, escuela-tecnica-12.test, estudio-contable-ruiz.test
+  Por qué IP o nombre: La IP 192.0.2.50 aloja 4 sitio(s) de terceros (club-atletico-barrio-norte.test, escuela-tecnica-12.test, estudio-contable-ruiz.test y 1 más): se bloquea solo tv.verpartido-hd.test
+  Qué recibe cada proveedor: Aurora: dominio tv.verpartido-hd.test | Andina: dominio tv.verpartido-hd.test | FibraValle: dominio tv.verpartido-hd.test | Cumbre: dominio tv.verpartido-hd.test
+  Captura D-0004, minuto 9: b3e5dd0f6977847eea9f86d67cc43e2d8b9aa378b92a131fa358e10db718b796
+  Dónde se promocionó: telegram: https://t.example/verpartidohd
+  Huella del expediente (SHA-256): bfb010203e43c6fad4ba03539de66704960678bdd001a73ea96cf40c7144fbcd
+[min 9.29] FIRMA INDIVIDUAL P-003 por ['jueza-laura-ficticia']
+[min 9.71] ORDEN ord-1a67-P-003-andina-1 andina dominio tv.verpartido-hd.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 9.71] ORDEN ord-1a67-P-003-aurora-1 aurora dominio tv.verpartido-hd.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 9.71] ORDEN ord-1a67-P-003-cumbre-1 cumbre dominio tv.verpartido-hd.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 9.71] ORDEN ord-1a67-P-003-valle-1 valle dominio tv.verpartido-hd.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 9.71] PUBLICO 4 entradas; última: {"entrada_id": "P-003/dominio/tv.verpartido-hd.test", "pedido_id": "P-003", "expediente_id": "EXP-2026-000003", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "tv.verpartido-hd.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-cen
+[min 9.87] ORDEN ord-1a67-P-003-aurora-1 aurora dominio tv.verpartido-hd.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 9.87] PUBLICO 4 entradas; última: {"entrada_id": "P-003/dominio/tv.verpartido-hd.test", "pedido_id": "P-003", "expediente_id": "EXP-2026-000003", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "tv.verpartido-hd.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-cen
+[min 10.21] ORDEN ord-1a67-P-002-cumbre-1 cumbre dominio live.golazo-libre.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 10.21] PUBLICO 4 entradas; última: {"entrada_id": "P-003/dominio/tv.verpartido-hd.test", "pedido_id": "P-003", "expediente_id": "EXP-2026-000003", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "tv.verpartido-hd.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-cen
+[min 11.05] ORDEN ord-1a67-P-002-valle-1 valle dominio live.golazo-libre.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 11.05] PUBLICO 4 entradas; última: {"entrada_id": "P-003/dominio/tv.verpartido-hd.test", "pedido_id": "P-003", "expediente_id": "EXP-2026-000003", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "tv.verpartido-hd.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-cen
+[min 11.38] ORDEN ord-1a67-P-003-andina-1 andina dominio tv.verpartido-hd.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 11.38] PUBLICO 4 entradas; última: {"entrada_id": "P-003/dominio/tv.verpartido-hd.test", "pedido_id": "P-003", "expediente_id": "EXP-2026-000003", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "tv.verpartido-hd.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-cen
+[min 11.55] ORDEN ord-1a67-P-003-cumbre-1 cumbre dominio tv.verpartido-hd.test -> fallida (intento 1, juez jueza-laura-ficticia)
+[min 11.55] ORDEN ord-1a67-P-003-cumbre-2 cumbre dominio tv.verpartido-hd.test -> recibida (intento 2, juez jueza-laura-ficticia)
+[min 14.14] ORDEN ord-1a67-P-003-cumbre-2 cumbre dominio tv.verpartido-hd.test -> fallida (intento 2, juez jueza-laura-ficticia)
+[min 14.14] ORDEN ord-1a67-P-003-cumbre-3 cumbre dominio tv.verpartido-hd.test -> recibida (intento 3, juez jueza-laura-ficticia)
+[min 15.48] ORDEN ord-1a67-P-003-valle-1 valle dominio tv.verpartido-hd.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 15.48] PUBLICO 4 entradas; última: {"entrada_id": "P-003/dominio/tv.verpartido-hd.test", "pedido_id": "P-003", "expediente_id": "EXP-2026-000003", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "tv.verpartido-hd.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-cen
+[min 17.49] ORDEN ord-1a67-P-003-cumbre-3 cumbre dominio tv.verpartido-hd.test -> fallida (intento 3, juez jueza-laura-ficticia)
+[min 17.49] ORDEN ord-1a67-P-003-cumbre-4 cumbre dominio tv.verpartido-hd.test -> recibida (intento 4, juez jueza-laura-ficticia)
+[min 21.26] ORDEN ord-1a67-P-003-cumbre-4 cumbre dominio tv.verpartido-hd.test -> aplicada (intento 4, juez jueza-laura-ficticia)
+[min 21.26] PUBLICO 4 entradas; última: {"entrada_id": "P-003/dominio/tv.verpartido-hd.test", "pedido_id": "P-003", "expediente_id": "EXP-2026-000003", "partido_id": "practica-01", "tipo": "dominio", "objetivo": "tv.verpartido-hd.test", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-cen
+[min 37.84] PEDIDO P-004 s2.pelotaya.test
+  Qué se bloquea: La IP 203.0.113.11 en Aurora, Andina y Cumbre. En FibraValle, el nombre s2.pelotaya.test, porque solo bloquea por nombre.
+  Expediente: EXP-2026-000004
+  Dominio: s2.pelotaya.test
+  Página: https://pelotaya.test/en-vivo
+  IP: 203.0.113.11
+  Hosting: Bruma Hosting Dedicado (ficticio) (ASN 64600)
+  Marca de agua: LP26-PRA-OFI-S048211, Señal oficial del titular (plataforma propia)
+  Por qué es el partido: Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla
+  Licenciatarios autorizados: Canal Norte TV (ficticio): canalnorte.test, envivo.canalnorte.test. s2.pelotaya.test no es ninguno de ellos.
+  Sitios en la misma IP: s2.pelotaya.test
+  Por qué IP o nombre: Todos los dominios de la IP 203.0.113.11 son de pelotaya.test y el ASN es de Bruma Hosting Dedicado (ficticio) (hosting no compartido): se bloquea la IP
+  Qué recibe cada proveedor: Aurora: IP 203.0.113.11 | Andina: IP 203.0.113.11 | FibraValle: dominio s2.pelotaya.test | Cumbre: IP 203.0.113.11
+  Captura D-0014, minuto 37: f27a4a5fba9cfc873c9750f4186c354c253b9dcb696de7b8c2bc789e0217ebe7
+  Dónde se promocionó: x: https://x.example/futbolya_ok/status/1001
+  Huella del expediente (SHA-256): 526f396e87cb5cb117c925b506684289f17f8735734be2c0ce406e385e0ec3f7
+[min 37.92] FIRMA INDIVIDUAL P-004 por ['jueza-laura-ficticia']
+[min 38.34] ORDEN ord-1a67-P-004-andina-1 andina ip 203.0.113.11 -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 38.34] ORDEN ord-1a67-P-004-aurora-1 aurora ip 203.0.113.11 -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 38.34] ORDEN ord-1a67-P-004-cumbre-1 cumbre ip 203.0.113.11 -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 38.34] ORDEN ord-1a67-P-004-valle-1 valle dominio s2.pelotaya.test -> recibida (intento 1, juez jueza-laura-ficticia)
+[min 38.34] PUBLICO 6 entradas; última: {"entrada_id": "P-004/ip/203.0.113.11", "pedido_id": "P-004", "expediente_id": "EXP-2026-000004", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.11", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 38.51] ORDEN ord-1a67-P-004-aurora-1 aurora ip 203.0.113.11 -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 38.51] PUBLICO 6 entradas; última: {"entrada_id": "P-004/ip/203.0.113.11", "pedido_id": "P-004", "expediente_id": "EXP-2026-000004", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.11", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 40.01] ORDEN ord-1a67-P-004-andina-1 andina ip 203.0.113.11 -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 40.01] PUBLICO 6 entradas; última: {"entrada_id": "P-004/ip/203.0.113.11", "pedido_id": "P-004", "expediente_id": "EXP-2026-000004", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.11", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 42.02] ORDEN ord-1a67-P-004-cumbre-1 cumbre ip 203.0.113.11 -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 42.02] PUBLICO 6 entradas; última: {"entrada_id": "P-004/ip/203.0.113.11", "pedido_id": "P-004", "expediente_id": "EXP-2026-000004", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.11", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 45.12] ORDEN ord-1a67-P-004-valle-1 valle dominio s2.pelotaya.test -> aplicada (intento 1, juez jueza-laura-ficticia)
+[min 45.12] PUBLICO 6 entradas; última: {"entrada_id": "P-004/ip/203.0.113.11", "pedido_id": "P-004", "expediente_id": "EXP-2026-000004", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.11", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "jueza-laura-ficticia", "juez_nombre": "Dra. Laura Ficticia", "juzgado_id": "jg-centro-3", "juzgado_nombre": "J
+[min 50.14] FIRMA JUEZA SALIENTE -> (409, {'error': 'jueza-laura-ficticia no está de turno en el minuto 50.14'})
+[min 50.98] ASUMIR TURNO (UI): ['Turno asumido por Dr. Martín Ejemplo\n\nRatificaste 16 órdenes vigentes. Desde ahora los reintentos salen con tu firma.']
+[min 55.25] PEDIDO P-005 x9.tribuna-pirata.test
+  Qué se bloquea: La IP 203.0.113.40 en Aurora, Andina y Cumbre. En FibraValle, el nombre x9.tribuna-pirata.test, porque solo bloquea por nombre.
+  Expediente: EXP-2026-000005
+  Dominio: x9.tribuna-pirata.test
+  Página: https://tribuna-pirata.test/ver
+  IP: 203.0.113.40
+  Hosting: Bruma Hosting Dedicado (ficticio) (ASN 64600)
+  Marca de agua: LP26-PRA-OFI-S063002, Señal oficial del titular (plataforma propia)
+  Por qué es el partido: Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla
+  Licenciatarios autorizados: Canal Norte TV (ficticio): canalnorte.test, envivo.canalnorte.test. x9.tribuna-pirata.test no es ninguno de ellos.
+  Sitios en la misma IP: x9.tribuna-pirata.test
+  Por qué IP o nombre: Todos los dominios de la IP 203.0.113.40 son de tribuna-pirata.test y el ASN es de Bruma Hosting Dedicado (ficticio) (hosting no compartido): se bloquea la IP
+  Qué recibe cada proveedor: Aurora: IP 203.0.113.40 | Andina: IP 203.0.113.40 | FibraValle: dominio x9.tribuna-pirata.test | Cumbre: IP 203.0.113.40
+  Captura D-0021, minuto 55: 5e3d43564f3ab28fd6d042ea219ea19c302093798435a7d197b3f64092d6a6e6
+  Dónde se promocionó: discord: https://discord.example/invite/tribuna-vip | telegram: https://t.example/tribunapirata
+  Huella del expediente (SHA-256): 07e3f53f8302dc5cd4c6a6afa18fb413e8c5fd1be8341c08284c0cfafc97e935
+[min 55.33] FIRMA INDIVIDUAL P-005 por ['juez-martin-ejemplo']
+[min 55.75] ORDEN ord-1a67-P-005-andina-1 andina ip 203.0.113.40 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 55.75] ORDEN ord-1a67-P-005-aurora-1 aurora ip 203.0.113.40 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 55.75] ORDEN ord-1a67-P-005-cumbre-1 cumbre ip 203.0.113.40 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 55.75] ORDEN ord-1a67-P-005-valle-1 valle dominio x9.tribuna-pirata.test -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 55.75] PUBLICO 8 entradas; última: {"entrada_id": "P-005/ip/203.0.113.40", "pedido_id": "P-005", "expediente_id": "EXP-2026-000005", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.40", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 56.09] ORDEN ord-1a67-P-005-aurora-1 aurora ip 203.0.113.40 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 56.09] PUBLICO 8 entradas; última: {"entrada_id": "P-005/ip/203.0.113.40", "pedido_id": "P-005", "expediente_id": "EXP-2026-000005", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.40", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 57.93] ORDEN ord-1a67-P-005-andina-1 andina ip 203.0.113.40 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 57.93] PUBLICO 8 entradas; última: {"entrada_id": "P-005/ip/203.0.113.40", "pedido_id": "P-005", "expediente_id": "EXP-2026-000005", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.40", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 58.26] ORDEN ord-1a67-P-005-cumbre-1 cumbre ip 203.0.113.40 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 58.26] PUBLICO 8 entradas; última: {"entrada_id": "P-005/ip/203.0.113.40", "pedido_id": "P-005", "expediente_id": "EXP-2026-000005", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.40", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 61.7] ORDEN ord-1a67-P-005-valle-1 valle dominio x9.tribuna-pirata.test -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 61.7] PUBLICO 8 entradas; última: {"entrada_id": "P-005/ip/203.0.113.40", "pedido_id": "P-005", "expediente_id": "EXP-2026-000005", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.40", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 71.16] PEDIDO P-006 s3.pelotaya.test
+  Qué se bloquea: La IP 198.51.100.77 en Aurora, Andina y Cumbre. En FibraValle, el nombre s3.pelotaya.test, porque solo bloquea por nombre.
+  Expediente: EXP-2026-000006
+  Dominio: s3.pelotaya.test
+  Página: https://pelotaya.test/en-vivo
+  IP: 198.51.100.77
+  Hosting: Servidores Litoral (ficticio) (ASN 64630)
+  Marca de agua: LP26-PRA-OFI-S048211, Señal oficial del titular (plataforma propia)
+  Por qué es el partido: Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla
+  Licenciatarios autorizados: Canal Norte TV (ficticio): canalnorte.test, envivo.canalnorte.test. s3.pelotaya.test no es ninguno de ellos.
+  Sitios en la misma IP: s3.pelotaya.test, espejo.pelotaya.test
+  Por qué IP o nombre: Todos los dominios de la IP 198.51.100.77 son de pelotaya.test y el ASN es de Servidores Litoral (ficticio) (hosting no compartido): se bloquea la IP
+  Qué recibe cada proveedor: Aurora: IP 198.51.100.77 | Andina: IP 198.51.100.77 | FibraValle: dominio s3.pelotaya.test | Cumbre: IP 198.51.100.77
+  Captura D-0029, minuto 71: d34e0c24d029af9fd4e51398efa7a3f96d8b96fc6f67cb145f9b285968d8e227
+  Dónde se promocionó: x: https://x.example/futbolya_ok/status/1001
+  Huella del expediente (SHA-256): ac9a00dc102b21371a0a05060150ef1157c3e87431aaa9cf6f4fde556f9d2bb7
+[min 71.24] FIRMA INDIVIDUAL P-006 por ['juez-martin-ejemplo']
+[min 71.66] ORDEN ord-1a67-P-006-andina-1 andina ip 198.51.100.77 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 71.66] ORDEN ord-1a67-P-006-aurora-1 aurora ip 198.51.100.77 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 71.66] ORDEN ord-1a67-P-006-cumbre-1 cumbre ip 198.51.100.77 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 71.66] ORDEN ord-1a67-P-006-valle-1 valle dominio s3.pelotaya.test -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 71.66] PUBLICO 10 entradas; última: {"entrada_id": "P-006/ip/198.51.100.77", "pedido_id": "P-006", "expediente_id": "EXP-2026-000006", "partido_id": "practica-01", "tipo": "ip", "objetivo": "198.51.100.77", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Ju
+[min 71.99] ORDEN ord-1a67-P-006-aurora-1 aurora ip 198.51.100.77 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 71.99] PUBLICO 10 entradas; última: {"entrada_id": "P-006/ip/198.51.100.77", "pedido_id": "P-006", "expediente_id": "EXP-2026-000006", "partido_id": "practica-01", "tipo": "ip", "objetivo": "198.51.100.77", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Ju
+[min 73.16] ORDEN ord-1a67-P-006-andina-1 andina ip 198.51.100.77 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 73.16] PUBLICO 10 entradas; última: {"entrada_id": "P-006/ip/198.51.100.77", "pedido_id": "P-006", "expediente_id": "EXP-2026-000006", "partido_id": "practica-01", "tipo": "ip", "objetivo": "198.51.100.77", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Ju
+[min 74.0] ORDEN ord-1a67-P-006-cumbre-1 cumbre ip 198.51.100.77 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 74.0] PUBLICO 10 entradas; última: {"entrada_id": "P-006/ip/198.51.100.77", "pedido_id": "P-006", "expediente_id": "EXP-2026-000006", "partido_id": "practica-01", "tipo": "ip", "objetivo": "198.51.100.77", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Ju
+[min 77.18] ORDEN ord-1a67-P-006-valle-1 valle dominio s3.pelotaya.test -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 77.27] PUBLICO 10 entradas; última: {"entrada_id": "P-006/ip/198.51.100.77", "pedido_id": "P-006", "expediente_id": "EXP-2026-000006", "partido_id": "practica-01", "tipo": "ip", "objetivo": "198.51.100.77", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Ju
+[min 82.12] PEDIDO P-007 x10.tribuna-pirata.test
+  Qué se bloquea: La IP 203.0.113.41 en Aurora, Andina y Cumbre. En FibraValle, el nombre x10.tribuna-pirata.test, porque solo bloquea por nombre.
+  Expediente: EXP-2026-000007
+  Dominio: x10.tribuna-pirata.test
+  Página: https://tribuna-pirata.test/ver
+  IP: 203.0.113.41
+  Hosting: Bruma Hosting Dedicado (ficticio) (ASN 64600)
+  Marca de agua: LP26-PRA-OFI-S063002, Señal oficial del titular (plataforma propia)
+  Por qué es el partido: Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla
+  Licenciatarios autorizados: Canal Norte TV (ficticio): canalnorte.test, envivo.canalnorte.test. x10.tribuna-pirata.test no es ninguno de ellos.
+  Sitios en la misma IP: x10.tribuna-pirata.test
+  Por qué IP o nombre: Todos los dominios de la IP 203.0.113.41 son de tribuna-pirata.test y el ASN es de Bruma Hosting Dedicado (ficticio) (hosting no compartido): se bloquea la IP
+  Qué recibe cada proveedor: Aurora: IP 203.0.113.41 | Andina: IP 203.0.113.41 | FibraValle: dominio x10.tribuna-pirata.test | Cumbre: IP 203.0.113.41
+  Captura D-0034, minuto 82: 767fccc3e8c85585c487925e6d3b8f51e3dd4d796d61cebb11fc2b6e9b2828ee
+  Dónde se promocionó: discord: https://discord.example/invite/tribuna-vip | telegram: https://t.example/tribunapirata
+  Huella del expediente (SHA-256): b7f25d4a18a6ff1aae18271500a6fc186568d12f6280965304d9a5af0b2e806d
+[min 82.21] FIRMA INDIVIDUAL P-007 por ['juez-martin-ejemplo']
+[min 82.63] ORDEN ord-1a67-P-007-andina-1 andina ip 203.0.113.41 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 82.63] ORDEN ord-1a67-P-007-aurora-1 aurora ip 203.0.113.41 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 82.63] ORDEN ord-1a67-P-007-cumbre-1 cumbre ip 203.0.113.41 -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 82.63] ORDEN ord-1a67-P-007-valle-1 valle dominio x10.tribuna-pirata.test -> recibida (intento 1, juez juez-martin-ejemplo)
+[min 82.63] PUBLICO 12 entradas; última: {"entrada_id": "P-007/ip/203.0.113.41", "pedido_id": "P-007", "expediente_id": "EXP-2026-000007", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.41", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 82.96] ORDEN ord-1a67-P-007-aurora-1 aurora ip 203.0.113.41 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 82.96] PUBLICO 12 entradas; última: {"entrada_id": "P-007/ip/203.0.113.41", "pedido_id": "P-007", "expediente_id": "EXP-2026-000007", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.41", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 84.3] ORDEN ord-1a67-P-007-andina-1 andina ip 203.0.113.41 -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 84.3] PUBLICO 12 entradas; última: {"entrada_id": "P-007/ip/203.0.113.41", "pedido_id": "P-007", "expediente_id": "EXP-2026-000007", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.41", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 85.3] ORDEN ord-1a67-P-007-cumbre-1 cumbre ip 203.0.113.41 -> fallida (intento 1, juez juez-martin-ejemplo)
+[min 85.3] ORDEN ord-1a67-P-007-cumbre-2 cumbre ip 203.0.113.41 -> recibida (intento 2, juez juez-martin-ejemplo)
+[min 87.73] ORDEN ord-1a67-P-007-cumbre-2 cumbre ip 203.0.113.41 -> fallida (intento 2, juez juez-martin-ejemplo)
+[min 87.73] ORDEN ord-1a67-P-007-cumbre-3 cumbre ip 203.0.113.41 -> recibida (intento 3, juez juez-martin-ejemplo)
+[min 88.57] ORDEN ord-1a67-P-007-valle-1 valle dominio x10.tribuna-pirata.test -> aplicada (intento 1, juez juez-martin-ejemplo)
+[min 88.57] PUBLICO 12 entradas; última: {"entrada_id": "P-007/ip/203.0.113.41", "pedido_id": "P-007", "expediente_id": "EXP-2026-000007", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.41", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 91.08] ORDEN ord-1a67-P-007-cumbre-3 cumbre ip 203.0.113.41 -> aplicada (intento 3, juez juez-martin-ejemplo)
+[min 91.08] PUBLICO 12 entradas; última: {"entrada_id": "P-007/ip/203.0.113.41", "pedido_id": "P-007", "expediente_id": "EXP-2026-000007", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.41", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+[min 105.14] ORDEN ord-1a67-P-001-andina-1 andina ip 203.0.113.10 -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-001-aurora-1 aurora ip 203.0.113.10 -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-001-cumbre-1 cumbre ip 203.0.113.10 -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-001-valle-1 valle dominio s1.pelotaya.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-002-andina-1 andina dominio live.golazo-libre.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-002-aurora-1 aurora dominio live.golazo-libre.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-002-cumbre-1 cumbre dominio live.golazo-libre.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-002-valle-1 valle dominio live.golazo-libre.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-003-andina-1 andina dominio tv.verpartido-hd.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-003-aurora-1 aurora dominio tv.verpartido-hd.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-003-cumbre-4 cumbre dominio tv.verpartido-hd.test -> vencida (intento 4, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-003-valle-1 valle dominio tv.verpartido-hd.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-004-andina-1 andina ip 203.0.113.11 -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-004-aurora-1 aurora ip 203.0.113.11 -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-004-cumbre-1 cumbre ip 203.0.113.11 -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-004-valle-1 valle dominio s2.pelotaya.test -> vencida (intento 1, juez jueza-laura-ficticia)
+[min 105.14] ORDEN ord-1a67-P-005-andina-1 andina ip 203.0.113.40 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-005-aurora-1 aurora ip 203.0.113.40 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-005-cumbre-1 cumbre ip 203.0.113.40 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-005-valle-1 valle dominio x9.tribuna-pirata.test -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-006-andina-1 andina ip 198.51.100.77 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-006-aurora-1 aurora ip 198.51.100.77 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-006-cumbre-1 cumbre ip 198.51.100.77 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-006-valle-1 valle dominio s3.pelotaya.test -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-007-andina-1 andina ip 203.0.113.41 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-007-aurora-1 aurora ip 203.0.113.41 -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-007-cumbre-3 cumbre ip 203.0.113.41 -> vencida (intento 3, juez juez-martin-ejemplo)
+[min 105.14] ORDEN ord-1a67-P-007-valle-1 valle dominio x10.tribuna-pirata.test -> vencida (intento 1, juez juez-martin-ejemplo)
+[min 105.14] PUBLICO 12 entradas; última: {"entrada_id": "P-007/ip/203.0.113.41", "pedido_id": "P-007", "expediente_id": "EXP-2026-000007", "partido_id": "practica-01", "tipo": "ip", "objetivo": "203.0.113.41", "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla", "juez_id": "juez-martin-ejemplo", "juez_nombre": "Dr. Martín Ejemplo", "juzgado_id": "jg-norte-1", "juzgado_nombre": "Juzg
+FIN

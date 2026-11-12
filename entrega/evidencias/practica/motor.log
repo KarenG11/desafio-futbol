@@ -1,0 +1,3 @@
+[motor] partido practica-01 corrida 33cc desde min 0.35
+[motor] fin de la corrida en min 110.71; auditoría en salida/practica/auditoria.jsonl
+[motor] exportado: {'expediente_id': 'EXP-2026-000001', 'eventos_auditoria': 160}

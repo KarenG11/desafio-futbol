@@ -162,3 +162,9 @@ main { max-width: 720px; margin: 0 auto; padding: 8px 16px 0; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+.reclamos__lista { list-style: none; padding: 0; display: grid; gap: .75rem; }
+.reclamo { border: 1px solid currentColor; border-radius: .5rem; padding: .75rem; }
+.reclamo--pendiente { border-width: 2px; }
+.reclamo__titulo { font-weight: 600; margin: 0 0 .25rem; }
+.reclamo__verificacion { opacity: .8; font-size: .9em; }

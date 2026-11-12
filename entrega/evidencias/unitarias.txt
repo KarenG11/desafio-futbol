@@ -1,0 +1,8 @@
+OK     plataforma.analisis.test_cerebro
+OK     plataforma.evidencia.test_evidencia
+OK     plataforma.reclamos.test_reclamos
+OK     plataforma.transparencia.test_registro
+OK     plataforma.db.test_db_api
+OK     plataforma.despacho.test_despacho
+
+6 de 6 módulos OK

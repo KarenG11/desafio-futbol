@@ -80,6 +80,9 @@ ACCIONES_AUDITORIA = (
     "reclamo_recibido", "reclamo_descartado", "reclamo_levantado",
     # motor
     "motor_iniciado", "partido_finalizado",
+    # agregadas al implementar motor y despacho
+    "deteccion_repetida", "cambio_de_turno", "turno_asumido", "orden_recibida", "orden_en_espera",
+    "orden_no_enviada", "orden_abandonada", "orden_error_red",
 )
 """Acciones de la auditoría INTERNA (T03). Se pueden agregar más; avisar en el buzón."""
 

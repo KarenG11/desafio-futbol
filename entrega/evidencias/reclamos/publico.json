@@ -1,0 +1,412 @@
+{
+  "entradas": [
+    {
+      "entrada_id": "P-001/dominio/s1.pelotaya.test",
+      "pedido_id": "P-001",
+      "expediente_id": "EXP-2026-000001",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "s1.pelotaya.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 2.037,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "valle",
+          "estado": "vencida",
+          "aplicada_min": 9.345,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-001/ip/203.0.113.10",
+      "pedido_id": "P-001",
+      "expediente_id": "EXP-2026-000001",
+      "partido_id": "practica-01",
+      "tipo": "ip",
+      "objetivo": "203.0.113.10",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 2.037,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "vencida",
+          "aplicada_min": 3.508,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "vencida",
+          "aplicada_min": 2.647,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "vencida",
+          "aplicada_min": 8.453,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-002/dominio/live.golazo-libre.test",
+      "pedido_id": "P-002",
+      "expediente_id": "EXP-2026-000002",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "live.golazo-libre.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 6.043,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "vencida",
+          "aplicada_min": 8.101,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "vencida",
+          "aplicada_min": 6.482,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "vencida",
+          "aplicada_min": 9.307,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "valle",
+          "estado": "vencida",
+          "aplicada_min": 11.932,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-003/dominio/tv.verpartido.hostcomun.test",
+      "pedido_id": "P-003",
+      "expediente_id": "EXP-2026-000003",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "tv.verpartido.hostcomun.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 9.065,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "vencida",
+          "aplicada_min": 11.245,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "vencida",
+          "aplicada_min": 9.421,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "vencida",
+          "aplicada_min": 15.0,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "valle",
+          "estado": "vencida",
+          "aplicada_min": 15.164,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-004/dominio/s2.pelotaya.test",
+      "pedido_id": "P-004",
+      "expediente_id": "EXP-2026-000004",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "s2.pelotaya.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 37.533,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "valle",
+          "estado": "vencida",
+          "aplicada_min": 41.764,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-004/ip/203.0.113.11",
+      "pedido_id": "P-004",
+      "expediente_id": "EXP-2026-000004",
+      "partido_id": "practica-01",
+      "tipo": "ip",
+      "objetivo": "203.0.113.11",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "jueza-laura-ficticia",
+      "juez_nombre": "Dra. Laura Ficticia",
+      "juzgado_id": "jg-centro-3",
+      "juzgado_nombre": "Juzgado de Garantías N.º 3 (ficticio) — Distrito Judicial Centro",
+      "ordenado_min": 37.533,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "vencida",
+          "aplicada_min": 39.588,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "vencida",
+          "aplicada_min": 38.138,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "vencida",
+          "aplicada_min": 40.113,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-005/dominio/x9.tribuna-pirata.test",
+      "pedido_id": "P-005",
+      "expediente_id": "EXP-2026-000005",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "x9.tribuna-pirata.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "juez-martin-ejemplo",
+      "juez_nombre": "Dr. Martín Ejemplo",
+      "juzgado_id": "jg-norte-1",
+      "juzgado_nombre": "Juzgado de Garantías N.º 1 (ficticio) — Distrito Judicial Norte",
+      "ordenado_min": 55.114,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "valle",
+          "estado": "vencida",
+          "aplicada_min": 61.233,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-005/ip/203.0.113.40",
+      "pedido_id": "P-005",
+      "expediente_id": "EXP-2026-000005",
+      "partido_id": "practica-01",
+      "tipo": "ip",
+      "objetivo": "203.0.113.40",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "juez-martin-ejemplo",
+      "juez_nombre": "Dr. Martín Ejemplo",
+      "juzgado_id": "jg-norte-1",
+      "juzgado_nombre": "Juzgado de Garantías N.º 1 (ficticio) — Distrito Judicial Norte",
+      "ordenado_min": 55.114,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "vencida",
+          "aplicada_min": 57.294,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "vencida",
+          "aplicada_min": 55.604,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "vencida",
+          "aplicada_min": 68.596,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-006/dominio/s3.pelotaya.test",
+      "pedido_id": "P-006",
+      "expediente_id": "EXP-2026-000006",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "s3.pelotaya.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "juez-martin-ejemplo",
+      "juez_nombre": "Dr. Martín Ejemplo",
+      "juzgado_id": "jg-norte-1",
+      "juzgado_nombre": "Juzgado de Garantías N.º 1 (ficticio) — Distrito Judicial Norte",
+      "ordenado_min": 71.023,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "valle",
+          "estado": "vencida",
+          "aplicada_min": 76.447,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-006/ip/198.51.100.77",
+      "pedido_id": "P-006",
+      "expediente_id": "EXP-2026-000006",
+      "partido_id": "practica-01",
+      "tipo": "ip",
+      "objetivo": "198.51.100.77",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "juez-martin-ejemplo",
+      "juez_nombre": "Dr. Martín Ejemplo",
+      "juzgado_id": "jg-norte-1",
+      "juzgado_nombre": "Juzgado de Garantías N.º 1 (ficticio) — Distrito Judicial Norte",
+      "ordenado_min": 71.023,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "vencida",
+          "aplicada_min": 72.952,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "vencida",
+          "aplicada_min": 71.595,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "vencida",
+          "aplicada_min": 74.52,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-007/dominio/x10.tribuna-pirata.test",
+      "pedido_id": "P-007",
+      "expediente_id": "EXP-2026-000007",
+      "partido_id": "practica-01",
+      "tipo": "dominio",
+      "objetivo": "x10.tribuna-pirata.test",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "juez-martin-ejemplo",
+      "juez_nombre": "Dr. Martín Ejemplo",
+      "juzgado_id": "jg-norte-1",
+      "juzgado_nombre": "Juzgado de Garantías N.º 1 (ficticio) — Distrito Judicial Norte",
+      "ordenado_min": 82.083,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "valle",
+          "estado": "vencida",
+          "aplicada_min": 86.365,
+          "finalizada_min": 105.0
+        }
+      ]
+    },
+    {
+      "entrada_id": "P-007/ip/203.0.113.41",
+      "pedido_id": "P-007",
+      "expediente_id": "EXP-2026-000007",
+      "partido_id": "practica-01",
+      "tipo": "ip",
+      "objetivo": "203.0.113.41",
+      "motivo": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
+      "juez_id": "juez-martin-ejemplo",
+      "juez_nombre": "Dr. Martín Ejemplo",
+      "juzgado_id": "jg-norte-1",
+      "juzgado_nombre": "Juzgado de Garantías N.º 1 (ficticio) — Distrito Judicial Norte",
+      "ordenado_min": 82.083,
+      "vence_min": 105,
+      "estado": "vencido",
+      "finalizado_min": 105.0,
+      "motivo_fin": "vencimiento de la orden",
+      "proveedores": [
+        {
+          "proveedor_id": "andina",
+          "estado": "vencida",
+          "aplicada_min": 84.194,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "aurora",
+          "estado": "vencida",
+          "aplicada_min": 82.464,
+          "finalizada_min": 105.0
+        },
+        {
+          "proveedor_id": "cumbre",
+          "estado": "vencida",
+          "aplicada_min": 87.718,
+          "finalizada_min": 105.0
+        }
+      ]
+    }
+  ]
+}

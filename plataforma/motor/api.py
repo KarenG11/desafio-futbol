@@ -1,7 +1,18 @@
-"""API del motor (contratos.md §5) + pantalla del juez en /juez y registro público en /api/publico.
+"""DISEÑO ANTERIOR — NO SE USA con el motor integrado (plataforma/motor/motor.py).
+
+Era la API propia del motor en memoria (crear_app), la que servía la pantalla del juez en la notebook.
+Se conserva solo como registro del trabajo del equipo (decisión 33 de coordinacion/decisiones.md). El motor actual
+escribe directo en la base (plataforma/db) y la API es plataforma/api/app.py. Este módulo se niega a importarse para
+que nadie lo use por accidente: sus llamadas no corresponden a la clase Motor actual.
+
+Texto original:
+API del motor (contratos.md §5) + pantalla del juez en /juez y registro público en /api/publico.
 
 Mismas rutas y formas que la app de T11 en Vercel: la web del juez (plataforma/web) funciona igual contra las dos.
 """
+
+raise ImportError(f"{__name__} es del diseño anterior y no se usa con el motor integrado; ver el docstring.")
+
 import hmac
 import time
 from pathlib import Path

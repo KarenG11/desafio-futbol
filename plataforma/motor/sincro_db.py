@@ -1,4 +1,12 @@
-"""Puente entre el motor (en memoria) y la base de T11 (plataforma/db), para que la web en Vercel vea y decida.
+"""DISEÑO ANTERIOR — NO SE USA con el motor integrado (plataforma/motor/motor.py).
+
+Era el puente que copiaba a la base el estado del motor en memoria (--base).
+Se conserva solo como registro del trabajo del equipo (decisión 33 de coordinacion/decisiones.md). El motor actual
+escribe directo en la base (plataforma/db) y la API es plataforma/api/app.py. Este módulo se niega a importarse para
+que nadie lo use por accidente: sus llamadas no corresponden a la clase Motor actual.
+
+Texto original:
+Puente entre el motor (en memoria) y la base de T11 (plataforma/db), para que la web en Vercel vea y decida.
 
 Reglas (contratos §10, decisiones 15 a 19):
 - El motor ESCRIBE: estado del partido, casos, expedientes, pedidos (solo al crearlos), órdenes, reclamos y auditoría.
@@ -7,6 +15,9 @@ Reglas (contratos §10, decisiones 15 a 19):
   decisión del juez.
 - Solo se escribe lo que cambió (huella por fila), para no saturar una base remota en cada vuelta.
 """
+
+raise ImportError(f"{__name__} es del diseño anterior y no se usa con el motor integrado; ver el docstring.")
+
 import json
 import os
 from typing import Dict, Optional

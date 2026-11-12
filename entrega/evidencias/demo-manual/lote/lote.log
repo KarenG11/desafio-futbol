@@ -1,0 +1,4 @@
+min 6.22 pendientes ['P-001', 'P-002'] | boton: Firmar los 2 pedidos como Dra. Laura Ficticia | cabecera: Dra. Laura Ficticia
+aviso: ['Órdenes en camino a los proveedores\n\nFirmaste la aprobación de 2 pedidos.']
+pedidos: [('P-001', 'aprobado', 'jueza-laura-ficticia', 6.22), ('P-002', 'aprobado', 'jueza-laura-ficticia', 6.22)]
+ordenes: [('P-001', 'andina', 'ip', 'recibida'), ('P-001', 'aurora', 'ip', 'aplicada'), ('P-001', 'cumbre', 'ip', 'recibida'), ('P-001', 'valle', 'dominio', 'recibida'), ('P-002', 'andina', 'dominio', 'recibida'), ('P-002', 'aurora', 'dominio', 'aplicada'), ('P-002', 'cumbre', 'dominio', 'recibida'), ('P-002', 'valle', 'dominio', 'recibida')]

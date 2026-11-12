@@ -428,3 +428,23 @@ def crear_solicitud(partido_id: str, tipo: str, datos: Dict[str, Any]) -> str:
         sql = "INSERT INTO solicitudes (partido_id, solicitud_id, tipo, datos, creada_ts, resultado) VALUES (?, ?, ?, ?, ?, NULL)"
         cur.execute(_q(sql, pg), [partido_id, solicitud_id, tipo, _json_param(datos, pg), ts])
     return solicitud_id
+
+
+def reiniciar_partido(partido_id: str) -> None:
+    """Borra todo lo de partido_id (el motor lo llama al arrancar una corrida nueva del mismo partido)."""
+    with _sesion() as (_, cur, pg):
+        for tabla in ("casos", "expedientes", "pedidos", "ordenes", "reclamos", "solicitudes", "auditoria",
+                      "partidos", "verificaciones"):
+            cur.execute(_q(f"DELETE FROM {tabla} WHERE partido_id = ?", pg), [partido_id])
+
+
+def obtener_solicitud(partido_id: str, solicitud_id: str) -> Optional[Dict[str, Any]]:
+    """Devuelve la solicitud con su resultado (None mientras el motor no la resolvió)."""
+    with _sesion() as (_, cur, pg):
+        sql = "SELECT tipo, datos, creada_ts, resultado FROM solicitudes WHERE partido_id = ? AND solicitud_id = ?"
+        cur.execute(_q(sql, pg), [partido_id, solicitud_id])
+        r = cur.fetchone()
+        if not r:
+            return None
+        return {"solicitud_id": solicitud_id, "partido_id": partido_id, "tipo": r[0], "datos": _json_load(r[1]),
+                "creada_ts": r[2], "resultado": _json_load(r[3]) if r[3] is not None else None}
