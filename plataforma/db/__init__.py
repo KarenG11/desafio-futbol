@@ -32,7 +32,11 @@ def ahora_ts() -> str:
 
 
 def _url_db() -> str:
-    return os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL") or "sqlite:///salida/plataforma.db"
+    url = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
+    if url:
+        return url
+    # En Vercel sin base conectada solo se puede escribir en /tmp: las pantallas andan, pero los datos no persisten.
+    return "sqlite:////tmp/plataforma.db" if os.environ.get("VERCEL") else "sqlite:///salida/plataforma.db"
 
 
 def _es_postgres(url: Optional[str] = None) -> bool:
