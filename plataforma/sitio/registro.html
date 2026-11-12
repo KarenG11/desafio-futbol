@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0A0E17">
+  <title>Registro público de bloqueos · Tarjeta Roja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/sitio/sitio.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='2' width='8' height='12' rx='1.5' fill='%23F0384B' transform='rotate(-10 8 8)'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="barra">
+    <div class="contenedor barra__fila">
+      <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja <small>Registro público</small></a>
+      <nav class="nav" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/monitoreo">En vivo</a>
+        <a href="/registro" aria-current="page">Registro público</a>
+        <a href="/juez/demo.html">Demo</a>
+        <a class="boton boton--chico boton--primario" href="/juez/">Acceso juez</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <section class="seccion" style="padding-top:44px">
+      <h1 class="seccion__titulo">Registro público de bloqueos</h1>
+      <p class="seccion__bajada">Cada bloqueo ordenado por un juez: qué se bloqueó, por qué, quién lo ordenó, hasta cuándo y en qué proveedores se aplicó. Cualquier persona puede consultarlo.</p>
+
+      <div class="kpis" style="margin-top:28px">
+        <div class="panel kpi"><p class="kpi__nombre">Bloqueos ordenados</p><p class="kpi__valor" id="r-total">0</p><p class="kpi__nota" id="r-partido">—</p></div>
+        <div class="panel kpi kpi--verde"><p class="kpi__nombre">Vigentes ahora</p><p class="kpi__valor" id="r-vigentes">0</p><p class="kpi__nota">aplicados en al menos un proveedor</p></div>
+        <div class="panel kpi"><p class="kpi__nombre">Finalizados</p><p class="kpi__valor" id="r-finalizados">0</p><p class="kpi__nota" id="r-levantados">0 levantados por reclamo</p></div>
+        <div class="panel kpi"><p class="kpi__nombre">Juzgados intervinientes</p><p class="kpi__valor" id="r-juzgados">0</p><p class="kpi__nota">con juez de turno identificado</p></div>
+      </div>
+
+      <div class="filtros" role="search">
+        <label class="oculto" for="buscar">Buscar por sitio, IP, juez o juzgado</label>
+        <input class="buscador" id="buscar" type="search" placeholder="Buscar sitio, IP, juez o juzgado…" autocomplete="off">
+        <div class="segmentos" role="group" aria-label="Filtrar por estado" id="f-estado">
+          <button type="button" data-v="" aria-pressed="true">Todos</button>
+          <button type="button" data-v="vigente" aria-pressed="false">Vigentes</button>
+          <button type="button" data-v="en_curso" aria-pressed="false">En curso</button>
+          <button type="button" data-v="fin" aria-pressed="false">Finalizados</button>
+        </div>
+        <div class="segmentos" role="group" aria-label="Filtrar por tipo" id="f-tipo">
+          <button type="button" data-v="" aria-pressed="true">IP y nombre</button>
+          <button type="button" data-v="ip" aria-pressed="false">IP</button>
+          <button type="button" data-v="dominio" aria-pressed="false">Nombre</button>
+        </div>
+      </div>
+      <p class="resumen-registro" id="resumen" aria-live="polite"></p>
+      <div class="entradas" id="entradas"></div>
+      <p class="vacio" id="vacio">Todavía no hay bloqueos registrados.</p>
+
+      <div class="panel explica">
+        <p><b>Qué se publica y qué no.</b> Se publica el objetivo bloqueado, el tipo (IP o nombre), el motivo, el juez y el juzgado, los minutos y el estado en cada proveedor. No se publican firmas, claves, capturas ni datos de usuarios. Cada bloqueo vence al terminar el partido; extenderlo requiere una orden nueva. Los datos también están en formato abierto en <a href="/api/publico">/api/publico</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie__fila">
+      <p>Tarjeta Roja · registro de transparencia</p>
+      <p>Datos ficticios del simulador oficial: dominios <code>.test</code> e IPs de documentación.</p>
+    </div>
+  </footer>
+
+  <script src="/sitio/comun.js"></script>
+  <script src="/sitio/registro.js"></script>
+</body>
+</html>

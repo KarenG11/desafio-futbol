@@ -20,6 +20,7 @@ def correr_pruebas() -> None:
             api_aprobar,
             api_asumir_turno,
             api_auditoria,
+            api_auditoria_integridad,
             api_estado,
             api_expediente,
             api_levantar_reclamo,
@@ -28,7 +29,10 @@ def correr_pruebas() -> None:
             api_publico,
             api_reclamos,
             api_rechazar,
+            monitoreo,
             pin_juez,
+            raiz,
+            registro,
         )
         from plataforma.db.semilla import PARTIDO_DEMO, cargar_semilla
 
@@ -116,6 +120,19 @@ def correr_pruebas() -> None:
         assert len(api_auditoria()["eventos"]) == 4
         assert len(api_reclamos()["reclamos"]) == 1
         assert "entradas" in api_publico()
+
+        # Integridad de la auditoría: íntegra con la semilla, y una alteración se detecta
+        integ = api_auditoria_integridad()
+        assert integ["integra"] is True and integ["eventos"] == 4, integ
+        with db._sesion() as (_, cur, pg):
+            cur.execute(db._q("UPDATE auditoria SET datos = ? WHERE partido_id = ? AND seq = 2", pg),
+                        (db._json_param(dict(db.auditoria(PARTIDO_DEMO)[1], actor="alterado"), pg), PARTIDO_DEMO))
+        integ = api_auditoria_integridad()
+        assert integ["integra"] is False and integ["falla_en_seq"] == 2, integ
+
+        # Portada, monitoreo y registro público
+        for pagina in (raiz(), monitoreo(), registro()):
+            assert Path(pagina.path).is_file(), pagina.path
 
     print("test_db_api: OK")
 

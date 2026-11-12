@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0A0E17">
+  <meta name="description" content="Tarjeta Roja: órdenes judiciales de bloqueo en vivo contra transmisiones piratas de fútbol, firmadas por el juez de turno y enviadas a todos los proveedores de internet.">
+  <title>Tarjeta Roja · Bloqueos judiciales en vivo contra la piratería de fútbol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/sitio/sitio.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='2' width='8' height='12' rx='1.5' fill='%23F0384B' transform='rotate(-10 8 8)'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="barra">
+    <div class="contenedor barra__fila">
+      <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja</a>
+      <nav class="nav" aria-label="Principal">
+        <a href="/" aria-current="page">Inicio</a>
+        <a href="/monitoreo">En vivo</a>
+        <a href="/registro">Registro público</a>
+        <a href="/juez/demo.html">Demo</a>
+        <a class="boton boton--chico boton--primario" href="/juez/">Acceso juez</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <section class="heroe">
+      <div>
+        <p class="heroe__etiqueta"><span class="chip chip--rojo">Plataforma federal · con orden judicial</span></p>
+        <h1>El stream pirata cae <em>en minutos</em>, no al día siguiente.</h1>
+        <p class="heroe__bajada">Detectamos la transmisión ilegal mientras se juega, armamos la evidencia, el juez de turno firma desde el celular y la orden llega a <strong>todos</strong> los proveedores de internet, grandes y chicos. Sin bloquear sitios legítimos.</p>
+        <div class="heroe__acciones">
+          <a class="boton boton--primario" href="/monitoreo">Ver el partido en vivo</a>
+          <a class="boton" href="#como-funciona">Cómo funciona</a>
+        </div>
+        <p class="heroe__aviso">Demostración con datos ficticios contra el simulador oficial del desafío. No se bloquea nada real.</p>
+      </div>
+
+      <a class="panel vivo" href="/monitoreo" style="text-decoration:none" aria-label="Estado del partido en vivo, abrir monitoreo">
+        <div class="vivo__cabeza">
+          <span class="vivo__partido" id="v-partido">Conectando…</span>
+          <span id="v-estado"></span>
+        </div>
+        <p class="vivo__minuto"><span id="v-minuto">—</span></p>
+        <p class="vivo__juez">Juez de turno: <strong id="v-juez">—</strong></p>
+        <div class="reloj" aria-hidden="true"><div class="reloj__avance" id="v-avance"></div></div>
+        <div class="vivo__metricas">
+          <div><b id="v-piratas">0</b><small>streams piratas</small></div>
+          <div><b id="v-ordenes">0</b><small>órdenes activas</small></div>
+          <div><b id="v-pendientes">0</b><small>esperan firma</small></div>
+        </div>
+      </a>
+    </section>
+
+    <section class="seccion" aria-labelledby="t-problema">
+      <h2 class="seccion__titulo" id="t-problema">El problema que resolvemos</h2>
+      <p class="seccion__bajada">Un partido dura dos horas y un sitio pirata cambia de dominio o de servidor en minutos. Hoy el bloqueo depende de una sola fiscalía, un solo juzgado y cadenas de mails. Los proveedores plantearon objeciones concretas; esta es la respuesta a cada una.</p>
+      <div class="panel problema" style="margin-top:28px">
+        <div><p class="problema__cabeza">Objeción</p></div>
+        <div class="problema__resp"><p class="problema__cabeza">Cómo lo resuelve Tarjeta Roja</p></div>
+
+        <div><p class="problema__obj">"Los proveedores chicos no pueden reaccionar en tiempo real."</p></div>
+        <div class="problema__resp"><p><b>Un canal estándar para todos.</b> Cada proveedor recibe la orden firmada por API, en el tipo de bloqueo que puede aplicar (IP o nombre). Si falla, se reintenta solo hasta que confirma.</p></div>
+
+        <div><p class="problema__obj">"Bloquear una IP compartida tira abajo servicios legítimos."</p></div>
+        <div class="problema__resp"><p><b>IP solo con un único titular.</b> Si la IP es compartida o hay dudas, se bloquea el nombre del sitio. Si igual aparece un reclamo, se verifica, se levanta con firma y se reemplaza por el dominio.</p></div>
+
+        <div><p class="problema__obj">"No hay reglas claras de duración ni seguimiento."</p></div>
+        <div class="problema__resp"><p><b>Vence con el partido.</b> Toda orden se levanta sola al terminar. Cada paso queda en una auditoría encadenada con hashes y en un registro público.</p></div>
+
+        <div><p class="problema__obj">"Sin juez, el bloqueo no tiene base legal (Ley 27.078, art. 57)."</p></div>
+        <div class="problema__resp"><p><b>El juez decide cada objetivo.</b> Ve la evidencia en lenguaje claro y firma en lote desde el celular, en segundos. El cambio de turno exige que el juez entrante ratifique.</p></div>
+      </div>
+    </section>
+
+    <section class="seccion" id="como-funciona" aria-labelledby="t-como">
+      <h2 class="seccion__titulo" id="t-como">Cómo funciona</h2>
+      <p class="seccion__bajada">Cuatro pasos, de la detección al bloqueo confirmado, mientras la pelota sigue rodando.</p>
+      <div class="grilla grilla--4 pasos">
+        <article class="panel tarjeta paso">
+          <p class="paso__num">01 · DETECTA</p>
+          <h3>Radar y marca de agua</h3>
+          <p>Agrupa los avisos repetidos y verifica la marca de agua contra el partido. Descarta licenciatarios autorizados y señales ajenas.</p>
+        </article>
+        <article class="panel tarjeta paso">
+          <p class="paso__num">02 · DOCUMENTA</p>
+          <h3>Expediente verificable</h3>
+          <p>Capturas con SHA-256, servidor, ASN, sitios en la misma IP y dónde se promocionó el enlace. El expediente tiene su propia huella.</p>
+        </article>
+        <article class="panel tarjeta paso">
+          <p class="paso__num">03 · FIRMA</p>
+          <h3>Juez de turno en el celular</h3>
+          <p>Lee qué se bloquea, por qué y hasta cuándo. Firma en lote o rechaza con motivo. Nada se envía sin su firma.</p>
+        </article>
+        <article class="panel tarjeta paso">
+          <p class="paso__num">04 · BLOQUEA</p>
+          <h3>Todos los proveedores</h3>
+          <p>Orden firmada a cada proveedor, seguimiento hasta que confirma, reintentos y levantamiento al final del partido.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="seccion" aria-labelledby="t-resultados">
+      <h2 class="seccion__titulo" id="t-resultados">Resultados medidos con el verificador oficial</h2>
+      <p class="seccion__bajada">Partido de práctica completo contra el simulador de la organización. El cliente de ejemplo dejaba el 86,5 % de la visibilidad pirata en pie.</p>
+      <div class="cifras">
+        <div class="panel cifra cifra--verde"><b>7 de 7</b><span>fases piratas bloqueadas, con todos los clientes cubiertos</span></div>
+        <div class="panel cifra cifra--rojo"><b>≈ 3 %</b><span>de visibilidad pirata residual (contra 86,5 % del ejemplo)</span></div>
+        <div class="panel cifra"><b>&lt; 1'</b><span>de partido entre la detección y el primer bloqueo</span></div>
+        <div class="panel cifra cifra--verde"><b>0</b><span>sitios legítimos afectados, falsos positivos u órdenes fuera de turno</span></div>
+      </div>
+    </section>
+
+    <section class="seccion" aria-labelledby="t-quien">
+      <h2 class="seccion__titulo" id="t-quien">Una plataforma, cuatro miradas</h2>
+      <p class="seccion__bajada">Cada actor entra por su puerta y ve solo lo que necesita.</p>
+      <div class="grilla grilla--4">
+        <article class="panel tarjeta">
+          <div class="tarjeta__icono" aria-hidden="true">J</div>
+          <h3>Juzgado de turno</h3>
+          <p>Pantalla para el celular: evidencia clara, firma en lote, cambio de turno y reclamos.</p>
+          <a class="tarjeta__link" href="/juez/">Entrar con PIN →</a>
+        </article>
+        <article class="panel tarjeta">
+          <div class="tarjeta__icono tarjeta__icono--azul" aria-hidden="true">T</div>
+          <h3>Titular de derechos</h3>
+          <p>Tablero en vivo: streams detectados, órdenes por proveedor, tiempos de bloqueo y auditoría.</p>
+          <a class="tarjeta__link" href="/monitoreo">Ver tablero →</a>
+        </article>
+        <article class="panel tarjeta">
+          <div class="tarjeta__icono tarjeta__icono--verde" aria-hidden="true">P</div>
+          <h3>Proveedor de internet</h3>
+          <p>Recibe órdenes firmadas por API, en IP o por nombre, con vencimiento incluido. Sin trabajo manual.</p>
+          <a class="tarjeta__link" href="/registro">Ver órdenes publicadas →</a>
+        </article>
+        <article class="panel tarjeta">
+          <div class="tarjeta__icono tarjeta__icono--ambar" aria-hidden="true">C</div>
+          <h3>Ciudadanía</h3>
+          <p>Registro público de qué se bloqueó, quién lo ordenó, por qué y hasta cuándo. Sin datos personales.</p>
+          <a class="tarjeta__link" href="/registro">Consultar registro →</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="seccion" aria-labelledby="t-modelo">
+      <h2 class="seccion__titulo" id="t-modelo">Quién paga</h2>
+      <p class="seccion__bajada">Paga quien pierde plata con la piratería. La justicia y los proveedores lo usan sin costo. Precios a validar con el mercado.</p>
+      <div class="grilla grilla--3">
+        <article class="panel precio precio--destacado">
+          <p class="precio__quien">Titulares de derechos</p>
+          <p class="precio__valor">Por temporada</p>
+          <ul>
+            <li>Según la cantidad de partidos protegidos</li>
+            <li>Tablero en vivo y reportes por partido</li>
+            <li>Evidencia que aguanta un juicio</li>
+          </ul>
+        </article>
+        <article class="panel precio">
+          <p class="precio__quien">Juzgados</p>
+          <p class="precio__valor">Sin costo</p>
+          <ul>
+            <li>Firma desde el celular</li>
+            <li>Turnos y ratificación</li>
+            <li>Expedientes con hash</li>
+          </ul>
+        </article>
+        <article class="panel precio">
+          <p class="precio__quien">Proveedores de internet</p>
+          <p class="precio__valor">Sin costo</p>
+          <ul>
+            <li>Una sola API para todas las órdenes</li>
+            <li>Vencimiento automático</li>
+            <li>Canal de reclamos verificado</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel cta">
+      <h2>Mirá un partido completo, de punta a punta</h2>
+      <p>El modo demo levanta el simulador oficial y la plataforma en la nube. Firmás desde el celular y al final ves la salida del verificador.</p>
+      <div class="heroe__acciones">
+        <a class="boton boton--primario" href="/juez/demo.html">Correr la demo</a>
+        <a class="boton" href="/monitoreo">Abrir el tablero</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie__fila">
+      <p>Tarjeta Roja · Hackatón Argentina Space 2026 · Desafío Fútbol (QualyData)</p>
+      <p>Datos ficticios: dominios <code>.test</code>, IPs de documentación. <a href="/api/publico">API pública</a></p>
+    </div>
+  </footer>
+
+  <script src="/sitio/comun.js"></script>
+  <script>
+    "use strict";
+    const $ = (id) => document.getElementById(id);
+    cadaTanto(async () => {
+      const est = await api("/api/estado");
+      const [texto, color] = estadoPartido(est);
+      $("v-partido").textContent = est.minuto_actual === null ? "Esperando el próximo partido" : `Partido ${est.partido_id}`;
+      reemplazar($("v-estado"), chip(texto, color, color === "rojo" ? "chip--vivo" : ""));
+      $("v-minuto").textContent = est.minuto_actual === null ? "—" : minuto(Math.min(est.minuto_actual, est.fin_min || 105));
+      $("v-juez").textContent = nombreJuez(est, (est.jueces_de_turno || [])[0]);
+      $("v-avance").style.width = est.fin_min ? `${Math.min(100, (est.minuto_actual / est.fin_min) * 100)}%` : "0";
+      const c = est.contadores || {};
+      $("v-piratas").textContent = c.casos_piratas ?? 0;
+      $("v-ordenes").textContent = c.ordenes_activas ?? 0;
+      $("v-pendientes").textContent = c.pedidos_pendientes ?? 0;
+    }, 3000);
+  </script>
+</body>
+</html>

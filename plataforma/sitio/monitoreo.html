@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0A0E17">
+  <title>En vivo · Tarjeta Roja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/sitio/sitio.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='4' y='2' width='8' height='12' rx='1.5' fill='%23F0384B' transform='rotate(-10 8 8)'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="barra">
+    <div class="contenedor barra__fila">
+      <a class="marca" href="/"><span class="marca__tarjeta" aria-hidden="true"></span>Tarjeta Roja <small>Monitoreo</small></a>
+      <nav class="nav" aria-label="Principal">
+        <a href="/">Inicio</a>
+        <a href="/monitoreo" aria-current="page">En vivo</a>
+        <a href="/registro">Registro público</a>
+        <a href="/juez/demo.html">Demo</a>
+        <a class="boton boton--chico boton--primario" href="/juez/">Acceso juez</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor tablero">
+    <section class="panel cabecera" aria-live="polite">
+      <p class="cabecera__minuto"><span id="minuto">—</span></p>
+      <div>
+        <h1 class="cabecera__partido" id="partido">Conectando con la plataforma…</h1>
+        <p class="cabecera__sub" id="sub">—</p>
+        <div class="reloj" aria-hidden="true">
+          <div class="reloj__avance" id="avance"></div>
+          <div class="reloj__marca" id="marca-turno" hidden></div>
+        </div>
+        <div class="reloj__leyenda"><span>0'</span><span id="leyenda-turno"></span><span id="leyenda-fin">105'</span></div>
+      </div>
+      <div class="cabecera__estado" id="chips"></div>
+    </section>
+
+    <section class="kpis" aria-label="Indicadores">
+      <div class="panel kpi kpi--rojo"><p class="kpi__nombre">Streams piratas</p><p class="kpi__valor" id="k-piratas">0</p><p class="kpi__nota" id="k-descartados">0 descartados (legales o ajenos)</p></div>
+      <div class="panel kpi kpi--ambar"><p class="kpi__nombre">Esperan firma del juez</p><p class="kpi__valor" id="k-pendientes">0</p><p class="kpi__nota" id="k-firmados">0 firmados</p></div>
+      <div class="panel kpi kpi--verde"><p class="kpi__nombre">Órdenes aplicadas ahora</p><p class="kpi__valor" id="k-activas">0</p><p class="kpi__nota" id="k-ordenes">0 órdenes en total</p></div>
+      <div class="panel kpi"><p class="kpi__nombre">Detección → primer bloqueo</p><p class="kpi__valor" id="k-tiempo">—</p><p class="kpi__nota">promedio, en minutos de partido</p></div>
+      <div class="panel kpi"><p class="kpi__nombre">Reintentos automáticos</p><p class="kpi__valor" id="k-reintentos">0</p><p class="kpi__nota" id="k-fallidas">órdenes que un proveedor hizo fallar</p></div>
+      <div class="panel kpi"><p class="kpi__nombre">Reclamos de terceros</p><p class="kpi__valor" id="k-reclamos">0</p><p class="kpi__nota" id="k-reclamos-nota">pendientes</p></div>
+    </section>
+
+    <div class="columnas">
+      <div class="columna">
+        <section class="panel" aria-labelledby="t-streams">
+          <div class="panel__cabeza">
+            <h2 class="panel__titulo" id="t-streams">Streams detectados y órdenes por proveedor</h2>
+            <span class="panel__ayuda">se actualiza cada 2 s</span>
+          </div>
+          <div class="panel__cuerpo tabla-envoltorio">
+            <table>
+              <thead><tr><th>Sitio pirata</th><th>Qué se bloquea</th><th>Juez</th><th>Primer bloqueo</th><th>Proveedores</th></tr></thead>
+              <tbody id="streams"></tbody>
+            </table>
+            <p class="vacio" id="vacio-streams">Todavía no hay streams piratas en este partido. Cuando el radar detecte uno, aparece acá.</p>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="t-descartados">
+          <div class="panel__cabeza">
+            <h2 class="panel__titulo" id="t-descartados">Detecciones descartadas</h2>
+            <span class="panel__ayuda">no se pidió ningún bloqueo</span>
+          </div>
+          <div class="panel__cuerpo tabla-envoltorio">
+            <table>
+              <thead><tr><th>Sitio</th><th>Minuto</th><th>Por qué no se bloquea</th></tr></thead>
+              <tbody id="descartados"></tbody>
+            </table>
+            <p class="vacio" id="vacio-descartados">Ninguna detección descartada.</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="columna">
+        <section class="panel" aria-labelledby="t-integridad">
+          <div class="panel__cabeza"><h2 class="panel__titulo" id="t-integridad">Auditoría</h2></div>
+          <div class="panel__cuerpo integridad" id="integridad">
+            <div class="integridad__sello" aria-hidden="true">…</div>
+            <div><p class="fuerte">Verificando la cadena…</p></div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="t-reclamos">
+          <div class="panel__cabeza"><h2 class="panel__titulo" id="t-reclamos">Reclamos</h2></div>
+          <div class="panel__cuerpo">
+            <div id="reclamos"></div>
+            <p class="vacio" id="vacio-reclamos">Ningún sitio legítimo reclamó.</p>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="t-actividad">
+          <div class="panel__cabeza">
+            <h2 class="panel__titulo" id="t-actividad">Actividad</h2>
+            <span class="panel__ayuda">lo último primero</span>
+          </div>
+          <div class="panel__cuerpo">
+            <ol class="linea-tiempo" id="actividad"></ol>
+            <p class="vacio" id="vacio-actividad">Sin actividad todavía.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie__fila">
+      <p>Vista de solo lectura para titulares de derechos y operadores. Las decisiones las toma el juez en <a href="/juez/">/juez</a>.</p>
+      <p>Datos ficticios del simulador oficial.</p>
+    </div>
+  </footer>
+
+  <script src="/sitio/comun.js"></script>
+  <script src="/sitio/monitoreo.js"></script>
+</body>
+</html>

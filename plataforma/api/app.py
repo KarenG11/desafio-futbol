@@ -10,17 +10,20 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from plataforma import db
 from plataforma.contratos import (
     EJEMPLO_SIM_JUZGADOS,
     ESTADOS_ORDEN_ACTIVA,
+    HASH_INICIAL,
+    hash_evento_auditoria,
 )
 
 RAIZ = Path(__file__).resolve().parents[2]
 WEB_DIR = RAIZ / "plataforma" / "web"
+SITIO_DIR = RAIZ / "plataforma" / "sitio"
 
 # Mapa público juez_id -> juzgado_id (de EJEMPLO_SIM_JUZGADOS; nunca lee datos/juzgados.json).
 _JUZGADO_DE_JUEZ: Dict[str, str] = {
@@ -263,6 +266,18 @@ def api_auditoria(partido_id: Optional[str] = None):
     return {"eventos": db.auditoria(pid)}
 
 
+@app.get("/api/auditoria/integridad")
+def api_auditoria_integridad(partido_id: Optional[str] = None):
+    pid = _partido_o_defecto(partido_id)
+    prev = HASH_INICIAL
+    eventos = db.auditoria(pid)
+    for ev in eventos:
+        if ev.get("hash_prev") != prev or ev.get("hash") != hash_evento_auditoria(ev):
+            return {"partido_id": pid, "integra": False, "eventos": len(eventos), "falla_en_seq": ev.get("seq")}
+        prev = ev["hash"]
+    return {"partido_id": pid, "integra": True, "eventos": len(eventos), "ultimo_hash": prev}
+
+
 @app.get("/api/reclamos")
 def api_reclamos(partido_id: Optional[str] = None):
     pid = _partido_o_defecto(partido_id)
@@ -327,9 +342,20 @@ def api_publico(partido_id: Optional[str] = None):
     return {"entradas": armar_entradas_publicas(pid)}
 @app.get("/")
 def raiz():
-    return RedirectResponse("/juez/")
+    return FileResponse(SITIO_DIR / "index.html")
 
 
+@app.get("/monitoreo")
+def monitoreo():
+    return FileResponse(SITIO_DIR / "monitoreo.html")
+
+
+@app.get("/registro")
+def registro():
+    return FileResponse(SITIO_DIR / "registro.html")
+
+
+app.mount("/sitio", StaticFiles(directory=str(SITIO_DIR)), name="sitio")
 if WEB_DIR.exists():
     app.mount("/juez", StaticFiles(directory=str(WEB_DIR), html=True), name="juez")
 
