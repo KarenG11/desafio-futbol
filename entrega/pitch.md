@@ -1,6 +1,10 @@
 # Pitch y video
 
+**Producto:** Tarjeta Roja, plataforma federal de órdenes judiciales de bloqueo en vivo. Entrega individual de Karen Gutierrez, sobre el trabajo del equipo Desafío Fútbol.
+
 **La idea en una frase:** un juez de turno firma desde el celular en segundos, y la orden de bloqueo llega a todos los proveedores de internet del país, no solo a los grandes, con evidencia que nadie puede trucar.
+
+**Pantallas que se muestran:** portada (`/`), tablero en vivo para el titular de derechos (`/monitoreo`), pantalla del juez en el celular (`/juez/`), registro público (`/registro`) y el botón de partido de demo (`/juez/demo.html`).
 
 Los números de la sección 4 son reales: salen del verificador oficial sobre la corrida definitiva del partido de práctica (simulador x20), en [`evidencias/RESULTADOS.md`](evidencias/RESULTADOS.md). Si se corre el partido final, se reemplazan por los de esa corrida. No inventar ninguno.
 
@@ -16,14 +20,15 @@ Ritmo de referencia: unas 140 palabras por minuto. Lo que se dice suma unas 350 
 > "Italia bloquea sin juez, y dejó a Google Drive bloqueado durante horas. Acá no se puede: la Ley 27.078 exige orden judicial. Así que pusimos al juez en el centro: de turno, en el celular, firmando en segundos."
 
 ### 3. Demo en vivo (0:40–2:05)
-Una persona maneja el celular del juez, proyectado. Otra muestra el registro público y el verificador.
+En el proyector, el tablero `/monitoreo` en la notebook. En la mano, el celular del juez con `/juez/`; si se puede, duplicar su pantalla. El partido se lanza antes de empezar desde `/juez/demo.html` (x6, juez automático **destildado**) para que el primer pedido llegue durante la demo.
+0. **El tablero.** "Esto es lo que ve el dueño de los derechos: el minuto, el juez de turno, cada stream detectado y el estado en cada proveedor."
 1. **Llega el pedido** (`s1.pelotaya.test`). "La marca de agua es la del partido. Se ve de dónde sale el video, qué se bloquea y hasta cuándo."
 2. **La trampa de la CDN** (`live.golazo-libre.test`). "Esta IP la comparten 11 sitios legítimos: bloqueamos solo el nombre."
 3. **Lo que no se bloquea.** "Canal Norte es licenciatario y los resúmenes son de otro partido: se descartan solos."
-4. **Firma en lote**, con un toque. Las casillas de los proveedores pasan a verde. "Si Cumbre falla, se reenvía sola con otro número de orden. FibraValle recibe el nombre porque no bloquea por IP."
+4. **Firma en lote**, con un toque. En el celular y en el tablero, las casillas de los proveedores pasan a verde y se ve el tiempo de detección al primer bloqueo. "Si Cumbre falla, se reenvía sola con otro número de orden. FibraValle recibe el nombre porque no bloquea por IP."
 5. **Cambio de turno, minuto 50.** "Entra el juez Martín, ratifica con un toque y desde ahí todo sale con su firma."
-6. **Evidencia.** Se muestra la huella SHA-256 del expediente. Se altera una línea de la auditoría y `python -m plataforma.motor.exportar` responde `cadena de auditoría rota en seq 41`.
-7. **Vencimiento.** "Al minuto 105 todo vence solo y el registro público lo muestra."
+6. **Evidencia.** Se muestra la huella SHA-256 del expediente y el sello "Cadena íntegra" del tablero, que el servidor recalcula con cada evento. Se altera una línea de la auditoría y `python -m plataforma.motor.exportar` responde `cadena de auditoría rota en seq 41`.
+7. **Vencimiento y transparencia.** "Al minuto 105 todo vence solo." Se abre `/registro`: cualquier persona busca un sitio y ve quién lo ordenó, por qué, hasta cuándo y en qué proveedores se aplicó.
 
 Si en vivo aparece un reclamo, se resuelve desde la misma pantalla: levantamiento firmado en todos los proveedores y reemplazo por el nombre. En el partido de práctica no hubo ninguno, porque no bloqueamos IPs compartidas.
 
@@ -36,7 +41,7 @@ Si preguntan por los reclamos: "Para probarlos le hicimos creer a la plataforma 
 > "Paga el titular de derechos; al juez y a los proveedores no les cuesta nada. Para arrancar alcanza con un piloto en un partido de la liga, una acordada de turno y una resolución del ENACOM que obligue a cada proveedor a tener un canal electrónico de órdenes. Está en nuestra propuesta normativa."
 
 ### 6. Cierre (2:50–3:00)
-> "Un juez, en segundos, con evidencia, y llegando a todos. Somos Alejo, Selene, Luciano, Rocío y Nahuel."
+> "Tarjeta Roja: un juez, en segundos, con evidencia, y llegando a todos. Soy Karen Gutierrez, del equipo Desafío Fútbol."
 
 ---
 
@@ -55,18 +60,27 @@ Si preguntan por los reclamos: "Para probarlos le hicimos creer a la plataforma 
 \* La fase 1 terminó antes de que arrancara la corrida. Las cifras definitivas y las salidas del verificador están en [`evidencias/RESULTADOS.md`](evidencias/RESULTADOS.md); si la corrida definitiva cambia algún número, manda esa.
 
 ## Video de respaldo (hasta 3 minutos)
-Se graba sobre un partido de práctica con `--acelerar 6` (con OBS o Win+Alt+R) y se sube a Hacki. **Es también el plan B si falla el Wi-Fi en el pitch.**
+Se graba con la grabadora de Windows (Win+Alt+R, o Win+Shift+R para elegir una zona) u OBS, y se sube a Hacki. **Es también el plan B si falla el Wi-Fi en el pitch.**
+
+**Preparación (antes de grabar):**
+1. Una terminal de PowerShell en la carpeta del repo:
+   ```
+   $env:PYTHONUTF8="1"; $env:DATABASE_URL="sqlite:///salida/video/plataforma.db"; $env:JUEZ_PIN="1234"
+   py -m uvicorn plataforma.api.app:app --port 8000
+   ```
+2. En el navegador, dos ventanas lado a lado: a la izquierda `http://localhost:8000/monitoreo`; a la derecha `http://localhost:8000/juez/` en modo celular (F12 → ícono de dispositivo → 390 px de ancho).
+3. Desde `http://localhost:8000/juez/demo.html`: PIN `1234`, x6, juez automático **destildado**. A x6 el partido dura ~18 min reales: se graba en tramos y se edita (Clipchamp viene con Windows).
 
 | Tiempo | Pantalla | Qué se dice |
 |---|---|---|
-| 0:00–0:15 | Título + la frase de la idea | El problema en una oración |
-| 0:15–0:40 | Simulador y plataforma arrancando; llega el primer pedido al celular | "Detección → expediente → juez" |
-| 0:40–1:20 | Pantalla del juez: tarjeta de pelotaya, después la de golazo (IP compartida → nombre) | Evidencia y control de daño colateral |
-| 1:20–1:50 | Firmar en lote; las casillas de órdenes pasan a verde; el reintento de Cumbre | Proveedores, confirmación, reintento |
-| 1:50–2:15 | Minuto 50: cambio de turno y ratificación | Juez de turno real, firma válida |
-| 2:15–2:35 | Expediente con hashes; auditoría alterada → alerta. Si apareció, un reclamo levantado | Integridad de la evidencia y reclamos |
-| 2:35–2:55 | Fin del partido: las IP vencen solas. Salida de `evaluacion/verificar.py` | Vencimiento + números finales |
-| 2:55–3:00 | Repo y nombres | — |
+| 0:00–0:15 | Portada `/`: título y "El problema que resolvemos" | El problema en una oración: un partido dura dos horas, un pirata cambia de servidor en minutos |
+| 0:15–0:35 | `/juez/demo.html` → "Correr partido"; el tablero pasa a "En vivo" | "Detección → expediente → juez" |
+| 0:35–1:10 | Celular del juez: tarjeta de pelotaya, después la de golazo (IP compartida → solo nombre). En el tablero, "Detecciones descartadas" | Evidencia y cero daño colateral; licenciatario y otra señal descartados solos |
+| 1:10–1:40 | Firmar en lote; en el tablero las casillas pasan a verde, el KPI "Detección → primer bloqueo" y el reintento de Cumbre | Todos los proveedores, confirmación, reintento automático |
+| 1:40–2:00 | Minuto 50: el celular pide asumir el turno; el tablero muestra "Turno ratificado" | Juez de turno real, firma válida |
+| 2:00–2:20 | Sello "Cadena íntegra" en el tablero; en terminal, auditoría alterada → `cadena rota` | Evidencia que no se puede trucar |
+| 2:20–2:45 | `/registro`: buscar `pelotaya`; después la salida del verificador al pie de `demo.html` | Transparencia + números finales: 7 de 7, ~3 %, todo en 0 |
+| 2:45–3:00 | Portada: "Quién paga" y nombre | Paga el titular de derechos; Karen Gutierrez, equipo Desafío Fútbol |
 
 ## Preguntas probables del jurado
 Respuestas de 15 segundos. El detalle y las fuentes están en `coordinacion/investigacion/soluciones-parecidas.md`.
@@ -94,9 +108,11 @@ Se contradicen entre fuentes o los publica solo la industria:
 - **Nuestra velocidad**: solo la que muestre el cronómetro de la demo.
 
 ## Antes de subir
-- [ ] Cronómetro en pantalla durante la demo: desde la detección hasta la confirmación del último proveedor
+- [x] Cronómetro en pantalla durante la demo: el tablero `/monitoreo` muestra el minuto y "Detección → primer bloqueo" en vivo
 - [x] Números reales del verificador en la sección 4 (partido de práctica; reemplazar si se corre el final)
+- [x] Ensayo del comando de la final en la notebook (`--sim http://localhost:8080 --local`): 7 de 7, 3,4 %, todo en 0, auditoría y expediente íntegros
+- [ ] Notebook sin suspensión ni acción al cerrar la tapa, enchufada
 - [ ] Video grabado y subido a Hacki
-- [ ] URL pública de Vercel funcionando desde un celular
+- [ ] URL pública de Vercel (deploy propio) funcionando desde un celular
 - [x] `entrega/` con expediente, auditoría (del partido de práctica) y [propuesta normativa](propuesta_normativa.md). Regenerar con el partido final si se corre
 - [ ] Ensayado con cronómetro, dos veces
