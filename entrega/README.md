@@ -136,6 +136,12 @@ Para probarlo todo en local, con SQLite: `DATABASE_URL=sqlite:///salida/platafor
 
 **6. Partido de práctica online (T12), sin ninguna notebook.** En `/juez/demo.html` del deploy se ingresa como juez (usuario y contraseña) y se aprieta "Correr partido de práctica". Opcional: la URL del simulador de la final. La web prende un Vercel Sandbox que clona el repo de `DEMO_REPO` (por defecto, este fork) y levanta el simulador de la organización y el motor apuntando a la base. El juez firma desde `/juez/` en el celular y, al terminar, la página muestra la salida de `evaluacion/verificar.py`. Hay un solo partido a la vez, con velocidad de x6 a x30.
 
+**Partido final y entregable 3.** En la notebook, `--exportar-entrega` deja `entrega/expediente-final.json` y `entrega/auditoria-final.jsonl` al terminar. Si el partido corrió en la nube (demo con la URL del simulador de la final), se bajan por la API pública, verificando la cadena y el hash antes de escribir:
+```bash
+py -m plataforma.motor.exportar_web --url https://desafio-futbol-karen.vercel.app
+py -m plataforma.motor.exportar entrega/auditoria-final.jsonl entrega/expediente-final.json   # comprobación
+```
+
 ### Deploy propio en Vercel
 1. `npx vercel login` y `npx vercel link` (proyecto nuevo). `.vercel/` está en el `.gitignore`.
 2. Base: Storage → Neon en el dashboard del proyecto, en São Paulo (`aws-sa-east-1`), que coincide con `gru1` de `vercel.json`. Vercel carga `DATABASE_URL` sola.
