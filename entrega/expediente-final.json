@@ -1,39 +1,39 @@
 {
-  "expediente_id": "EXP-2026-000001",
-  "partido_id": "final-01",
   "caso": {
-    "caso_id": "C-001",
-    "host": "sa.futbolpasion.test",
     "ip": "203.0.113.60",
     "asn": 64600,
-    "organizacion": "Bruma Hosting Dedicado (ficticio)",
+    "host": "sa.futbolpasion.test",
+    "marca": "LP26-FIN-OFI-S020318",
     "sitio": "futbolpasion.test",
     "pagina": "https://futbolpasion.test/hoy",
+    "caso_id": "C-001",
+    "motivo_tipo": "Todos los dominios de la IP 203.0.113.60 son de futbolpasion.test y el ASN es de Bruma Hosting Dedicado (ficticio) (hosting no compartido): se bloquea la IP",
+    "marca_origen": "Señal oficial del titular (plataforma propia)",
+    "organizacion": "Bruma Hosting Dedicado (ficticio)",
+    "clasificacion": "pirata",
     "deteccion_ids": [
       "D-0001"
     ],
+    "ip_compartida": false,
     "primer_minuto": 2.0,
-    "marca": "LP26-FIN-OFI-S020318",
-    "marca_origen": "Señal oficial del titular (plataforma propia)",
-    "clasificacion": "pirata",
-    "motivo_clasificacion": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla",
     "dominios_en_ip": [
       "sa.futbolpasion.test"
     ],
-    "ip_compartida": false,
     "tipo_recomendado": "ip",
-    "motivo_tipo": "Todos los dominios de la IP 203.0.113.60 son de futbolpasion.test y el ASN es de Bruma Hosting Dedicado (ficticio) (hosting no compartido): se bloquea la IP"
+    "motivo_clasificacion": "Lleva la marca de la señal oficial del partido y este dominio no está autorizado a transmitirla"
   },
+  "hash": "f655b8531370934a31ebef7b50f50b43c32d8b5e4b3eb1dda26ee63d2e8b82f0",
   "capturas": [
     {
-      "deteccion_id": "D-0001",
-      "capturada_min": 2.0,
-      "formato": "mpegts",
-      "duracion_seg": 6,
       "bytes": 64,
-      "sha256": "c60104faf76e511083ffea258f135c53fd3a8a0b6a6cba7f0353d605cc959ef8"
+      "sha256": "c60104faf76e511083ffea258f135c53fd3a8a0b6a6cba7f0353d605cc959ef8",
+      "formato": "mpegts",
+      "deteccion_id": "D-0001",
+      "duracion_seg": 6,
+      "capturada_min": 2.0
     }
   ],
+  "creado_ts": "2026-11-13T14:12:19.694588+00:00",
   "promocion": [
     {
       "red": "x",
@@ -41,8 +41,8 @@
       "minuto": 1.0
     }
   ],
-  "vence_propuesto_min": 105,
-  "creado_min": 129.329,
-  "creado_ts": "2026-11-13T14:53:12.077428+00:00",
-  "hash": "725094285d31a575570241169e1d82f547e1610e05e24fc71cbc011447466996"
+  "creado_min": 6.85,
+  "partido_id": "final-01",
+  "expediente_id": "EXP-2026-000001",
+  "vence_propuesto_min": 105
 }
