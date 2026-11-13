@@ -2,19 +2,85 @@
   "voz": "es-AR-ElenaNeural",
   "velocidad": "+5%",
   "segmentos": [
-    {"id": "gancho", "etiqueta": "// 01 — el problema", "texto": "Cada fin de semana, el fútbol también se mira en sitios *piratas*."},
-    {"id": "problema", "etiqueta": "// 01 — el problema", "texto": "Un partido dura dos horas, pero un pirata cambia de *servidor* en minutos. Y hoy, bloquearlo depende de oficios y mails que llegan tarde."},
-    {"id": "solucion", "etiqueta": "// 02 — la solución", "texto": "Por eso creamos *Tarjeta Roja*: observa, analiza y actúa, mientras la pelota sigue rodando."},
-    {"id": "cancha", "etiqueta": "// 03 — en cancha", "texto": "Así lo ven el hincha y el dueño de los derechos: cada pirata expulsado es una *tarjeta roja*."},
-    {"id": "observa", "etiqueta": "// 04 — observa", "texto": "El radar detecta el stream y verifica la marca de agua del partido. Si es un licenciatario *autorizado*, lo descarta solo."},
-    {"id": "analiza", "etiqueta": "// 05 — analiza", "texto": "Si la IP es compartida con sitios legítimos, bloquea solo el *nombre*. Cero daño colateral."},
-    {"id": "evidencia", "etiqueta": "// 06 — evidencia", "texto": "Cada caso arma un expediente con *huellas digitales*, en una auditoría que nadie puede trucar."},
-    {"id": "firma", "etiqueta": "// 07 — firma", "texto": "El juez de turno recibe el pedido en el celular, en lenguaje claro, y firma con *un toque*."},
-    {"id": "actua", "etiqueta": "// 08 — actúa", "texto": "La orden firmada llega a *todos* los proveedores, grandes y chicos. Si alguno falla, se reenvía sola."},
-    {"id": "velocidad", "etiqueta": "// 09 — velocidad", "texto": "Del stream detectado al bloqueo pasa menos de *un minuto* de partido."},
-    {"id": "registro", "etiqueta": "// 10 — transparencia", "texto": "Y todo queda en un registro *público*: quién ordenó cada bloqueo, por qué y hasta cuándo."},
-    {"id": "resultados", "etiqueta": "// 11 — resultados", "texto": "Con el verificador oficial del desafío: siete de siete piratas bloqueados, apenas tres por ciento de visibilidad residual y *cero* sitios legítimos afectados."},
-    {"id": "modelo", "etiqueta": "// 12 — modelo", "texto": "Paga quien pierde plata con la piratería: el titular de los derechos. Para juzgados y proveedores es *gratis*."},
-    {"id": "cierre", "etiqueta": "// 13 — tarjeta roja", "texto": "Tarjeta Roja. Un juez, en segundos, con evidencia, y llegando a *todos*."}
+    {
+      "id": "gancho",
+      "etiqueta": "// 01 — el problema",
+      "texto": "Cada fin de semana, el fútbol también se mira en sitios *piratas*."
+    },
+    {
+      "id": "problema",
+      "etiqueta": "// 02 — el problema",
+      "texto": "Un partido dura dos horas, pero un pirata cambia de *servidor* en minutos. Y hoy, bloquearlo depende de oficios y mails que llegan tarde."
+    },
+    {
+      "id": "solucion",
+      "etiqueta": "// 03 — la solución",
+      "texto": "Por eso creamos *Tarjeta Roja*: observa, analiza y actúa, mientras la pelota sigue rodando."
+    },
+    {
+      "id": "cancha",
+      "etiqueta": "// 04 — en cancha",
+      "texto": "Así lo ven el hincha y el dueño de los derechos: cada pirata expulsado es una *tarjeta roja*."
+    },
+    {
+      "id": "observa",
+      "etiqueta": "// 05 — observa",
+      "texto": "El radar detecta el stream y verifica la marca de agua del partido. Si es un licenciatario *autorizado*, lo descarta solo."
+    },
+    {
+      "id": "analiza",
+      "etiqueta": "// 06 — analiza",
+      "texto": "Si la IP es compartida con sitios legítimos, bloquea solo el *nombre*. Cero daño colateral."
+    },
+    {
+      "id": "evidencia",
+      "etiqueta": "// 07 — evidencia",
+      "texto": "Cada caso arma un expediente con *huellas digitales*, en una auditoría que nadie puede trucar."
+    },
+    {
+      "id": "firma",
+      "etiqueta": "// 08 — firma",
+      "texto": "El juez de turno recibe el pedido en el celular, en lenguaje claro, y firma con *un toque*."
+    },
+    {
+      "id": "actua",
+      "etiqueta": "// 09 — actúa",
+      "texto": "La orden firmada llega a *todos* los proveedores, grandes y chicos. Si alguno falla, se reenvía sola."
+    },
+    {
+      "id": "velocidad",
+      "etiqueta": "// 10 — velocidad",
+      "texto": "Del stream detectado al bloqueo pasa menos de *un minuto* de partido."
+    },
+    {
+      "id": "reclamo",
+      "etiqueta": "// 11 — reclamos",
+      "texto": "¿Y si igual cae un sitio legítimo? El dueño reclama, la plataforma lo verifica y el juez levanta el bloqueo con su firma, en todos los proveedores. Resuelto en *segundos*."
+    },
+    {
+      "id": "vencimiento",
+      "etiqueta": "// 12 — vencimiento",
+      "texto": "Y cuando termina el partido, cada bloqueo *vence solo*. Nada queda bloqueado de más."
+    },
+    {
+      "id": "registro",
+      "etiqueta": "// 13 — transparencia",
+      "texto": "Y todo queda en un registro *público*: quién ordenó cada bloqueo, por qué y hasta cuándo."
+    },
+    {
+      "id": "verificador",
+      "etiqueta": "// 14 — resultados",
+      "texto": "Y no lo decimos nosotros: lo mide el verificador oficial del desafío. Siete de siete piratas bloqueados, tres por ciento de visibilidad residual, y *cero* sitios legítimos afectados."
+    },
+    {
+      "id": "modelo",
+      "etiqueta": "// 15 — modelo",
+      "texto": "Paga quien pierde plata con la piratería: el titular de los derechos. Para juzgados y proveedores es *gratis*."
+    },
+    {
+      "id": "cierre",
+      "etiqueta": "// 16 — tarjeta roja",
+      "texto": "Tarjeta Roja. Un juez, en segundos, con evidencia, y llegando a *todos*."
+    }
   ]
 }

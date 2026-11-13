@@ -71,6 +71,14 @@
     background-image: radial-gradient(circle, var(--negro) 45%, transparent 47%); background-size: 26px 26px; }
   #puntos.va { animation: puntos .9s ease-in-out both; }
   @keyframes puntos { 0% { opacity: 0; background-size: 26px 26px; } 20% { opacity: 1; } 50% { opacity: 1; background-size: 26px 26px; filter: none; } 100% { opacity: 0; background-size: 260px 260px; } }
+  #terminal { position: absolute; left: 500px; top: 70px; width: 740px; height: 500px; z-index: 6; background: #0D1117; border: 2px solid #141414; border-radius: 12px;
+    box-shadow: 8px 10px 0 rgba(20,20,20,.9); padding: 16px 22px; font: 600 17px/1.55 ui-monospace, Consolas, monospace; color: #C9D1D9; overflow: hidden; display: none; }
+  #terminal.si { display: block; animation: aparece .35s cubic-bezier(.2,.9,.3,1.3); }
+  #terminal .cab { color: #8B949E; margin-bottom: 10px; }
+  #terminal .cab b { color: #CCFF00; }
+  #terminal p { margin: 0; opacity: 0; transform: translateX(-8px); transition: opacity .2s, transform .2s; white-space: pre; }
+  #terminal p.si { opacity: 1; transform: none; }
+  #terminal p.ok { color: #CCFF00; }
   #telon { position: absolute; inset: 0; z-index: 30; background: var(--negro); color: #fff; display: grid; place-items: center; text-align: center; transition: opacity .6s; }
   #telon b { display: block; font: italic 900 74px/0.9 "Barlow Condensed"; text-transform: uppercase; }
   #telon b em { font-style: italic; color: var(--rojo); }
@@ -94,6 +102,7 @@
   </div>
   <div id="ventana"><div id="cromo"><b></b><b></b><b></b><span id="url">tarjetaroja.ar</span></div><iframe id="app" src="about:blank"></iframe></div>
   <div id="capa"></div>
+  <div id="terminal"></div>
   <span class="garabato" style="left:470px;top:60px">+</span><span class="garabato" style="right:20px;top:560px">○</span><span class="garabato" style="left:1250px;top:60px">✕</span>
   <canvas id="avatar" width="520" height="480"></canvas>
   <div id="franjas"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -245,6 +254,14 @@ window.quitar = (id) => $(id)?.remove();
 window.rojas = (n) => { let r = $("rojas"); if (!r) { r = document.createElement("div"); r.id = "rojas"; r.className = "sticker"; document.body.append(r); }
   while (r.children.length < n) r.append(document.createElement("i")); };
 window.transicion = (tipo) => { const el = $(tipo === "puntos" ? "puntos" : "franjas"); el.classList.remove("va"); void el.offsetWidth; el.classList.add("va"); };
+window.terminal = (cabecera, lineas, paso = 0.32) => {
+  const t = $("terminal"); t.replaceChildren(); t.classList.add("si");
+  const c = document.createElement("div"); c.className = "cab"; c.innerHTML = "$ <b>python evaluacion/verificar.py</b> --log registro.jsonl"; t.append(c);
+  const sub = document.createElement("div"); sub.className = "cab"; sub.textContent = cabecera; t.append(sub);
+  lineas.forEach((l, i) => { const p = document.createElement("p"); p.textContent = l;
+    if (/7 de 7| 0$/.test(l)) p.className = "ok"; t.append(p); setTimeout(() => p.classList.add("si"), 300 + i * paso * 1000); });
+};
+window.quitarTerminal = () => $("terminal").classList.remove("si");
 window.telon = () => $("telon").classList.remove("fuera");
 cuadro();
 </script>

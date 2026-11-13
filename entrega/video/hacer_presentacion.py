@@ -20,6 +20,22 @@ import comun as hv  # noqa: E402
 
 D, AQUI, APP, PIN = hv.D, hv.AQUI, hv.APP, hv.PIN
 ACELERAR, NOMBRE = 30, "presentacion"
+RECLAMO = hv.RAIZ / "salida" / "video-reclamo"     # partido_completo --escenario reclamos --falla dns-desactualizado
+TERMINADO = hv.RAIZ / "salida" / "e2e-login"       # partido_completo de práctica (x30)
+
+
+def _resumen_verificador() -> list:
+    lineas = (TERMINADO / "verificar.txt").read_text(encoding="utf-8").splitlines()
+    i = lineas.index("Resumen") + 1
+    out = []
+    for l in lineas[i:]:
+        if not l.strip():
+            break
+        out.append(l.strip())
+    return out
+
+
+RESUMEN = []
 
 
 def grabar(segmentos: list):
@@ -29,6 +45,11 @@ def grabar(segmentos: list):
     procesos = [hv.levantar([hv.PY, "-m", "uvicorn", "plataforma.api.app:app", "--port", "8000"], "api.log",
                             {"DATABASE_URL": base, "JUEZ_PIN": PIN}),
                 hv.levantar([sys.executable, "-m", "http.server", "8765", "--bind", "127.0.0.1", "-d", str(D)], "http.log")]
+    # Partidos ya jugados y verificados, servidos por la misma app: uno con un reclamo resuelto y uno terminado.
+    for nombre, origen, puerto in (("reclamo", RECLAMO, "8001"), ("final", TERMINADO, "8002")):
+        shutil.copy(origen / "plataforma.db", D / f"{nombre}.db")
+        procesos.append(hv.levantar([hv.PY, "-m", "uvicorn", "plataforma.api.app:app", "--port", puerto], f"api-{nombre}.log",
+                                    {"DATABASE_URL": f"sqlite:///salida/video/{nombre}.db", "JUEZ_PIN": PIN}))
     juez = hv.JuezDeFondo()
     S = {s["id"]: s for s in segmentos}
     # El pedido real del minuto 37,6 tiene que llegar ~3 s después de que empieza la escena del juez.
@@ -169,24 +190,48 @@ def grabar(segmentos: list):
             # 09 velocidad
             inicio("velocidad"); ev("limpiar(); pose('abre')"); resaltar("#streams .stream__tiempo", "al primer bloqueo")
             esperar(palabra("velocidad", 9)); ev("relojito(\"<1'\", 'al bloqueo')")
-            # 10 registro
-            inicio("registro", 0.45); ev("transicion('puntos')"); inicio("registro", 0.05)
-            ev(f"limpiar(); quitar('reloj'); app('{APP}/registro', 'navegador', 'tarjetaroja.ar/registro'); paso(4); pose('senala')")
+            # 10 reclamo resuelto (partido con hosting compartido, ya jugado y verificado)
+            inicio("reclamo", 0.45); ev("transicion('puntos')"); inicio("reclamo", 0.05)
+            ev(f"limpiar(); quitar('reloj'); app('http://127.0.0.1:8001/monitoreo?v={time.time():.0f}', 'navegador', 'tarjetaroja.ar/monitoreo'); pose('abre')")
+            try:
+                app.locator("#reclamos .reclamo").first.wait_for(timeout=8000)
+            except Exception as e:
+                print("[escena] reclamo no apareció:", e)
+            ir("#t-reclamos", "center"); time.sleep(0.4)
+            resaltar("#reclamos .reclamo", "reclamo verificado")
+            esperar(palabra("reclamo", 18)); ev("pose('senala'); pildora('levantado con firma', 600, 520)")
+            esperar(palabra("reclamo", 27)); ev("limpiar(); sello('Resuelto'); pose('festeja')")
+            # 11 vencimiento (partido terminado)
+            inicio("vencimiento"); ev(f"limpiar(); app('http://127.0.0.1:8002/monitoreo?v={time.time():.0f}', 'navegador', 'tarjetaroja.ar/monitoreo'); paso(4); pose('senala')")
             tilda("Vence")
+            limite = time.monotonic() + 8
+            while time.monotonic() < limite and not any(f.url.startswith("http://127.0.0.1:8002") for f in pg.frames):
+                time.sleep(0.1)
+            try:
+                marco = next(f for f in pg.frames if f.url.startswith("http://127.0.0.1:8002"))
+                marco.wait_for_load_state("domcontentloaded", timeout=8000)
+                marco.locator("#streams .stream").first.wait_for(timeout=8000)
+            except Exception as e:
+                print("[escena] vencimiento no cargó:", e)
+            ir("#t-streams"); time.sleep(0.4); resaltar("#streams .stream .proveedores", "vencida")
+            esperar(palabra("vencimiento", 10)); ev("pildora('0 IP bloqueadas después del partido', 560, 520, true)")
+            # 12 registro
+            inicio("registro", 0.1)
+            ev(f"limpiar(); app('{APP}/registro', 'navegador', 'tarjetaroja.ar/registro'); pose('senala')")
             esperar(S["registro"]["inicio"] + 1.5)
             try:
                 ir("#buscar", "center"); app.locator("#buscar").press_sequentially("pelotaya", delay=110, timeout=5000)
             except Exception as e:
                 print("[escena] buscar", e)
             time.sleep(0.5); resaltar("#entradas .entrada", "quién · por qué · hasta cuándo")
-            # 11 resultados
-            inicio("resultados"); ev(f"limpiar(); paso(null); app('{APP}/', 'navegador', 'tarjetaroja.ar'); pose('festeja')")
-            esperar(S["resultados"]["inicio"] + 0.8); ir("#t-resultados")
-            esperar(palabra("resultados", 9)); ev("sello('7 de 7')")
-            esperar(palabra("resultados", 14)); ev("limpiar(); pildora('≈ 3 %', 820, 470)")
-            esperar(palabra("resultados", 19)); ev("pildora('0 sitios legítimos', 620, 520)")
-            # 12 modelo
-            inicio("modelo"); ev("limpiar(); pose('abre')"); ir("#t-modelo")
+            # 13 verificador oficial: salida real de evaluacion/verificar.py del partido terminado
+            inicio("verificador"); ev("limpiar(); paso(null); pose('senala')")
+            ev(f"terminal({json.dumps('Evaluación del escenario practica-01 · registro hasta el minuto 110')}, {json.dumps(RESUMEN, ensure_ascii=False)}, 0.38)")
+            esperar(palabra("verificador", 16)); ev("pose('festeja')")
+            esperar(palabra("verificador", 21)); ev("sello('7 de 7')")
+            # 14 modelo
+            inicio("modelo"); ev(f"limpiar(); quitarTerminal(); app('{APP}/', 'navegador', 'tarjetaroja.ar'); pose('abre')")
+            esperar(S["modelo"]["inicio"] + 0.6); ir("#t-modelo")
             esperar(palabra("modelo", 13)); time.sleep(0.2); resaltar(".precio--destacado", "paga el titular")
             esperar(palabra("modelo", 18)); ev("pildora('juzgados y proveedores: gratis', 640, 520, true)")
             # 13 cierre
@@ -212,6 +257,10 @@ def main():
     D.mkdir(parents=True, exist_ok=True)
     if not (D / "modelo.vrm").exists():
         sys.exit("Falta salida/video/modelo.vrm")
+    for carpeta in (RECLAMO, TERMINADO):
+        if not (carpeta / "plataforma.db").exists():
+            sys.exit(f"Falta {carpeta}: correr plataforma.pruebas.partido_completo (ver el docstring)")
+    RESUMEN.extend(_resumen_verificador())
     shutil.copy(AQUI / "escenario_presentacion.html", D / "escenario_presentacion.html")
     guion = json.loads((AQUI / "guion_presentacion.json").read_text(encoding="utf-8"))
     segmentos = hs.voz(guion, NOMBRE)
