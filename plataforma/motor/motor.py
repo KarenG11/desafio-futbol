@@ -129,14 +129,17 @@ class Motor:
             self.log(f"[motor] simulador no responde: {e}")
             self._publicar_estado()
             return
-        self._controlar_turno(est)
-        self._procesar_detecciones()
-        if self.juez_automatico:
-            self._juez_automatico()
-        self._despachar_aprobados()
-        self.despacho.seguir([p["id"] for p in self.proveedores], self.firmante(), self.ahora(), self.fin_min)
-        self._procesar_reclamos()
-        self._procesar_solicitudes()
+        try:
+            self._controlar_turno(est)
+            self._procesar_detecciones()
+            if self.juez_automatico:
+                self._juez_automatico()
+            self._despachar_aprobados()
+            self.despacho.seguir([p["id"] for p in self.proveedores], self.firmante(), self.ahora(), self.fin_min)
+            self._procesar_reclamos()
+            self._procesar_solicitudes()
+        except ErrorRed as e:      # un corte de red del simulador no detiene el partido: se reintenta en el próximo ciclo
+            self.log(f"[motor] corte de red, se reintenta: {e}")
         self._publicar_estado()
         if self.ahora() >= self.fin_min + GRACIA_MIN + 0.5:
             self.terminado = True
